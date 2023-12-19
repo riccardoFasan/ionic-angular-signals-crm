@@ -1,28 +1,190 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { IonApp, IonSplitPane, IonMenu, IonContent, IonList, IonListHeader, IonNote, IonMenuToggle, IonItem, IonIcon, IonLabel, IonRouterOutlet } from '@ionic/angular/standalone';
+import {
+  IonApp,
+  IonSplitPane,
+  IonMenu,
+  IonContent,
+  IonList,
+  IonListHeader,
+  IonNote,
+  IonMenuToggle,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonRouterOutlet,
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { mailOutline, mailSharp, paperPlaneOutline, paperPlaneSharp, heartOutline, heartSharp, archiveOutline, archiveSharp, trashOutline, trashSharp, warningOutline, warningSharp, bookmarkOutline, bookmarkSharp } from 'ionicons/icons';
+import {
+  pricetagSharp,
+  pricetagOutline,
+  bookSharp,
+  bookOutline,
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-root',
-  templateUrl: 'app.component.html',
-  styleUrls: ['app.component.scss'],
+  template: `
+    <ion-app>
+      <ion-split-pane contentId="main-content">
+        <ion-menu contentId="main-content" type="overlay">
+          <ion-content>
+            <ion-list>
+              <ion-list-header>Food diary</ion-list-header>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="diary"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    [ios]="'book-outline'"
+                    [md]="'book-sharp'"
+                  />
+                  <ion-label>Diary</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="events"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    [ios]="'pricetag-outline'"
+                    [md]="'pricetag-sharp'"
+                  />
+                  <ion-label>Custom events</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+            </ion-list>
+          </ion-content>
+        </ion-menu>
+        <ion-router-outlet id="main-content"></ion-router-outlet>
+      </ion-split-pane>
+    </ion-app>
+  `,
+  styles: [
+    `
+      ion-menu ion-content {
+        --background: var(
+          --ion-item-background,
+          var(--ion-background-color, #fff)
+        );
+
+        ion-list ion-list-header {
+          margin-bottom: 30px;
+        }
+
+        &.md {
+          --padding-start: 8px;
+          --padding-end: 8px;
+          --padding-top: 20px;
+          --padding-bottom: 20px;
+
+          ion-list {
+            padding: 20px 0;
+
+            ion-list-header {
+              font-size: 22px;
+              font-weight: 600;
+              min-height: 20px;
+              padding-left: 10px;
+            }
+
+            ion-item {
+              --padding-start: 10px;
+              --padding-end: 10px;
+              border-radius: 4px;
+
+              ion-label {
+                font-weight: 500;
+              }
+
+              ion-icon {
+                color: #616e7e;
+              }
+
+              &.selected {
+                --background: rgba(var(--ion-color-primary-rgb), 0.14);
+
+                ion-icon {
+                  color: var(--ion-color-primary);
+                }
+              }
+            }
+          }
+        }
+
+        &.ios {
+          --padding-bottom: 20px;
+
+          ion-list {
+            padding: 20px 0 0 0;
+
+            ion-list-header {
+              padding-left: 16px;
+              padding-right: 16px;
+            }
+
+            ion-item {
+              --padding-start: 16px;
+              --padding-end: 16px;
+              --min-height: 50px;
+
+              ion-icon {
+                font-size: 24px;
+                color: #73849a;
+              }
+
+              &.selected {
+                --color: var(--ion-color-primary);
+
+                ion-icon {
+                  color: var(--ion-color-primary);
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+  ],
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, CommonModule, IonApp, IonSplitPane, IonMenu, IonContent, IonList, IonListHeader, IonNote, IonMenuToggle, IonItem, IonIcon, IonLabel, IonRouterOutlet],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    IonApp,
+    IonSplitPane,
+    IonMenu,
+    IonContent,
+    IonList,
+    IonListHeader,
+    IonNote,
+    IonMenuToggle,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonRouterOutlet,
+  ],
 })
 export class AppComponent {
-  public appPages = [
-    { title: 'Inbox', url: '/folder/inbox', icon: 'mail' },
-    { title: 'Outbox', url: '/folder/outbox', icon: 'paper-plane' },
-    { title: 'Favorites', url: '/folder/favorites', icon: 'heart' },
-    { title: 'Archived', url: '/folder/archived', icon: 'archive' },
-    { title: 'Trash', url: '/folder/trash', icon: 'trash' },
-    { title: 'Spam', url: '/folder/spam', icon: 'warning' },
-  ];
-  public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
   constructor() {
-    addIcons({ mailOutline, mailSharp, paperPlaneOutline, paperPlaneSharp, heartOutline, heartSharp, archiveOutline, archiveSharp, trashOutline, trashSharp, warningOutline, warningSharp, bookmarkOutline, bookmarkSharp });
+    addIcons({
+      pricetagSharp,
+      pricetagOutline,
+      bookSharp,
+      bookOutline,
+    });
   }
 }

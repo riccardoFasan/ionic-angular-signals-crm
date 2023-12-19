@@ -6,9 +6,35 @@
     "app": {
       "projectType": "application",
       "schematics": {
+        "@schematics/angular:component": {
+          "standalone": true,
+          "changeDetection": "OnPush",
+          "style": "scss",
+          "skipTests": true
+        },
+        "@schematics/angular:pipe": {
+          "standalone": true,
+          "skipTests": true,
+          "flat": true
+        },
+        "@schematics/angular:directive": {
+          "standalone": true,
+          "skipTests": true,
+          "flat": true
+        },
+        "@schematics/angular:service": {
+          "skipTests": true,
+          "flat": true
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true,
+          "flat": true
+        },
         "@ionic/angular-toolkit:page": {
-          "styleext": "scss",
-          "standalone": true
+          "standalone": true,
+          "changeDetection": "OnPush",
+          "style": "scss",
+          "skipTests": true
         }
       },
       "root": "",

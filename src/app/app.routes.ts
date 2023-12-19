@@ -1,14 +1,17 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [
+export const APP_ROUTES: Routes = [
   {
     path: '',
-    redirectTo: 'folder/inbox',
+    redirectTo: 'diary',
     pathMatch: 'full',
   },
   {
-    path: 'folder/:id',
-    loadComponent: () =>
-      import('./folder/folder.page').then((m) => m.FolderPage),
+    path: 'diary',
+    loadComponent: () => import('./diary/diary.page').then((m) => m.DiaryPage),
+  },
+  {
+    path: 'events',
+    loadComponent: () => import('./diary/diary.page').then((m) => m.DiaryPage),
   },
 ];
