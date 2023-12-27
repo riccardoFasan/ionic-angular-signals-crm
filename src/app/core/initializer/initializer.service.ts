@@ -1,5 +1,6 @@
 import { Injectable, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Subject, defer, filter, switchMap, tap } from 'rxjs';
 import { ActivityTypeApiService } from 'src/app/features/activity-types/data-access';
@@ -12,11 +13,13 @@ import {
   IngredientApiService,
 } from 'src/app/features/foods/data-access';
 import { TagApiService } from 'src/app/features/tags/data-access';
+import { DatabaseService } from '../data-access';
 
 @Injectable({
   providedIn: 'root',
 })
 export class InitializerService {
+  private readonly database = inject(DatabaseService);
   private readonly tagApi = inject(TagApiService);
   private readonly activityTypeApi = inject(ActivityTypeApiService);
   private readonly activityApi = inject(ActivityApiService);
@@ -34,6 +37,7 @@ export class InitializerService {
         takeUntilDestroyed(),
         filter(() => !this.initialized()),
         switchMap(() => defer(() => this.initDatabase())),
+
         tap(() => this.initialized.set(true))
       )
       .subscribe();
@@ -51,6 +55,10 @@ export class InitializerService {
   }
 
   private async initDatabase(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) {
+      await this.database.initWebStore();
+    }
+
     const activityAndRelated = Promise.all([
       this.tagApi.createTagTable(),
       this.activityTypeApi.createActivityTypeTable(),
@@ -65,10 +73,12 @@ export class InitializerService {
       this.mealApi.createMealFoodsTable(),
     ]);
     await Promise.all([activityAndRelated, foodAndRelated]);
+
+    console.log('merda');
   }
 
   private async showSplashScreen(): Promise<void> {
-    await SplashScreen.hide();
+    await SplashScreen.hide(); // must called at start (read docs)
     await SplashScreen.show({ autoHide: false });
   }
 

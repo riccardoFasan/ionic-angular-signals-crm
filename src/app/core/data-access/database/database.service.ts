@@ -6,6 +6,13 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class DatabaseService {
+  async initWebStore(): Promise<void> {
+    const sqlite = new SQLiteConnection(CapacitorSQLite);
+    console.log(sqlite);
+    await sqlite.initWebStore();
+    await sqlite.closeAllConnections();
+  }
+
   async execute(statement: string): Promise<any> {
     const sqlite = new SQLiteConnection(CapacitorSQLite);
     const dbSettings = environment.database;
