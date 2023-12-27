@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   IonApp,
@@ -14,17 +14,8 @@ import {
   IonLabel,
   IonRouterOutlet,
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import {
-  pricetagSharp,
-  pricetagOutline,
-  bookSharp,
-  bookOutline,
-  calendarSharp,
-  calendarOutline,
-  fastFoodSharp,
-  fastFoodOutline,
-} from 'ionicons/icons';
+
+import { InitializerService } from './core/initializer/initializer.service';
 
 @Component({
   selector: 'app-root',
@@ -219,16 +210,9 @@ import {
   ],
 })
 export class AppComponent {
+  private readonly initializer = inject(InitializerService);
+
   constructor() {
-    addIcons({
-      pricetagSharp,
-      pricetagOutline,
-      bookSharp,
-      bookOutline,
-      calendarSharp,
-      calendarOutline,
-      fastFoodSharp,
-      fastFoodOutline,
-    });
+    this.initializer.initialize$.next();
   }
 }
