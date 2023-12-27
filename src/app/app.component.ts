@@ -20,6 +20,10 @@ import {
   pricetagOutline,
   bookSharp,
   bookOutline,
+  calendarSharp,
+  calendarOutline,
+  fastFoodSharp,
+  fastFoodOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -53,7 +57,43 @@ import {
               <ion-menu-toggle auto-hide="false">
                 <ion-item
                   routerDirection="root"
-                  routerLink="events"
+                  routerLink="foods"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    [ios]="'fast-food-outline'"
+                    [md]="'fast-food-sharp'"
+                  />
+                  <ion-label>Foods</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="activity-types"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    [ios]="'calendar-outline'"
+                    [md]="'calendar-sharp'"
+                  />
+                  <ion-label>Activity tyes</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="tags"
                   lines="none"
                   detail="false"
                   routerLinkActive="selected"
@@ -64,7 +104,7 @@ import {
                     [ios]="'pricetag-outline'"
                     [md]="'pricetag-sharp'"
                   />
-                  <ion-label>Custom events</ion-label>
+                  <ion-label>Tags</ion-label>
                 </ion-item>
               </ion-menu-toggle>
             </ion-list>
@@ -185,6 +225,10 @@ export class AppComponent {
       pricetagOutline,
       bookSharp,
       bookOutline,
+      calendarSharp,
+      calendarOutline,
+      fastFoodSharp,
+      fastFoodOutline,
     });
   }
 }

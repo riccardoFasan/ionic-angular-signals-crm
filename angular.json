@@ -10,31 +10,21 @@
           "standalone": true,
           "changeDetection": "OnPush",
           "style": "scss",
-          "skipTests": true
+          "inlineTemplate": true,
+          "inlineStyle": true
         },
         "@schematics/angular:pipe": {
-          "standalone": true,
-          "skipTests": true,
-          "flat": true
+          "standalone": true
         },
         "@schematics/angular:directive": {
-          "standalone": true,
-          "skipTests": true,
-          "flat": true
-        },
-        "@schematics/angular:service": {
-          "skipTests": true,
-          "flat": true
-        },
-        "@schematics/angular:interceptor": {
-          "skipTests": true,
-          "flat": true
+          "standalone": true
         },
         "@ionic/angular-toolkit:page": {
           "standalone": true,
           "changeDetection": "OnPush",
           "style": "scss",
-          "skipTests": true
+          "inlineTemplate": true,
+          "inlineStyle": true
         }
       },
       "root": "",

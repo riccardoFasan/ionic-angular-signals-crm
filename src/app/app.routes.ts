@@ -8,10 +8,24 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: 'diary',
-    loadComponent: () => import('./diary/diary.page').then((m) => m.DiaryPage),
+    loadChildren: () =>
+      import('./features/diary/diary.routes').then((m) => m.DIARY_ROUTES),
   },
   {
-    path: 'events',
-    loadComponent: () => import('./diary/diary.page').then((m) => m.DiaryPage),
+    path: 'activity-types',
+    loadChildren: () =>
+      import('./features/activity-types/activity-types.routes').then(
+        (m) => m.ACTIVITY_TYPES_ROUTES,
+      ),
+  },
+  {
+    path: 'tags',
+    loadChildren: () =>
+      import('./features/tags/tags.routes').then((m) => m.TAGS_ROUTES),
+  },
+  {
+    path: 'foods',
+    loadChildren: () =>
+      import('./features/foods/foods.routes').then((m) => m.FOODS_ROUTES),
   },
 ];
