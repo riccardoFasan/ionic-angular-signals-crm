@@ -4,6 +4,16 @@
 
 export const environment = {
   production: false,
+  CapacitorSQLite: {
+    androidIsEncryption: false,
+  },
+  database: {
+    name: 'food-diary-dev-db',
+    encrypted: false,
+    mode: 'no-encryption',
+    version: 1,
+    readonly: false,
+  },
 };
 
 /*

@@ -86,7 +86,7 @@ import {
                     [ios]="'calendar-outline'"
                     [md]="'calendar-sharp'"
                   />
-                  <ion-label>Activity tyes</ion-label>
+                  <ion-label>Activity types</ion-label>
                 </ion-item>
               </ion-menu-toggle>
 
