@@ -37,7 +37,6 @@ export class InitializerService {
         takeUntilDestroyed(),
         filter(() => !this.initialized()),
         switchMap(() => defer(() => this.initDatabase())),
-
         tap(() => this.initialized.set(true))
       )
       .subscribe();
@@ -55,9 +54,7 @@ export class InitializerService {
   }
 
   private async initDatabase(): Promise<void> {
-    if (!Capacitor.isNativePlatform()) {
-      await this.database.initWebStore();
-    }
+    await this.database.createConnection();
 
     const activityAndRelated = Promise.all([
       this.tagApi.createTagTable(),
@@ -65,6 +62,7 @@ export class InitializerService {
       this.activityApi.createActivityTable(),
       this.activityApi.createActivityTagsTable(),
     ]);
+
     const foodAndRelated = Promise.all([
       this.ingredientApi.createIngredientTable(),
       this.foodApi.createFoodTable(),
@@ -72,9 +70,8 @@ export class InitializerService {
       this.mealApi.createMealTable(),
       this.mealApi.createMealFoodsTable(),
     ]);
-    await Promise.all([activityAndRelated, foodAndRelated]);
 
-    console.log('merda');
+    await Promise.all([activityAndRelated, foodAndRelated]);
   }
 
   private async showSplashScreen(): Promise<void> {
