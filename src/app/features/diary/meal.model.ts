@@ -1,4 +1,4 @@
-import { Food } from '../foods/food.model';
+import { Food } from '../foods/data-access/food.model';
 
 export type Meal = {
   id: number;

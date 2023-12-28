@@ -1,58 +1,35 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  FoodApiService,
-  FoodDTO,
-  FoodIngredientApiService,
-  IngredientApiService,
-  IngredientDTO,
-} from '../database';
+import { FoodApiService, FoodDTO, FoodIngredientApiService } from '../database';
 import { List } from 'src/app/shared/utility';
-import { Ingredient } from '../../ingredient.model';
-import { Food } from '../../food.model';
+import { Ingredient } from '../ingredient.model';
+import { Food } from '../food.model';
+import { IngredientsFacadeService } from '../ingredients-facade/ingredients-facade.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FoodsFacadeService {
   private readonly foodApi = inject(FoodApiService);
-  private readonly ingredientApi = inject(IngredientApiService);
   private readonly foodIngredientApi = inject(FoodIngredientApiService);
-
-  async getIngredientList(
-    page: number,
-    pageSize: number
-  ): Promise<List<Ingredient>> {
-    const list = await this.ingredientApi.getIngredientList(page, pageSize);
-    return { ...list, items: list.items.map(this.mapFromIngredientDto) };
-  }
+  private readonly ingredientsFacade = inject(IngredientsFacadeService);
 
   async getFoodList(page: number, pageSize: number): Promise<List<Food>> {
     const list = await this.foodApi.getFoodList(page, pageSize);
-    const ingredientDTOs = await Promise.all(
-      list.items.map((foodDTO) => this.getIngredientDTOsOfFood(foodDTO.id))
+    const foodsIngredients = await Promise.all(
+      list.items.map((foodDTO) => this.getIngredientsOfFood(foodDTO.id))
     );
     const items = list.items.map((foodDTO, i) =>
-      this.mapFromFoodDto(foodDTO, ingredientDTOs[i])
+      this.mapFromDTO(foodDTO, foodsIngredients[i])
     );
     return { ...list, items };
   }
 
-  async getIngredient(ingredientId: number): Promise<Ingredient> {
-    const ingredientDTO = await this.ingredientApi.getIngredient(ingredientId);
-    return this.mapFromIngredientDto(ingredientDTO);
-  }
-
   async getFood(foodId: number): Promise<Food> {
-    const [foodDTO, ingredientDTOs] = await Promise.all([
+    const [foodDTO, ingredients] = await Promise.all([
       this.foodApi.getFood(foodId),
-      this.getIngredientDTOsOfFood(foodId),
+      this.getIngredientsOfFood(foodId),
     ]);
-    return this.mapFromFoodDto(foodDTO, ingredientDTOs);
-  }
-
-  async createIngredient(name: string, notes?: string): Promise<Ingredient> {
-    const ingredientId = await this.ingredientApi.createIngredient(name, notes);
-    return await this.getIngredient(ingredientId);
+    return this.mapFromDTO(foodDTO, ingredients);
   }
 
   async createFood(
@@ -71,15 +48,6 @@ export class FoodsFacadeService {
     return await this.getFood(foodId);
   }
 
-  async updateIngredient(
-    ingredientId: number,
-    name: string,
-    notes?: string
-  ): Promise<Ingredient> {
-    await this.ingredientApi.updateIngredient(ingredientId, name, notes);
-    return await this.getIngredient(ingredientId);
-  }
-
   async updateFood(
     foodId: number,
     name: string,
@@ -94,26 +62,18 @@ export class FoodsFacadeService {
     return await this.getFood(foodId);
   }
 
-  async deleteIngredient(ingredientId: number): Promise<Ingredient> {
-    const ingredient = await this.getIngredient(ingredientId);
-    await this.ingredientApi.deleteIngredient(ingredientId);
-    return ingredient;
-  }
-
   async deleteFood(foodId: number): Promise<Food> {
     const food = await this.getFood(foodId);
     await this.foodApi.deleteFood(foodId);
     return food;
   }
 
-  private async getIngredientDTOsOfFood(
-    foodId: number
-  ): Promise<IngredientDTO[]> {
+  private async getIngredientsOfFood(foodId: number): Promise<Ingredient[]> {
     const foodIngredientDTOs =
       await this.foodIngredientApi.getFoodIngredientsOfFood(foodId);
     return await Promise.all(
       foodIngredientDTOs.map((foodIngredientDTO) =>
-        this.ingredientApi.getIngredient(foodIngredientDTO.ingredient_id)
+        this.ingredientsFacade.getIngredient(foodIngredientDTO.ingredient_id)
       )
     );
   }
@@ -166,27 +126,14 @@ export class FoodsFacadeService {
     ]);
   }
 
-  private mapFromIngredientDto(ingredientDTO: IngredientDTO): Ingredient {
-    return {
-      id: ingredientDTO.id,
-      createdAt: new Date(ingredientDTO.created_at),
-      updatedAt: new Date(ingredientDTO.updated_at),
-      name: ingredientDTO.name,
-      notes: ingredientDTO.notes,
-    };
-  }
-
-  private mapFromFoodDto(
-    foodDTO: FoodDTO,
-    ingredientDtos: IngredientDTO[]
-  ): Food {
+  private mapFromDTO(foodDTO: FoodDTO, ingredients: Ingredient[] = []): Food {
     return {
       id: foodDTO.id,
       createdAt: new Date(foodDTO.created_at),
       updatedAt: new Date(foodDTO.updated_at),
       name: foodDTO.name,
       notes: foodDTO.notes,
-      ingredients: ingredientDtos.map(this.mapFromIngredientDto),
+      ingredients,
     };
   }
 }

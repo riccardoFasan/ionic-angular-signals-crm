@@ -8,6 +8,6 @@ export type Activity = {
   name: string;
   at: string;
   type: ActivityType;
-  tags: Tag;
+  tags: Tag[];
   notes?: string;
 };
