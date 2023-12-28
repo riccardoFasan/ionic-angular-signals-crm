@@ -2,7 +2,7 @@ import { Injectable, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Subject, defer, filter, switchMap, tap } from 'rxjs';
-import { ActivityTypeApiService } from 'src/app/features/activity-types/data-access';
+import { ActivityTypeApiService } from 'src/app/features/activity-types/data-access/database';
 import {
   ActivityApiService,
   MealApiService,
@@ -61,7 +61,7 @@ export class InitializerService {
       this.tagApi.createTable(),
       this.activityTypeApi.createTable(),
       this.activityApi.createTable(),
-      this.activityApi.createTable(),
+      // this.activityApi.createTable(),
     ]);
 
     const foodAndRelated = Promise.all([
@@ -69,7 +69,7 @@ export class InitializerService {
       this.foodApi.createTable(),
       this.foodIngredientApi.createTable(),
       this.mealApi.createTable(),
-      this.mealApi.createTable(),
+      // this.mealApi.createTable(),
     ]);
 
     await Promise.all([activityAndRelated, foodAndRelated]);

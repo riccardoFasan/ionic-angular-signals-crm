@@ -19,17 +19,17 @@ export class MealApiService {
       );`);
   }
 
-  async createTable(): Promise<void> {
-    await this.database.query(`
-      CREATE TABLE IF NOT EXISTS meal_foods (
-        id INTEGER PRIMARY KEY,
-        created_at DATETIME NOT NULL,
-        updated_at DATETIME NOT NULL,
-        meal_id INTEGER NOT NULL,
-        food_id INTEGER NOT NULL,
-        quantity REAL NOT NULL,
-        FOREIGN KEY (meal_id) REFERENCES meal (id),
-        FOREIGN KEY (food_id) REFERENCES food (id)
-      );`);
-  }
+  // async createTable(): Promise<void> {
+  //   await this.database.query(`
+  //     CREATE TABLE IF NOT EXISTS meal_foods (
+  //       id INTEGER PRIMARY KEY,
+  //       created_at DATETIME NOT NULL,
+  //       updated_at DATETIME NOT NULL,
+  //       meal_id INTEGER NOT NULL,
+  //       food_id INTEGER NOT NULL,
+  //       quantity REAL NOT NULL,
+  //       FOREIGN KEY (meal_id) REFERENCES meal (id),
+  //       FOREIGN KEY (food_id) REFERENCES food (id)
+  //     );`);
+  // }
 }

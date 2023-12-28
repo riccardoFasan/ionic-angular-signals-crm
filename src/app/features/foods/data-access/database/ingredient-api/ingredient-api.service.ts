@@ -65,9 +65,6 @@ export class IngredientApiService {
   }
 
   async delete(id: number): Promise<void> {
-    await this.database.query(
-      `DELETE FROM ingredient
-      WHERE id = ${id};`,
-    );
+    await this.database.query(`DELETE FROM ingredient WHERE id = ${id};`);
   }
 }

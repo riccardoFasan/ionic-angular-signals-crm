@@ -1,1 +1,2 @@
-export * from './activity-type-api/activity-type-api.service';
+export * from './activity-type.model';
+export * from './activity-types-facade/activity-types-facade.service';
