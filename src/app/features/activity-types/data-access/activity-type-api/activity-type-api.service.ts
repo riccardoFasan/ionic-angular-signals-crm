@@ -7,7 +7,7 @@ import { DatabaseService } from 'src/app/shared/utility';
 export class ActivityTypeApiService {
   private readonly database = inject(DatabaseService);
 
-  async createActivityTypeTable(): Promise<void> {
+  async createTable(): Promise<void> {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS activity_type (
         id INTEGER PRIMARY KEY,

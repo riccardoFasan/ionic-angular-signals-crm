@@ -7,7 +7,7 @@ import { DatabaseService } from 'src/app/shared/utility';
 export class TagApiService {
   private readonly database = inject(DatabaseService);
 
-  async createTagTable(): Promise<void> {
+  async createTable(): Promise<void> {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS tag (
         id INTEGER PRIMARY KEY,

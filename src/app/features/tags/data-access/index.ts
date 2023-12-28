@@ -1,1 +1,2 @@
-export * from './tag-api/tag-api.service';
+export * from './tags-facade/tags-facade.service';
+export * from './tag.model';

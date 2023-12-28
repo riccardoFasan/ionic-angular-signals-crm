@@ -12,7 +12,7 @@ import {
   FoodIngredientApiService,
   IngredientApiService,
 } from 'src/app/features/foods/data-access/database';
-import { TagApiService } from 'src/app/features/tags/data-access';
+import { TagApiService } from 'src/app/features/tags/data-access/database';
 import { DatabaseService } from '../database/database.service';
 
 @Injectable({
@@ -58,18 +58,18 @@ export class InitializerService {
     await this.database.createConnection();
 
     const activityAndRelated = Promise.all([
-      this.tagApi.createTagTable(),
-      this.activityTypeApi.createActivityTypeTable(),
-      this.activityApi.createActivityTable(),
-      this.activityApi.createActivityTagsTable(),
+      this.tagApi.createTable(),
+      this.activityTypeApi.createTable(),
+      this.activityApi.createTable(),
+      this.activityApi.createTable(),
     ]);
 
     const foodAndRelated = Promise.all([
-      this.ingredientApi.createIngredientTable(),
-      this.foodApi.createFoodTable(),
-      this.foodIngredientApi.createFoodIngredientsTable(),
-      this.mealApi.createMealTable(),
-      this.mealApi.createMealFoodsTable(),
+      this.ingredientApi.createTable(),
+      this.foodApi.createTable(),
+      this.foodIngredientApi.createTable(),
+      this.mealApi.createTable(),
+      this.mealApi.createTable(),
     ]);
 
     await Promise.all([activityAndRelated, foodAndRelated]);

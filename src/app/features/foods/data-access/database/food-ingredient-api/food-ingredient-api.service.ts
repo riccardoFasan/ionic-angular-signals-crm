@@ -8,7 +8,7 @@ import { FoodIngredientDTO } from '../food-ingredient.dto';
 export class FoodIngredientApiService {
   private readonly database = inject(DatabaseService);
 
-  async createFoodIngredientsTable(): Promise<void> {
+  async createTable(): Promise<void> {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS food_ingredient (
         id INTEGER PRIMARY KEY,
@@ -21,36 +21,28 @@ export class FoodIngredientApiService {
       );`);
   }
 
-  async getFoodIngredientsOfFood(foodId: number): Promise<FoodIngredientDTO[]> {
+  async getByFood(foodId: number): Promise<FoodIngredientDTO[]> {
     const result = await this.database.query(`
       SELECT * FROM food_ingredient WHERE food_id = ${foodId};
     `);
     return result.values || [];
   }
 
-  async getFoodIngredientsOfIngredient(
-    ingredientId: number
-  ): Promise<FoodIngredientDTO[]> {
+  async getByIngredient(ingredientId: number): Promise<FoodIngredientDTO[]> {
     const result = await this.database.query(`
       SELECT * FROM food_ingredient WHERE ingredient_id = ${ingredientId};  
     `);
     return result.values || [];
   }
 
-  async addIngredientToFood(
-    foodId: number,
-    ingredientId: number
-  ): Promise<void> {
+  async create(foodId: number, ingredientId: number): Promise<void> {
     await this.database.query(`
       INSERT INTO food_ingredient (created_at, updated_at, food_id, ingredient_id)
       VALUES (datetime('now'), datetime('now'), ${foodId}, ${ingredientId});
     `);
   }
 
-  async removeIngredientFromFood(
-    foodId: number,
-    ingredientId: number
-  ): Promise<void> {
+  async delete(foodId: number, ingredientId: number): Promise<void> {
     await this.database.query(`
       DELETE FROM food_ingredient
       WHERE food_id = ${foodId} AND ingredient_id = ${ingredientId};

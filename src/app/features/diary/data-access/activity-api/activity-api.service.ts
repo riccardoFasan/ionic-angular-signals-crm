@@ -7,7 +7,7 @@ import { DatabaseService } from 'src/app/shared/utility';
 export class ActivityApiService {
   private readonly database = inject(DatabaseService);
 
-  async createActivityTable(): Promise<void> {
+  async createTable(): Promise<void> {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS activity (
         id INTEGER PRIMARY KEY,
@@ -22,7 +22,7 @@ export class ActivityApiService {
     `);
   }
 
-  async createActivityTagsTable(): Promise<void> {
+  async createTable(): Promise<void> {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS activity_tags (
         id INTEGER PRIMARY KEY,

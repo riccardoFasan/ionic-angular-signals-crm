@@ -7,7 +7,7 @@ import { DatabaseService } from 'src/app/shared/utility';
 export class MealApiService {
   private readonly database = inject(DatabaseService);
 
-  async createMealTable(): Promise<void> {
+  async createTable(): Promise<void> {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS meal (
         id INTEGER PRIMARY KEY,
@@ -19,7 +19,7 @@ export class MealApiService {
       );`);
   }
 
-  async createMealFoodsTable(): Promise<void> {
+  async createTable(): Promise<void> {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS meal_foods (
         id INTEGER PRIMARY KEY,

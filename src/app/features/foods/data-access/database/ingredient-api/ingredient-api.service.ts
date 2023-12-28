@@ -8,7 +8,7 @@ import { IngredientDTO } from '../ingredient.dto';
 export class IngredientApiService {
   private readonly database = inject(DatabaseService);
 
-  async createIngredientTable(): Promise<void> {
+  async createTable(): Promise<void> {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS ingredient (
         id INTEGER PRIMARY KEY,
@@ -19,10 +19,7 @@ export class IngredientApiService {
       );`);
   }
 
-  async getIngredientList(
-    page: number,
-    pageSize: number
-  ): Promise<List<IngredientDTO>> {
+  async getList(page: number, pageSize: number): Promise<List<IngredientDTO>> {
     const offset = (page - 1) * pageSize;
 
     const listResult = await this.database.query(
@@ -40,7 +37,7 @@ export class IngredientApiService {
     return { page, pageSize, total, items };
   }
 
-  async getIngredient(id: number): Promise<IngredientDTO> {
+  async get(id: number): Promise<IngredientDTO> {
     const result = await this.database.query(
       `SELECT * FROM ingredient WHERE id = ${id};`
     );
@@ -51,7 +48,7 @@ export class IngredientApiService {
     return item;
   }
 
-  async createIngredient(name: string, notes?: string): Promise<number> {
+  async create(name: string, notes?: string): Promise<number> {
     const result = await this.database.query(
       `INSERT INTO ingredient (created_at, updated_at, name, notes)
       VALUES (datetime('now'), datetime('now'), "${name}", "${notes}") RETURNING *;`
@@ -59,11 +56,7 @@ export class IngredientApiService {
     return result.values?.[0].id;
   }
 
-  async updateIngredient(
-    id: number,
-    name: string,
-    notes?: string
-  ): Promise<void> {
+  async update(id: number, name: string, notes?: string): Promise<void> {
     await this.database.query(
       `UPDATE ingredient
       SET updated_at = datetime('now'), name = "${name}", notes = "${notes}"
@@ -71,7 +64,7 @@ export class IngredientApiService {
     );
   }
 
-  async deleteIngredient(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     await this.database.query(
       `DELETE FROM ingredient
       WHERE id = ${id};`

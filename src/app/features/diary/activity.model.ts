@@ -1,4 +1,4 @@
-import { Tag } from '../tags/tag.model';
+import { Tag } from '../tags/data-access/tag.model';
 import { ActivityType } from '../activity-types/activity-type.model';
 
 export type Activity = {

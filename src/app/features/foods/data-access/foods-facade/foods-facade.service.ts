@@ -13,10 +13,10 @@ export class FoodsFacadeService {
   private readonly foodIngredientApi = inject(FoodIngredientApiService);
   private readonly ingredientsFacade = inject(IngredientsFacadeService);
 
-  async getFoodList(page: number, pageSize: number): Promise<List<Food>> {
-    const list = await this.foodApi.getFoodList(page, pageSize);
+  async getList(page: number, pageSize: number): Promise<List<Food>> {
+    const list = await this.foodApi.getList(page, pageSize);
     const foodsIngredients = await Promise.all(
-      list.items.map((foodDTO) => this.getIngredientsOfFood(foodDTO.id))
+      list.items.map((foodDTO) => this.getIngredients(foodDTO.id))
     );
     const items = list.items.map((foodDTO, i) =>
       this.mapFromDTO(foodDTO, foodsIngredients[i])
@@ -24,68 +24,68 @@ export class FoodsFacadeService {
     return { ...list, items };
   }
 
-  async getFood(foodId: number): Promise<Food> {
+  async get(foodId: number): Promise<Food> {
     const [foodDTO, ingredients] = await Promise.all([
-      this.foodApi.getFood(foodId),
-      this.getIngredientsOfFood(foodId),
+      this.foodApi.get(foodId),
+      this.getIngredients(foodId),
     ]);
     return this.mapFromDTO(foodDTO, ingredients);
   }
 
-  async createFood(
+  async create(
     name: string,
     ingredients?: Ingredient[],
     notes?: string
   ): Promise<Food> {
-    const foodId = await this.foodApi.createFood(name, notes);
+    const foodId = await this.foodApi.create(name, notes);
     if (ingredients) {
       await Promise.all(
         ingredients.map((ingredient) =>
-          this.foodIngredientApi.addIngredientToFood(foodId, ingredient.id)
+          this.foodIngredientApi.create(foodId, ingredient.id)
         )
       );
     }
-    return await this.getFood(foodId);
+    return await this.get(foodId);
   }
 
-  async updateFood(
+  async update(
     foodId: number,
     name: string,
     ingredients?: Ingredient[],
     notes?: string
   ): Promise<Food> {
     await Promise.all([
-      this.foodApi.updateFood(foodId, name, notes),
-      this.updateFoodIngredientsRelation(foodId, ingredients),
+      this.foodApi.update(foodId, name, notes),
+      this.updateIngredients(foodId, ingredients),
     ]);
 
-    return await this.getFood(foodId);
+    return await this.get(foodId);
   }
 
-  async deleteFood(foodId: number): Promise<Food> {
-    const food = await this.getFood(foodId);
-    await this.foodApi.deleteFood(foodId);
+  async delete(foodId: number): Promise<Food> {
+    const food = await this.get(foodId);
+    await this.foodApi.delete(foodId);
     return food;
   }
 
-  private async getIngredientsOfFood(foodId: number): Promise<Ingredient[]> {
-    const foodIngredientDTOs =
-      await this.foodIngredientApi.getFoodIngredientsOfFood(foodId);
+  private async getIngredients(foodId: number): Promise<Ingredient[]> {
+    const foodIngredientDTOs = await this.foodIngredientApi.getByFood(foodId);
     return await Promise.all(
       foodIngredientDTOs.map((foodIngredientDTO) =>
-        this.ingredientsFacade.getIngredient(foodIngredientDTO.ingredient_id)
+        this.ingredientsFacade.get(foodIngredientDTO.ingredient_id)
       )
     );
   }
 
-  private async updateFoodIngredientsRelation(
+  private async updateIngredients(
     foodId: number,
     ingredients?: Ingredient[]
   ): Promise<void> {
     if (!ingredients || ingredients.length === 0) return;
 
-    const currentFoodIngredientDTOs =
-      await this.foodIngredientApi.getFoodIngredientsOfFood(foodId);
+    const currentFoodIngredientDTOs = await this.foodIngredientApi.getByFood(
+      foodId
+    );
 
     const ingredientIdsToAdd: number[] = ingredients.reduce(
       (ingredientIdsToAdd: number[], ingredient) => {
@@ -117,11 +117,9 @@ export class FoodsFacadeService {
     );
 
     await Promise.all([
-      ingredientIdsToAdd.map((id) =>
-        this.foodIngredientApi.addIngredientToFood(foodId, id)
-      ),
+      ingredientIdsToAdd.map((id) => this.foodIngredientApi.create(foodId, id)),
       ingredientIdsToRemove.map((id) =>
-        this.foodIngredientApi.removeIngredientFromFood(foodId, id)
+        this.foodIngredientApi.delete(foodId, id)
       ),
     ]);
   }
