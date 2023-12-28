@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
   CapacitorSQLite,
+  DBSQLiteValues,
   SQLiteConnection,
   SQLiteDBConnection,
 } from '@capacitor-community/sqlite';
@@ -43,10 +44,8 @@ export class DatabaseService {
     await this.database.close();
   }
 
-  async execute(statement: string): Promise<any> {
+  async query(statement: string): Promise<DBSQLiteValues> {
     if (!this.database) throw new Error('Database not initialized');
-    const { changes } = await this.database!.execute(statement);
-    console.log(changes);
-    return changes?.values;
+    return await this.database!.query(statement);
   }
 }

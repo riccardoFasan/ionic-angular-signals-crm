@@ -1,6 +1,5 @@
 import { Injectable, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Subject, defer, filter, switchMap, tap } from 'rxjs';
 import { ActivityTypeApiService } from 'src/app/features/activity-types/data-access';
@@ -13,7 +12,7 @@ import {
   IngredientApiService,
 } from 'src/app/features/foods/data-access';
 import { TagApiService } from 'src/app/features/tags/data-access';
-import { DatabaseService } from '../data-access';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable({
   providedIn: 'root',
@@ -72,6 +71,27 @@ export class InitializerService {
     ]);
 
     await Promise.all([activityAndRelated, foodAndRelated]);
+
+    // const ingredient = await this.ingredientApi.createIngredient(
+    //   'Tony',
+    //   'Stecchino'
+    // );
+    // console.log('Created', ingredient);
+
+    // const ingredients = await this.ingredientApi.getIngredients(1, 10);
+    // console.log('List', ingredients);
+
+    // const updatedIngredient = await this.ingredientApi.updateIngredient(
+    //   ingredient.id,
+    //   'Tony',
+    //   'Stark'
+    // );
+    // console.log('Updated', updatedIngredient);
+
+    // const deletedIngredient = await this.ingredientApi.deleteIngredient(
+    //   ingredient.id
+    // );
+    // console.log('Deleted', deletedIngredient);
   }
 
   private async showSplashScreen(): Promise<void> {

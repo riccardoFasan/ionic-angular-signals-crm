@@ -15,7 +15,7 @@ import {
   IonRouterOutlet,
 } from '@ionic/angular/standalone';
 
-import { InitializerService } from './core/initializer/initializer.service';
+import { InitializerService } from './shared/utility/initializer/initializer.service';
 
 @Component({
   selector: 'app-root',

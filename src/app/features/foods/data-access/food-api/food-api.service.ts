@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService } from 'src/app/core/data-access';
+import { DatabaseService } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +8,7 @@ export class FoodApiService {
   private readonly database = inject(DatabaseService);
 
   async createFoodTable(): Promise<void> {
-    await this.database.execute(`
+    await this.database.query(`
       CREATE TABLE IF NOT EXISTS food (
         id INTEGER PRIMARY KEY,
         created_at DATETIME NOT NULL,
@@ -19,7 +19,7 @@ export class FoodApiService {
   }
 
   async createFoodIngredientsTable(): Promise<void> {
-    await this.database.execute(`
+    await this.database.query(`
       CREATE TABLE IF NOT EXISTS food_ingredients (
         id INTEGER PRIMARY KEY,
         created_at DATETIME NOT NULL,

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService } from 'src/app/core/data-access';
+import { DatabaseService } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +8,7 @@ export class TagApiService {
   private readonly database = inject(DatabaseService);
 
   async createTagTable(): Promise<void> {
-    await this.database.execute(`
+    await this.database.query(`
       CREATE TABLE IF NOT EXISTS tag (
         id INTEGER PRIMARY KEY,
         created_at DATETIME NOT NULL,
