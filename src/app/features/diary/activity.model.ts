@@ -3,8 +3,8 @@ import { ActivityType } from '../activity-types/activity-type.model';
 
 export type Activity = {
   id: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   name: string;
   at: string;
   type: ActivityType;

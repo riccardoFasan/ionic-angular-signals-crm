@@ -1,7 +1,7 @@
 export type Ingredient = {
   id: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   name: string;
   notes?: string;
 };

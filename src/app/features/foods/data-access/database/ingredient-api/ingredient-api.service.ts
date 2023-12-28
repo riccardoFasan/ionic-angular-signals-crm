@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService, NotFoundError } from 'src/app/shared/utility';
-import { Ingredient } from '../../ingredient.model';
-import { List } from 'src/app/shared/utility/list.model';
+import { DatabaseService, NotFoundError, List } from 'src/app/shared/utility';
+import { IngredientDTO } from '../ingredient.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -20,10 +19,10 @@ export class IngredientApiService {
       );`);
   }
 
-  async getIngredients(
+  async getIngredientList(
     page: number,
     pageSize: number
-  ): Promise<List<Ingredient>> {
+  ): Promise<List<IngredientDTO>> {
     const offset = (page - 1) * pageSize;
 
     const listResult = await this.database.query(
@@ -35,18 +34,13 @@ export class IngredientApiService {
       `SELECT COUNT(*) FROM ingredient;`
     );
 
-    const items = listResult.values || [];
+    const items: IngredientDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;
 
-    return {
-      page,
-      pageSize,
-      total,
-      items: items.map(this.mapToIngredient),
-    };
+    return { page, pageSize, total, items };
   }
 
-  async getIngredient(id: number): Promise<Ingredient> {
+  async getIngredient(id: number): Promise<IngredientDTO> {
     const result = await this.database.query(
       `SELECT * FROM ingredient WHERE id = ${id};`
     );
@@ -54,51 +48,33 @@ export class IngredientApiService {
 
     if (!item) throw new NotFoundError(`Not found ingredient with id ${id}.`);
 
-    return this.mapToIngredient(item);
+    return item;
   }
 
-  async createIngredient(name: string, notes: string): Promise<Ingredient> {
-    const now = new Date().toISOString();
+  async createIngredient(name: string, notes?: string): Promise<number> {
     const result = await this.database.query(
       `INSERT INTO ingredient (created_at, updated_at, name, notes)
-      VALUES ("${now}", "${now}", "${name}", "${notes}") RETURNING *;`
+      VALUES (datetime('now'), datetime('now'), "${name}", "${notes}") RETURNING *;`
     );
-    const id = result.values?.[0].id;
-    return await this.getIngredient(id!);
+    return result.values?.[0].id;
   }
 
   async updateIngredient(
     id: number,
     name: string,
-    notes: string
-  ): Promise<Ingredient> {
-    const now = new Date().toISOString();
+    notes?: string
+  ): Promise<void> {
     await this.database.query(
       `UPDATE ingredient
-      SET updated_at = "${now}", name = "${name}", notes = "${notes}"
+      SET updated_at = datetime('now'), name = "${name}", notes = "${notes}"
       WHERE id = ${id};`
     );
-    return await this.getIngredient(id);
   }
 
-  async deleteIngredient(id: number): Promise<Ingredient> {
-    const ingredient = await this.getIngredient(id);
-
+  async deleteIngredient(id: number): Promise<void> {
     await this.database.query(
       `DELETE FROM ingredient
       WHERE id = ${id};`
     );
-
-    return ingredient;
-  }
-
-  private mapToIngredient(item: any): Ingredient {
-    return {
-      id: item.id,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
-      name: item.name,
-      notes: item.notes,
-    };
   }
 }

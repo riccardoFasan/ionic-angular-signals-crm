@@ -9,8 +9,9 @@ import {
 } from 'src/app/features/diary/data-access';
 import {
   FoodApiService,
+  FoodIngredientApiService,
   IngredientApiService,
-} from 'src/app/features/foods/data-access';
+} from 'src/app/features/foods/data-access/database';
 import { TagApiService } from 'src/app/features/tags/data-access';
 import { DatabaseService } from '../database/database.service';
 
@@ -23,6 +24,7 @@ export class InitializerService {
   private readonly activityTypeApi = inject(ActivityTypeApiService);
   private readonly activityApi = inject(ActivityApiService);
   private readonly ingredientApi = inject(IngredientApiService);
+  private readonly foodIngredientApi = inject(FoodIngredientApiService);
   private readonly foodApi = inject(FoodApiService);
   private readonly mealApi = inject(MealApiService);
 
@@ -65,7 +67,7 @@ export class InitializerService {
     const foodAndRelated = Promise.all([
       this.ingredientApi.createIngredientTable(),
       this.foodApi.createFoodTable(),
-      this.foodApi.createFoodIngredientsTable(),
+      this.foodIngredientApi.createFoodIngredientsTable(),
       this.mealApi.createMealTable(),
       this.mealApi.createMealFoodsTable(),
     ]);
