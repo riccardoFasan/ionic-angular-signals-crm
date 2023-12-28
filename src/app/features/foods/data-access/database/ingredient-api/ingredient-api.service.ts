@@ -24,11 +24,11 @@ export class IngredientApiService {
 
     const listResult = await this.database.query(
       `SELECT * FROM ingredient
-      LIMIT ${pageSize} OFFSET ${offset};`
+      LIMIT ${pageSize} OFFSET ${offset};`,
     );
 
     const countResult = await this.database.query(
-      `SELECT COUNT(*) FROM ingredient;`
+      `SELECT COUNT(*) FROM ingredient;`,
     );
 
     const items: IngredientDTO[] = listResult.values || [];
@@ -39,7 +39,7 @@ export class IngredientApiService {
 
   async get(id: number): Promise<IngredientDTO> {
     const result = await this.database.query(
-      `SELECT * FROM ingredient WHERE id = ${id};`
+      `SELECT * FROM ingredient WHERE id = ${id};`,
     );
     const item = result?.values?.[0];
 
@@ -51,7 +51,7 @@ export class IngredientApiService {
   async create(name: string, notes?: string): Promise<number> {
     const result = await this.database.query(
       `INSERT INTO ingredient (created_at, updated_at, name, notes)
-      VALUES (datetime('now'), datetime('now'), "${name}", "${notes}") RETURNING *;`
+      VALUES (datetime('now'), datetime('now'), "${name}", "${notes}") RETURNING *;`,
     );
     return result.values?.[0].id;
   }
@@ -60,14 +60,14 @@ export class IngredientApiService {
     await this.database.query(
       `UPDATE ingredient
       SET updated_at = datetime('now'), name = "${name}", notes = "${notes}"
-      WHERE id = ${id};`
+      WHERE id = ${id};`,
     );
   }
 
   async delete(id: number): Promise<void> {
     await this.database.query(
       `DELETE FROM ingredient
-      WHERE id = ${id};`
+      WHERE id = ${id};`,
     );
   }
 }

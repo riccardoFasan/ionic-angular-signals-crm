@@ -24,7 +24,7 @@ export class FoodApiService {
 
     const listResult = await this.database.query(
       `SELECT * FROM food
-      LIMIT ${pageSize} OFFSET ${offset};`
+      LIMIT ${pageSize} OFFSET ${offset};`,
     );
 
     const countResult = await this.database.query(`SELECT COUNT(*) FROM food;`);
@@ -37,7 +37,7 @@ export class FoodApiService {
 
   async get(id: number): Promise<FoodDTO> {
     const result = await this.database.query(
-      `SELECT * FROM food WHERE id = ${id};`
+      `SELECT * FROM food WHERE id = ${id};`,
     );
     const item: FoodDTO = result?.values?.[0];
 
@@ -49,7 +49,7 @@ export class FoodApiService {
   async create(name: string, notes?: string): Promise<number> {
     const result = await this.database.query(
       `INSERT INTO food (created_at, updated_at, name, notes)
-      VALUES (datetime('now'), datetime('now'), "${name}", "${notes}") RETURNING *;`
+      VALUES (datetime('now'), datetime('now'), "${name}", "${notes}") RETURNING *;`,
     );
     return result.values?.[0].id;
   }
@@ -58,14 +58,14 @@ export class FoodApiService {
     await this.database.query(
       `UPDATE food
       SET updated_at = datetime('now'), name = "${name}", notes = "${notes}"
-      WHERE id = ${id};`
+      WHERE id = ${id};`,
     );
   }
 
   async delete(id: number): Promise<void> {
     await this.database.query(
       `DELETE FROM food
-      WHERE id = ${id};`
+      WHERE id = ${id};`,
     );
   }
 }

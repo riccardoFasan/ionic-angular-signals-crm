@@ -1,4 +1,4 @@
-export type Tag = {
+export type TagDTO = {
   id: number;
   created_at: string;
   updated_at: string;

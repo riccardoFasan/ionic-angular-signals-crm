@@ -16,10 +16,10 @@ export class FoodsFacadeService {
   async getList(page: number, pageSize: number): Promise<List<Food>> {
     const list = await this.foodApi.getList(page, pageSize);
     const foodsIngredients = await Promise.all(
-      list.items.map((foodDTO) => this.getIngredients(foodDTO.id))
+      list.items.map((foodDTO) => this.getIngredients(foodDTO.id)),
     );
     const items = list.items.map((foodDTO, i) =>
-      this.mapFromDTO(foodDTO, foodsIngredients[i])
+      this.mapFromDTO(foodDTO, foodsIngredients[i]),
     );
     return { ...list, items };
   }
@@ -35,14 +35,14 @@ export class FoodsFacadeService {
   async create(
     name: string,
     ingredients?: Ingredient[],
-    notes?: string
+    notes?: string,
   ): Promise<Food> {
     const foodId = await this.foodApi.create(name, notes);
     if (ingredients) {
       await Promise.all(
         ingredients.map((ingredient) =>
-          this.foodIngredientApi.create(foodId, ingredient.id)
-        )
+          this.foodIngredientApi.create(foodId, ingredient.id),
+        ),
       );
     }
     return await this.get(foodId);
@@ -52,7 +52,7 @@ export class FoodsFacadeService {
     foodId: number,
     name: string,
     ingredients?: Ingredient[],
-    notes?: string
+    notes?: string,
   ): Promise<Food> {
     await Promise.all([
       this.foodApi.update(foodId, name, notes),
@@ -72,38 +72,37 @@ export class FoodsFacadeService {
     const foodIngredientDTOs = await this.foodIngredientApi.getByFood(foodId);
     return await Promise.all(
       foodIngredientDTOs.map((foodIngredientDTO) =>
-        this.ingredientsFacade.get(foodIngredientDTO.ingredient_id)
-      )
+        this.ingredientsFacade.get(foodIngredientDTO.ingredient_id),
+      ),
     );
   }
 
   private async updateIngredients(
     foodId: number,
-    ingredients?: Ingredient[]
+    ingredients?: Ingredient[],
   ): Promise<void> {
     if (!ingredients || ingredients.length === 0) return;
 
-    const currentFoodIngredientDTOs = await this.foodIngredientApi.getByFood(
-      foodId
-    );
+    const currentFoodIngredientDTOs =
+      await this.foodIngredientApi.getByFood(foodId);
 
     const ingredientIdsToAdd: number[] = ingredients.reduce(
       (ingredientIdsToAdd: number[], ingredient) => {
         const toAdd = !currentFoodIngredientDTOs.some(
           (currentFoodIngredientDTO) =>
-            currentFoodIngredientDTO.ingredient_id === ingredient.id
+            currentFoodIngredientDTO.ingredient_id === ingredient.id,
         );
         if (toAdd) return [...ingredientIdsToAdd, ingredient.id];
         return ingredientIdsToAdd;
       },
-      []
+      [],
     );
 
     const ingredientIdsToRemove = currentFoodIngredientDTOs.reduce(
       (ingredientIdsToRemove: number[], currentFoodIngredientDTO) => {
         const toRemove = !ingredients.some(
           (ingredient) =>
-            ingredient.id === currentFoodIngredientDTO.ingredient_id
+            ingredient.id === currentFoodIngredientDTO.ingredient_id,
         );
 
         if (toRemove)
@@ -113,13 +112,13 @@ export class FoodsFacadeService {
           ];
         return ingredientIdsToRemove;
       },
-      []
+      [],
     );
 
     await Promise.all([
       ingredientIdsToAdd.map((id) => this.foodIngredientApi.create(foodId, id)),
       ingredientIdsToRemove.map((id) =>
-        this.foodIngredientApi.delete(foodId, id)
+        this.foodIngredientApi.delete(foodId, id),
       ),
     ]);
   }

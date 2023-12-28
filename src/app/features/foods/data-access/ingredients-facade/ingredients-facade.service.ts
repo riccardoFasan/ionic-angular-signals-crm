@@ -14,38 +14,34 @@ export class IngredientsFacadeService {
     return { ...list, items: list.items.map(this.mapFromDTO) };
   }
 
-  async get(ingredientId: number): Promise<Ingredient> {
-    const ingredientDTO = await this.ingredientApi.get(ingredientId);
-    return this.mapFromDTO(ingredientDTO);
+  async get(id: number): Promise<Ingredient> {
+    const dto = await this.ingredientApi.get(id);
+    return this.mapFromDTO(dto);
   }
 
   async create(name: string, notes?: string): Promise<Ingredient> {
-    const ingredientId = await this.ingredientApi.create(name, notes);
-    return await this.get(ingredientId);
+    const id = await this.ingredientApi.create(name, notes);
+    return await this.get(id);
   }
 
-  async update(
-    ingredientId: number,
-    name: string,
-    notes?: string
-  ): Promise<Ingredient> {
-    await this.ingredientApi.update(ingredientId, name, notes);
-    return await this.get(ingredientId);
+  async update(id: number, name: string, notes?: string): Promise<Ingredient> {
+    await this.ingredientApi.update(id, name, notes);
+    return await this.get(id);
   }
 
-  async delete(ingredientId: number): Promise<Ingredient> {
-    const ingredient = await this.get(ingredientId);
-    await this.ingredientApi.delete(ingredientId);
+  async delete(id: number): Promise<Ingredient> {
+    const ingredient = await this.get(id);
+    await this.ingredientApi.delete(id);
     return ingredient;
   }
 
-  private mapFromDTO(ingredientDTO: IngredientDTO): Ingredient {
+  private mapFromDTO(dto: IngredientDTO): Ingredient {
     return {
-      id: ingredientDTO.id,
-      createdAt: new Date(ingredientDTO.created_at),
-      updatedAt: new Date(ingredientDTO.updated_at),
-      name: ingredientDTO.name,
-      notes: ingredientDTO.notes,
+      id: dto.id,
+      createdAt: new Date(dto.created_at),
+      updatedAt: new Date(dto.updated_at),
+      name: dto.name,
+      notes: dto.notes,
     };
   }
 }

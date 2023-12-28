@@ -38,7 +38,7 @@ export class InitializerService {
         takeUntilDestroyed(),
         filter(() => !this.initialized()),
         switchMap(() => defer(() => this.initDatabase())),
-        tap(() => this.initialized.set(true))
+        tap(() => this.initialized.set(true)),
       )
       .subscribe();
 

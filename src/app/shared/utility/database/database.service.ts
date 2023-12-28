@@ -23,7 +23,7 @@ export class DatabaseService {
     if (hasConnection) {
       this.database = await this.sqlite.retrieveConnection(
         dbSettings.name,
-        dbSettings.readonly
+        dbSettings.readonly,
       );
       return;
     }
@@ -33,7 +33,7 @@ export class DatabaseService {
       dbSettings.encrypted,
       dbSettings.mode,
       dbSettings.version,
-      dbSettings.readonly
+      dbSettings.readonly,
     );
 
     await this.database.open();
