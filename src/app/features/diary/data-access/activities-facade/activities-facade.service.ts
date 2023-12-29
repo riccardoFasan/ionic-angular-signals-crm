@@ -146,8 +146,10 @@ export class ActivitiesFacadeService {
     );
 
     await Promise.all([
-      tagIdsToAdd.map((id) => this.activityTagApi.create(activityId, id)),
-      tagIdsToRemove.map((id) => this.activityTagApi.delete(activityId, id)),
+      tagIdsToAdd.map((tagId) => this.activityTagApi.create(activityId, tagId)),
+      tagIdsToRemove.map((tagId) =>
+        this.activityTagApi.delete(activityId, tagId),
+      ),
     ]);
   }
 

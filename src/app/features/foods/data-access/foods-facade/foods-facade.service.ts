@@ -121,9 +121,11 @@ export class FoodsFacadeService {
     );
 
     await Promise.all([
-      ingredientIdsToAdd.map((id) => this.foodIngredientApi.create(foodId, id)),
-      ingredientIdsToRemove.map((id) =>
-        this.foodIngredientApi.delete(foodId, id),
+      ingredientIdsToAdd.map((ingredientId) =>
+        this.foodIngredientApi.create(foodId, ingredientId),
+      ),
+      ingredientIdsToRemove.map((ingredientId) =>
+        this.foodIngredientApi.delete(foodId, ingredientId),
       ),
     ]);
   }

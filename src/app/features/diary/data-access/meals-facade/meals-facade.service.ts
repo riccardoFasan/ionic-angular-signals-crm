@@ -97,7 +97,7 @@ export class MealsFacadeService {
 
     const foodIdsAndQuantityToAdd = consumptions.reduce(
       (
-        foodIdsAndQuantityToAdd: { id: number; quantity: number }[],
+        foodIdsAndQuantityToAdd: { foodId: number; quantity: number }[],
         consumption,
       ) => {
         const toAdd = !currentMealFoodDTOs.some(
@@ -107,7 +107,7 @@ export class MealsFacadeService {
         if (toAdd)
           return [
             ...foodIdsAndQuantityToAdd,
-            { id: consumption.food.id, quantity: consumption.quantity },
+            { foodId: consumption.food.id, quantity: consumption.quantity },
           ];
         return foodIdsAndQuantityToAdd;
       },
@@ -148,10 +148,10 @@ export class MealsFacadeService {
     );
 
     await Promise.all([
-      foodIdsAndQuantityToAdd.map(({ id, quantity }) =>
-        this.mealFoodApi.create(mealId, id, quantity),
+      foodIdsAndQuantityToAdd.map(({ foodId, quantity }) =>
+        this.mealFoodApi.create(mealId, foodId, quantity),
       ),
-      foodIdsToRemove.map((id) => this.mealFoodApi.delete(mealId, id)),
+      foodIdsToRemove.map((foodId) => this.mealFoodApi.delete(mealId, foodId)),
       mealFoodsToUpdate.map(({ mealFoodId, quantity }) =>
         this.mealFoodApi.update(mealFoodId, quantity),
       ),
