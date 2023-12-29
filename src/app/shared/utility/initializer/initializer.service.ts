@@ -16,6 +16,7 @@ import {
 } from 'src/app/features/foods/data-access/database';
 import { TagApiService } from 'src/app/features/tags/data-access/database';
 import { DatabaseService } from '../database/database.service';
+import { generate } from 'generate-password-browser';
 
 @Injectable({
   providedIn: 'root',
@@ -60,7 +61,10 @@ export class InitializerService {
   }
 
   private async initDatabase(): Promise<void> {
-    await this.database.createConnection();
+    const secret = this.generateRandomSecret();
+    await this.database.encryptSqliteConnection(secret);
+
+    await this.database.createDatabaseConnection();
 
     const activityAndRelated = Promise.all([
       this.tagApi.createTable(),
@@ -87,5 +91,9 @@ export class InitializerService {
 
   private async hideSplashScreen(): Promise<void> {
     await SplashScreen.hide();
+  }
+
+  private generateRandomSecret(): string {
+    return generate({ length: 32, numbers: true, symbols: true });
   }
 }

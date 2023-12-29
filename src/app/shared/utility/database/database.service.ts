@@ -14,13 +14,28 @@ export class DatabaseService {
   private sqlite = new SQLiteConnection(CapacitorSQLite);
   private database?: SQLiteDBConnection;
 
-  async createConnection(): Promise<void> {
+  async encryptSqliteConnection(secret: string): Promise<void> {
+    if (this.database) {
+      throw new Error('Database should be not initialized at this point');
+    }
+    if (environment.production && environment.database.encrypted) {
+      const isSecretStored = (await this.sqlite.isSecretStored()).result;
+      if (!isSecretStored) await this.sqlite.setEncryptionSecret(secret);
+    }
+  }
+
+  async createDatabaseConnection(): Promise<void> {
     const dbSettings = environment.database;
 
     const { result: hasConnection } =
       await this.sqlite.checkConnectionsConsistency();
 
-    if (hasConnection) {
+    const { result: isConnected } = await this.sqlite.isConnection(
+      dbSettings.name,
+      dbSettings.readonly,
+    );
+
+    if (hasConnection && isConnected) {
       this.database = await this.sqlite.retrieveConnection(
         dbSettings.name,
         dbSettings.readonly,

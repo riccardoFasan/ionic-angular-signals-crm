@@ -6,7 +6,7 @@ export const environment = {
   database: {
     name: 'food-diary-prod-db',
     encrypted: true,
-    mode: 'encryption',
+    mode: 'secret',
     version: 1,
     readonly: false,
   },
