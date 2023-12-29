@@ -52,6 +52,20 @@ export class MealsFacadeService {
     return await this.get(mealId);
   }
 
+  async update(
+    mealId: number,
+    name: string,
+    at: Date,
+    foods?: Consumption[],
+    notes?: string,
+  ): Promise<Meal> {
+    await Promise.all([
+      this.mealApi.update(mealId, name, at.toISOString(), notes),
+      this.updateConsumptions(mealId, foods),
+    ]);
+    return await this.get(mealId);
+  }
+
   async delete(mealId: number): Promise<Meal> {
     const meal = await this.get(mealId);
     await Promise.all([
