@@ -6,7 +6,7 @@ export type Activity = {
   createdAt: Date;
   updatedAt: Date;
   name: string;
-  at: string;
+  at: Date;
   type: ActivityType;
   tags: Tag[];
   notes?: string;

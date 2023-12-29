@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { DatabaseService } from 'src/app/shared/utility';
+import { ActivityTagDTO } from '../activity-tag.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -20,16 +21,16 @@ export class ActivityTagApiService {
       );`);
   }
 
-  async getByActivity(activityId: number): Promise<number[]> {
+  async getByActivity(activityId: number): Promise<ActivityTagDTO[]> {
     const result = await this.database.query(`
-      SELECT tag_id FROM activity_tag WHERE activity_id = ${activityId};
+      SELECT * FROM activity_tag WHERE activity_id = ${activityId};
     `);
     return result.values || [];
   }
 
-  async getByTag(tagId: number): Promise<number[]> {
+  async getByTag(tagId: number): Promise<ActivityTagDTO[]> {
     const result = await this.database.query(`
-      SELECT activity_id FROM activity_tag WHERE tag_id = ${tagId};  
+      SELECT * FROM activity_tag WHERE tag_id = ${tagId};  
     `);
     return result.values || [];
   }

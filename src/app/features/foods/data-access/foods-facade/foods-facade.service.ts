@@ -64,7 +64,12 @@ export class FoodsFacadeService {
 
   async delete(foodId: number): Promise<Food> {
     const food = await this.get(foodId);
-    await this.foodApi.delete(foodId);
+    await Promise.all([
+      this.foodApi.delete(foodId),
+      ...food.ingredients.map((ingredient) =>
+        this.foodIngredientApi.delete(foodId, ingredient.id),
+      ),
+    ]);
     return food;
   }
 

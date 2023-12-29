@@ -55,8 +55,8 @@ export class ActivityApiService {
   async create(
     name: string,
     at: string,
+    activityTypeId: number,
     notes?: string,
-    activityTypeId?: number,
   ): Promise<number> {
     const result = await this.database.query(
       `INSERT INTO activity (created_at, updated_at, name, at, notes, activity_type_id)
@@ -69,8 +69,8 @@ export class ActivityApiService {
     id: number,
     name: string,
     at: string,
+    activityTypeId: number,
     notes?: string,
-    activityTypeId?: number,
   ): Promise<void> {
     await this.database.query(
       `UPDATE activity
