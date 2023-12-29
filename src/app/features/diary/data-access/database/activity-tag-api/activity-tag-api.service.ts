@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService } from 'src/app/shared/utility';
+import { DatabaseService, nowIsoString } from 'src/app/shared/utility';
 import { ActivityTagDTO } from '../activity-tag.dto';
 
 @Injectable({
@@ -36,10 +36,9 @@ export class ActivityTagApiService {
   }
 
   async create(activityId: number, tagId: number): Promise<void> {
-    const now = new Date().toISOString();
     await this.database.query(`
       INSERT INTO activity_tag (created_at, updated_at, activity_id, tag_id)
-      VALUES ("${now}", "${now}", ${activityId}, ${tagId});
+      VALUES ("${nowIsoString()}", "${nowIsoString()}", ${activityId}, ${tagId});
     `);
   }
 

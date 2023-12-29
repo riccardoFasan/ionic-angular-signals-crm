@@ -1,5 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService, List, NotFoundError } from 'src/app/shared/utility';
+import {
+  DatabaseService,
+  List,
+  NotFoundError,
+  nowIsoString,
+} from 'src/app/shared/utility';
 import { ActivityTypeDTO } from '../activity-type.dto';
 
 @Injectable({
@@ -55,10 +60,9 @@ export class ActivityTypeApiService {
   }
 
   async create(name: string, color?: string, icon?: string): Promise<number> {
-    const now = new Date().toISOString();
     const result = await this.database.query(
       `INSERT INTO activity_type (created_at, updated_at, name, color, icon)
-      VALUES ("${now}", "${now}", "${name}", "${color}", "${icon}") RETURNING *;`,
+      VALUES ("${nowIsoString()}", "${nowIsoString()}", "${name}", "${color}", "${icon}") RETURNING *;`,
     );
     return result.values?.[0].id;
   }
@@ -69,10 +73,9 @@ export class ActivityTypeApiService {
     color?: string,
     icon?: string,
   ): Promise<void> {
-    const now = new Date().toISOString();
     await this.database.query(
       `UPDATE activity_type
-      SET updated_at = "${now}", name = "${name}", color = "${color}", icon = "${icon}"
+      SET updated_at = "${nowIsoString()}", name = "${name}", color = "${color}", icon = "${icon}"
       WHERE id = ${id};`,
     );
   }

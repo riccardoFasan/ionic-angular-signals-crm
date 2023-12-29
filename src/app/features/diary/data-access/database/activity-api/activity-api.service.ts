@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService, List } from 'src/app/shared/utility';
+import { DatabaseService, List, nowIsoString } from 'src/app/shared/utility';
 import { ActivityDTO } from '../activity.dto';
 
 @Injectable({
@@ -58,10 +58,9 @@ export class ActivityApiService {
     activityTypeId: number,
     notes?: string,
   ): Promise<number> {
-    const now = new Date().toISOString();
     const result = await this.database.query(
       `INSERT INTO activity (created_at, updated_at, name, at, notes, activity_type_id)
-      VALUES ("${now}", "${now}", "${name}", "${at}", "${notes}", ${activityTypeId}) RETURNING *;`,
+      VALUES ("${nowIsoString()}", "${nowIsoString()}", "${name}", "${at}", "${notes}", ${activityTypeId}) RETURNING *;`,
     );
     return result.values?.[0].id;
   }
@@ -73,10 +72,9 @@ export class ActivityApiService {
     activityTypeId: number,
     notes?: string,
   ): Promise<void> {
-    const now = new Date().toISOString();
     await this.database.query(
       `UPDATE activity
-      SET updated_at = "${now}", name = "${name}", at = "${at}", notes = "${notes}", activity_type_id = ${activityTypeId}
+      SET updated_at = "${nowIsoString()}", name = "${name}", at = "${at}", notes = "${notes}", activity_type_id = ${activityTypeId}
       WHERE id = ${id};`,
     );
   }

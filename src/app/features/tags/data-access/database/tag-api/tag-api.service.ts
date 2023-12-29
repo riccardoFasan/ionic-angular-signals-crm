@@ -1,5 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService, List, NotFoundError } from 'src/app/shared/utility';
+import {
+  DatabaseService,
+  List,
+  NotFoundError,
+  nowIsoString,
+} from 'src/app/shared/utility';
 import { TagDTO } from '../tag.dto';
 
 @Injectable({
@@ -48,18 +53,16 @@ export class TagApiService {
   }
 
   async create(name: string, color?: string): Promise<number> {
-    const now = new Date().toISOString();
     const result = await this.database.query(
       `INSERT INTO tag (created_at, updated_at, name, color)
-      VALUES ("${now}", "${now}", "${name}", "${color}") RETURNING *;`,
+      VALUES ("${nowIsoString()}", "${nowIsoString()}", "${name}", "${color}") RETURNING *;`,
     );
     return result.values?.[0].id;
   }
 
   async update(id: number, name: string, color?: string): Promise<void> {
-    const now = new Date().toISOString();
     await this.database.query(
-      `UPDATE tag SET updated_at = "${now}", name = "${name}", color = "${color}" WHERE id = ${id};`,
+      `UPDATE tag SET updated_at = "${nowIsoString()}", name = "${name}", color = "${color}" WHERE id = ${id};`,
     );
   }
 

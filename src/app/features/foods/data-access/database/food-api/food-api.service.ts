@@ -1,5 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService, List, NotFoundError } from 'src/app/shared/utility';
+import {
+  DatabaseService,
+  List,
+  NotFoundError,
+  nowIsoString,
+} from 'src/app/shared/utility';
 import { FoodDTO } from '../food.dto';
 
 @Injectable({
@@ -47,19 +52,17 @@ export class FoodApiService {
   }
 
   async create(name: string, notes?: string): Promise<number> {
-    const now = new Date().toISOString();
     const result = await this.database.query(
       `INSERT INTO food (created_at, updated_at, name, notes)
-      VALUES ("${now}", "${now}", "${name}", "${notes}") RETURNING *;`,
+      VALUES ("${nowIsoString()}", "${nowIsoString()}", "${name}", "${notes}") RETURNING *;`,
     );
     return result.values?.[0].id;
   }
 
   async update(id: number, name: string, notes?: string): Promise<void> {
-    const now = new Date().toISOString();
     await this.database.query(
       `UPDATE food
-      SET updated_at = "${now}", name = "${name}", notes = "${notes}"
+      SET updated_at = "${nowIsoString()}", name = "${name}", notes = "${notes}"
       WHERE id = ${id};`,
     );
   }
