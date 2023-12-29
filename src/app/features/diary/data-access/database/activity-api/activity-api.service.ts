@@ -12,10 +12,10 @@ export class ActivityApiService {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS activity (
         id INTEGER PRIMARY KEY,
-        created_at DATETIME NOT NULL,
-        updated_at DATETIME NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
         name TEXT NOT NULL,
-        at DATETIME NOT NULL,
+        at TEXT NOT NULL,
         notes TEXT,
         activity_type_id INTEGER NOT NULL,
         FOREIGN KEY (activity_type_id) REFERENCES activity_type (id)
@@ -58,9 +58,10 @@ export class ActivityApiService {
     activityTypeId: number,
     notes?: string,
   ): Promise<number> {
+    const now = new Date().toISOString();
     const result = await this.database.query(
       `INSERT INTO activity (created_at, updated_at, name, at, notes, activity_type_id)
-      VALUES (datetime('now'), datetime('now'), "${name}", "${at}", "${notes}", ${activityTypeId}) RETURNING *;`,
+      VALUES ("${now}", "${now}", "${name}", "${at}", "${notes}", ${activityTypeId}) RETURNING *;`,
     );
     return result.values?.[0].id;
   }
@@ -72,9 +73,10 @@ export class ActivityApiService {
     activityTypeId: number,
     notes?: string,
   ): Promise<void> {
+    const now = new Date().toISOString();
     await this.database.query(
       `UPDATE activity
-      SET updated_at = datetime('now'), name = "${name}", at = "${at}", notes = "${notes}", activity_type_id = ${activityTypeId}
+      SET updated_at = "${now}", name = "${name}", at = "${at}", notes = "${notes}", activity_type_id = ${activityTypeId}
       WHERE id = ${id};`,
     );
   }

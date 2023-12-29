@@ -12,8 +12,8 @@ export class TagApiService {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS tag (
         id INTEGER PRIMARY KEY,
-        created_at DATETIME NOT NULL,
-        updated_at DATETIME NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
         name TEXT NOT NULL,
         color TEXT
       );
@@ -48,16 +48,18 @@ export class TagApiService {
   }
 
   async create(name: string, color?: string): Promise<number> {
+    const now = new Date().toISOString();
     const result = await this.database.query(
       `INSERT INTO tag (created_at, updated_at, name, color)
-      VALUES (datetime('now'), datetime('now'), "${name}", "${color}") RETURNING *;`,
+      VALUES ("${now}", "${now}", "${name}", "${color}") RETURNING *;`,
     );
     return result.values?.[0].id;
   }
 
   async update(id: number, name: string, color?: string): Promise<void> {
+    const now = new Date().toISOString();
     await this.database.query(
-      `UPDATE tag SET updated_at = datetime('now'), name = "${name}", color = "${color}" WHERE id = ${id};`,
+      `UPDATE tag SET updated_at = "${now}", name = "${name}", color = "${color}" WHERE id = ${id};`,
     );
   }
 

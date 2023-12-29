@@ -12,8 +12,8 @@ export class MealFoodApiService {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS meal_food (
         id INTEGER PRIMARY KEY,
-        created_at DATETIME NOT NULL,
-        updated_at DATETIME NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
         meal_id INTEGER NOT NULL,
         food_id INTEGER NOT NULL,
         quantity REAL NOT NULL,
@@ -41,15 +41,17 @@ export class MealFoodApiService {
     foodId: number,
     quantity: number,
   ): Promise<void> {
+    const now = new Date().toISOString();
     await this.database.query(`
       INSERT INTO meal_food (created_at, updated_at, meal_id, food_id, quantity)
-      VALUES (datetime('now'), datetime('now'), ${mealId}, ${foodId}, ${quantity});
+      VALUES ("${now}", "${now}", ${mealId}, ${foodId}, ${quantity});
     `);
   }
 
   async update(mealFoodId: number, quantity: number): Promise<void> {
+    const now = new Date().toISOString();
     await this.database.query(
-      `UPDATE meal_food SET quantity = ${quantity}, updated_at = datetime('now') WHERE id = ${mealFoodId};`,
+      `UPDATE meal_food SET quantity = ${quantity}, updated_at = "${now}" WHERE id = ${mealFoodId};`,
     );
   }
 

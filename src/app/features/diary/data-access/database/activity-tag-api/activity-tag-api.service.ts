@@ -12,8 +12,8 @@ export class ActivityTagApiService {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS activity_tag (
         id INTEGER PRIMARY KEY,
-        created_at DATETIME NOT NULL,
-        updated_at DATETIME NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
         activity_id INTEGER NOT NULL,
         tag_id INTEGER NOT NULL,
         FOREIGN KEY (activity_id) REFERENCES activity (id),
@@ -36,9 +36,10 @@ export class ActivityTagApiService {
   }
 
   async create(activityId: number, tagId: number): Promise<void> {
+    const now = new Date().toISOString();
     await this.database.query(`
       INSERT INTO activity_tag (created_at, updated_at, activity_id, tag_id)
-      VALUES (datetime('now'), datetime('now'), ${activityId}, ${tagId});
+      VALUES ("${now}", "${now}", ${activityId}, ${tagId});
     `);
   }
 

@@ -12,8 +12,8 @@ export class FoodIngredientApiService {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS food_ingredient (
         id INTEGER PRIMARY KEY,
-        created_at DATETIME NOT NULL,
-        updated_at DATETIME NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
         food_id INTEGER NOT NULL,
         ingredient_id INTEGER NOT NULL,
         FOREIGN KEY (food_id) REFERENCES food (id),
@@ -36,9 +36,10 @@ export class FoodIngredientApiService {
   }
 
   async create(foodId: number, ingredientId: number): Promise<void> {
+    const now = new Date().toISOString();
     await this.database.query(`
       INSERT INTO food_ingredient (created_at, updated_at, food_id, ingredient_id)
-      VALUES (datetime('now'), datetime('now'), ${foodId}, ${ingredientId});
+      VALUES ("${now}", "${now}", ${foodId}, ${ingredientId});
     `);
   }
 

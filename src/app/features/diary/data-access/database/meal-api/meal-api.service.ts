@@ -12,9 +12,9 @@ export class MealApiService {
     await this.database.query(`
       CREATE TABLE IF NOT EXISTS meal (
         id INTEGER PRIMARY KEY,
-        created_at DATETIME NOT NULL,
-        updated_at DATETIME NOT NULL,
-        at DATETIME NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        at TEXT NOT NULL,
         name TEXT NOT NULL,
         notes TEXT
       );`);
@@ -48,9 +48,10 @@ export class MealApiService {
   }
 
   async create(name: string, at: string, notes?: string): Promise<number> {
+    const now = new Date().toISOString();
     const result = await this.database.query(
       `INSERT INTO meal (created_at, updated_at, at, name, notes)
-      VALUES (datetime('now'), datetime('now'), "${at}", "${name}", "${notes}") RETURNING *;`,
+      VALUES ("${now}", "${now}", "${at}", "${name}", "${notes}") RETURNING *;`,
     );
     return result.values?.[0].id;
   }
@@ -61,9 +62,10 @@ export class MealApiService {
     at: string,
     notes?: string,
   ): Promise<void> {
+    const now = new Date().toISOString();
     await this.database.query(
       `UPDATE meal
-      SET updated_at = datetime('now'), at = "${at}", name = "${name}", notes = "${notes}"
+      SET updated_at = "${now}", at = "${at}", name = "${name}", notes = "${notes}"
       WHERE id = ${id};`,
     );
   }
