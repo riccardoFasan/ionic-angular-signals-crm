@@ -1,2 +1,2 @@
-export * from './activity-api/activity-api.service';
-export * from './meal-api/meal-api.service';
+export * from './activities-facade/activities-facade.service';
+export * from './meals-facade/meals-facade.service';

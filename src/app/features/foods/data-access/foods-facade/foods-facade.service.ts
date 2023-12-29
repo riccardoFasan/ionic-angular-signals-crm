@@ -9,9 +9,9 @@ import { IngredientsFacadeService } from '../ingredients-facade/ingredients-faca
   providedIn: 'root',
 })
 export class FoodsFacadeService {
-  private readonly foodApi = inject(FoodApiService);
-  private readonly foodIngredientApi = inject(FoodIngredientApiService);
-  private readonly ingredientsFacade = inject(IngredientsFacadeService);
+  private foodApi = inject(FoodApiService);
+  private foodIngredientApi = inject(FoodIngredientApiService);
+  private ingredientsFacade = inject(IngredientsFacadeService);
 
   async getList(page: number, pageSize: number): Promise<List<Food>> {
     const list = await this.foodApi.getList(page, pageSize);

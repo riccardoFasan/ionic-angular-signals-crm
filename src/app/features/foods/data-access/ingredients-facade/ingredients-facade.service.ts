@@ -7,7 +7,7 @@ import { Ingredient } from '../ingredient.model';
   providedIn: 'root',
 })
 export class IngredientsFacadeService {
-  private readonly ingredientApi = inject(IngredientApiService);
+  private ingredientApi = inject(IngredientApiService);
 
   async getList(page: number, pageSize: number): Promise<List<Ingredient>> {
     const list = await this.ingredientApi.getList(page, pageSize);

@@ -7,7 +7,7 @@ import { List } from 'src/app/shared/utility';
   providedIn: 'root',
 })
 export class TagsFacadeService {
-  private readonly tagApi = inject(TagApiService);
+  private tagApi = inject(TagApiService);
 
   async getList(page: number, pageSize: number): Promise<List<Tag>> {
     const list = await this.tagApi.getList(page, pageSize);

@@ -6,7 +6,7 @@ import { FoodDTO } from '../food.dto';
   providedIn: 'root',
 })
 export class FoodApiService {
-  private readonly database = inject(DatabaseService);
+  private database = inject(DatabaseService);
 
   async createTable(): Promise<void> {
     await this.database.query(`

@@ -210,7 +210,7 @@ import { InitializerService } from './shared/utility/initializer/initializer.ser
   ],
 })
 export class AppComponent {
-  private readonly initializer = inject(InitializerService);
+  private initializer = inject(InitializerService);
 
   constructor() {
     this.initializer.initialize$.next();

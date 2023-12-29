@@ -1,5 +1,5 @@
-import { Tag } from '../tags/data-access/tag.model';
-import { ActivityType } from '../activity-types/data-access/activity-type.model';
+import { Tag } from '../../tags/data-access/tag.model';
+import { ActivityType } from '../../activity-types/data-access/activity-type.model';
 
 export type Activity = {
   id: number;

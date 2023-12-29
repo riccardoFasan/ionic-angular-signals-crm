@@ -6,7 +6,7 @@ import { ActivityTypeDTO } from '../activity-type.dto';
   providedIn: 'root',
 })
 export class ActivityTypeApiService {
-  private readonly database = inject(DatabaseService);
+  private database = inject(DatabaseService);
 
   async createTable(): Promise<void> {
     await this.database.query(`

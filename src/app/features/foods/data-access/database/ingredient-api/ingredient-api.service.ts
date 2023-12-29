@@ -6,7 +6,7 @@ import { IngredientDTO } from '../ingredient.dto';
   providedIn: 'root',
 })
 export class IngredientApiService {
-  private readonly database = inject(DatabaseService);
+  private database = inject(DatabaseService);
 
   async createTable(): Promise<void> {
     await this.database.query(`

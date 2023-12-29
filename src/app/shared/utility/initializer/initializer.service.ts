@@ -5,8 +5,10 @@ import { Subject, defer, filter, switchMap, tap } from 'rxjs';
 import { ActivityTypeApiService } from 'src/app/features/activity-types/data-access/database';
 import {
   ActivityApiService,
+  ActivityTagApiService,
   MealApiService,
-} from 'src/app/features/diary/data-access';
+  MealFoodApiService,
+} from 'src/app/features/diary/data-access/database';
 import {
   FoodApiService,
   FoodIngredientApiService,
@@ -19,16 +21,18 @@ import { DatabaseService } from '../database/database.service';
   providedIn: 'root',
 })
 export class InitializerService {
-  private readonly database = inject(DatabaseService);
-  private readonly tagApi = inject(TagApiService);
-  private readonly activityTypeApi = inject(ActivityTypeApiService);
-  private readonly activityApi = inject(ActivityApiService);
-  private readonly ingredientApi = inject(IngredientApiService);
-  private readonly foodIngredientApi = inject(FoodIngredientApiService);
-  private readonly foodApi = inject(FoodApiService);
-  private readonly mealApi = inject(MealApiService);
+  private database = inject(DatabaseService);
+  private tagApi = inject(TagApiService);
+  private activityTypeApi = inject(ActivityTypeApiService);
+  private activityApi = inject(ActivityApiService);
+  private activityTagApi = inject(ActivityTagApiService);
+  private ingredientApi = inject(IngredientApiService);
+  private foodIngredientApi = inject(FoodIngredientApiService);
+  private foodApi = inject(FoodApiService);
+  private mealApi = inject(MealApiService);
+  private mealFoodApi = inject(MealFoodApiService);
 
-  private readonly initialized = signal<boolean>(false);
+  private initialized = signal<boolean>(false);
 
   readonly initialize$ = new Subject<void>();
 
@@ -37,6 +41,7 @@ export class InitializerService {
       .pipe(
         takeUntilDestroyed(),
         filter(() => !this.initialized()),
+        tap(() => this.initialized.set(false)),
         switchMap(() => defer(() => this.initDatabase())),
         tap(() => this.initialized.set(true)),
       )
@@ -61,7 +66,7 @@ export class InitializerService {
       this.tagApi.createTable(),
       this.activityTypeApi.createTable(),
       this.activityApi.createTable(),
-      // this.activityApi.createTable(),
+      this.activityTagApi.createTable(),
     ]);
 
     const foodAndRelated = Promise.all([
@@ -69,31 +74,10 @@ export class InitializerService {
       this.foodApi.createTable(),
       this.foodIngredientApi.createTable(),
       this.mealApi.createTable(),
-      // this.mealApi.createTable(),
+      this.mealFoodApi.createTable(),
     ]);
 
     await Promise.all([activityAndRelated, foodAndRelated]);
-
-    // const ingredient = await this.ingredientApi.createIngredient(
-    //   'Tony',
-    //   'Stecchino'
-    // );
-    // console.log('Created', ingredient);
-
-    // const ingredients = await this.ingredientApi.getIngredients(1, 10);
-    // console.log('List', ingredients);
-
-    // const updatedIngredient = await this.ingredientApi.updateIngredient(
-    //   ingredient.id,
-    //   'Tony',
-    //   'Stark'
-    // );
-    // console.log('Updated', updatedIngredient);
-
-    // const deletedIngredient = await this.ingredientApi.deleteIngredient(
-    //   ingredient.id
-    // );
-    // console.log('Deleted', deletedIngredient);
   }
 
   private async showSplashScreen(): Promise<void> {

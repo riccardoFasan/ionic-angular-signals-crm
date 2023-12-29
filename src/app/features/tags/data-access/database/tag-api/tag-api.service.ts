@@ -6,7 +6,7 @@ import { TagDTO } from '../tag.dto';
   providedIn: 'root',
 })
 export class TagApiService {
-  private readonly database = inject(DatabaseService);
+  private database = inject(DatabaseService);
 
   async createTable(): Promise<void> {
     await this.database.query(`

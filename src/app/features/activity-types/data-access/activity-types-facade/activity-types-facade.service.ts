@@ -7,7 +7,7 @@ import { ActivityType } from '../activity-type.model';
   providedIn: 'root',
 })
 export class ActivityTypesFacadeService {
-  private readonly activityTypeApi = inject(ActivityTypeApiService);
+  private activityTypeApi = inject(ActivityTypeApiService);
 
   async getList(page: number, pageSize: number): Promise<List<ActivityType>> {
     const list = await this.activityTypeApi.getList(page, pageSize);
