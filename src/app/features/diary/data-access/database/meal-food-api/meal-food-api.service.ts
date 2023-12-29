@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { DatabaseService } from 'src/app/shared/utility';
+import { MealFoodDTO } from '../meal-food.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -21,16 +22,16 @@ export class MealFoodApiService {
       );`);
   }
 
-  async getByMeal(mealId: number): Promise<number[]> {
+  async getByMeal(mealId: number): Promise<MealFoodDTO[]> {
     const result = await this.database.query(`
-      SELECT food_id FROM meal_food WHERE meal_id = ${mealId};
+      SELECT * FROM meal_food WHERE meal_id = ${mealId};
     `);
     return result.values || [];
   }
 
-  async getByFood(foodId: number): Promise<number[]> {
+  async getByFood(foodId: number): Promise<MealFoodDTO[]> {
     const result = await this.database.query(`
-      SELECT meal_id FROM meal_food WHERE food_id = ${foodId};  
+      SELECT * FROM meal_food WHERE food_id = ${foodId};  
     `);
     return result.values || [];
   }
@@ -44,6 +45,12 @@ export class MealFoodApiService {
       INSERT INTO meal_food (created_at, updated_at, meal_id, food_id, quantity)
       VALUES (datetime('now'), datetime('now'), ${mealId}, ${foodId}, ${quantity});
     `);
+  }
+
+  async update(mealFoodId: number, quantity: number): Promise<void> {
+    await this.database.query(
+      `UPDATE meal_food SET quantity = ${quantity}, updated_at = datetime('now') WHERE id = ${mealFoodId};`,
+    );
   }
 
   async delete(mealId: number, foodId: number): Promise<void> {

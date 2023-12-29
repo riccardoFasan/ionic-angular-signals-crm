@@ -99,7 +99,6 @@ export class ActivitiesFacadeService {
     const activity = await this.get(activityId);
     await Promise.all([
       this.activityApi.delete(activityId),
-
       ...activity.tags.map((tag) =>
         this.activityTagApi.delete(activityId, tag.id),
       ),

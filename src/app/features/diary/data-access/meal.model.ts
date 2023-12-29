@@ -1,4 +1,4 @@
-import { Food } from '../../foods/data-access/food.model';
+import { Consumption } from './consumption.model';
 
 export type Meal = {
   id: number;
@@ -6,9 +6,6 @@ export type Meal = {
   createdAt: Date;
   updatedAt: Date;
   name: string;
-  consumption: {
-    food: Food;
-    quantity: number;
-  }[];
+  consumptions: Consumption[];
   notes?: string;
 };
