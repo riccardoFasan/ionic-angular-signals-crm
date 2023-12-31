@@ -1,5 +1,5 @@
-import { Pagination } from './pagination.model';
-import { Sorting } from './sorting.model';
+import { Pagination } from './pagination.type';
+import { Sorting } from './sorting.type';
 
 export type SearchCriteria = {
   pagination: Pagination;
