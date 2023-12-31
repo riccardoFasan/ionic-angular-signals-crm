@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular/standalone';
 import {
   IonButton,
   IonButtons,
@@ -7,6 +6,7 @@ import {
   IonHeader,
   IonTitle,
   IonToolbar,
+  ModalController,
 } from '@ionic/angular/standalone';
 
 @Component({
