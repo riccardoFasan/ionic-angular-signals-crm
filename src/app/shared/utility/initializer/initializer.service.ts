@@ -12,11 +12,11 @@ import {
 import {
   FoodApiService,
   FoodIngredientApiService,
-  IngredientApiService,
 } from 'src/app/features/foods/data-access/database';
 import { TagApiService } from 'src/app/features/tags/data-access/database';
 import { DatabaseService } from '../database/database.service';
 import { generate } from 'generate-password-browser';
+import { IngredientApiService } from 'src/app/features/ingredients/data-access/database';
 
 @Injectable({
   providedIn: 'root',

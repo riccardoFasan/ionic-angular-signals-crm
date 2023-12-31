@@ -1,9 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { FoodApiService, FoodDTO, FoodIngredientApiService } from '../database';
 import { List } from 'src/app/shared/utility';
-import { Ingredient } from '../ingredient.model';
 import { Food } from '../food.model';
-import { IngredientsFacadeService } from '../ingredients-facade/ingredients-facade.service';
+import { Ingredient, IngredientsFacadeService } from 'src/app/features/ingredients/data-access';
 
 @Injectable({
   providedIn: 'root',

@@ -28,4 +28,11 @@ export const APP_ROUTES: Routes = [
     loadChildren: () =>
       import('./features/foods/foods.routes').then((m) => m.FOODS_ROUTES),
   },
+  {
+    path: 'ingredients',
+    loadChildren: () =>
+      import('./features/ingredients/ingredients.routes').then(
+        (m) => m.INGREDIENTS_ROUTES,
+      ),
+  },
 ];

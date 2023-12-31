@@ -48,24 +48,6 @@ import { InitializerService } from './shared/utility/initializer/initializer.ser
               <ion-menu-toggle auto-hide="false">
                 <ion-item
                   routerDirection="root"
-                  routerLink="foods"
-                  lines="none"
-                  detail="false"
-                  routerLinkActive="selected"
-                >
-                  <ion-icon
-                    aria-hidden="true"
-                    slot="start"
-                    [ios]="'fast-food-outline'"
-                    [md]="'fast-food-sharp'"
-                  />
-                  <ion-label>Foods</ion-label>
-                </ion-item>
-              </ion-menu-toggle>
-
-              <ion-menu-toggle auto-hide="false">
-                <ion-item
-                  routerDirection="root"
                   routerLink="activity-types"
                   lines="none"
                   detail="false"
@@ -77,7 +59,7 @@ import { InitializerService } from './shared/utility/initializer/initializer.ser
                     [ios]="'calendar-outline'"
                     [md]="'calendar-sharp'"
                   />
-                  <ion-label>Activity types</ion-label>
+                  <ion-label>Activities</ion-label>
                 </ion-item>
               </ion-menu-toggle>
 
@@ -96,6 +78,42 @@ import { InitializerService } from './shared/utility/initializer/initializer.ser
                     [md]="'pricetag-sharp'"
                   />
                   <ion-label>Tags</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="foods"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    [ios]="'fast-food-outline'"
+                    [md]="'fast-food-sharp'"
+                  />
+                  <ion-label>Foods</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="ingredients"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    [ios]="'list-outline'"
+                    [md]="'list-sharp'"
+                  />
+                  <ion-label>Ingredients</ion-label>
                 </ion-item>
               </ion-menu-toggle>
             </ion-list>

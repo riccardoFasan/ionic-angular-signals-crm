@@ -25,6 +25,8 @@ import {
   calendarOutline,
   fastFoodSharp,
   fastFoodOutline,
+  listOutline,
+  listSharp,
 } from 'ionicons/icons';
 
 if (environment.production) {
@@ -48,4 +50,6 @@ addIcons({
   calendarOutline,
   fastFoodSharp,
   fastFoodOutline,
+  listOutline,
+  listSharp,
 });
