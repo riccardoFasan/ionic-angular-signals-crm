@@ -20,6 +20,7 @@ export class FoodApiService {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         name TEXT NOT NULL,
+        calories INTEGER,
         notes TEXT
       );`);
   }
@@ -51,18 +52,18 @@ export class FoodApiService {
     return item;
   }
 
-  async create(name: string, notes?: string): Promise<number> {
+  async create(name: string, notes?: string, calories?:number): Promise<number> {
     const result = await this.database.query(
-      `INSERT INTO food (created_at, updated_at, name, notes)
-      VALUES ("${nowIsoString()}", "${nowIsoString()}", "${name}", "${notes}") RETURNING *;`,
+      `INSERT INTO food (created_at, updated_at, name, notes, calories)
+      VALUES ("${nowIsoString()}", "${nowIsoString()}", "${name}", "${notes}", "${calories}") RETURNING *;`,
     );
     return result.values?.[0].id;
   }
 
-  async update(id: number, name: string, notes?: string): Promise<void> {
+  async update(id: number, name: string, notes?: string, calories?:number): Promise<void> {
     await this.database.query(
       `UPDATE food
-      SET updated_at = "${nowIsoString()}", name = "${name}", notes = "${notes}"
+      SET updated_at = "${nowIsoString()}", name = "${name}", notes = "${notes}", calories = "${calories}"
       WHERE id = ${id};`,
     );
   }

@@ -137,6 +137,7 @@ export class FoodsFacadeService {
       updatedAt: new Date(foodDTO.updated_at),
       name: foodDTO.name,
       notes: foodDTO.notes,
+      calories: foodDTO.calories,
       ingredients,
     };
   }

@@ -6,5 +6,6 @@ export type Food = {
   createdAt: Date;
   updatedAt: Date;
   ingredients: Ingredient[];
+  calories?: number;
   notes?: string;
 };
