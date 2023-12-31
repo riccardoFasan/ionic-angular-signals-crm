@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   IonApp,
@@ -14,17 +14,8 @@ import {
   IonLabel,
   IonRouterOutlet,
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import {
-  pricetagSharp,
-  pricetagOutline,
-  bookSharp,
-  bookOutline,
-  calendarSharp,
-  calendarOutline,
-  fastFoodSharp,
-  fastFoodOutline,
-} from 'ionicons/icons';
+
+import { InitializerService } from './shared/utility/initializer/initializer.service';
 
 @Component({
   selector: 'app-root',
@@ -57,24 +48,6 @@ import {
               <ion-menu-toggle auto-hide="false">
                 <ion-item
                   routerDirection="root"
-                  routerLink="foods"
-                  lines="none"
-                  detail="false"
-                  routerLinkActive="selected"
-                >
-                  <ion-icon
-                    aria-hidden="true"
-                    slot="start"
-                    [ios]="'fast-food-outline'"
-                    [md]="'fast-food-sharp'"
-                  />
-                  <ion-label>Foods</ion-label>
-                </ion-item>
-              </ion-menu-toggle>
-
-              <ion-menu-toggle auto-hide="false">
-                <ion-item
-                  routerDirection="root"
                   routerLink="activity-types"
                   lines="none"
                   detail="false"
@@ -86,7 +59,7 @@ import {
                     [ios]="'calendar-outline'"
                     [md]="'calendar-sharp'"
                   />
-                  <ion-label>Activity tyes</ion-label>
+                  <ion-label>Activities</ion-label>
                 </ion-item>
               </ion-menu-toggle>
 
@@ -105,6 +78,42 @@ import {
                     [md]="'pricetag-sharp'"
                   />
                   <ion-label>Tags</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="foods"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    [ios]="'fast-food-outline'"
+                    [md]="'fast-food-sharp'"
+                  />
+                  <ion-label>Foods</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="ingredients"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    [ios]="'list-outline'"
+                    [md]="'list-sharp'"
+                  />
+                  <ion-label>Ingredients</ion-label>
                 </ion-item>
               </ion-menu-toggle>
             </ion-list>
@@ -219,16 +228,9 @@ import {
   ],
 })
 export class AppComponent {
+  private initializer = inject(InitializerService);
+
   constructor() {
-    addIcons({
-      pricetagSharp,
-      pricetagOutline,
-      bookSharp,
-      bookOutline,
-      calendarSharp,
-      calendarOutline,
-      fastFoodSharp,
-      fastFoodOutline,
-    });
+    this.initializer.initialize$.next();
   }
 }
