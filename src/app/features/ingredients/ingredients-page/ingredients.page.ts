@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -6,7 +6,11 @@ import {
   IonMenuButton,
   IonTitle,
   IonContent,
+  IonFabButton,
+  IonFab,
+  IonIcon,
 } from '@ionic/angular/standalone';
+import { IngredientModalsService } from '../utility';
 
 @Component({
   selector: 'app-ingredients',
@@ -26,6 +30,12 @@ import {
           <ion-title size="large">Ingredients</ion-title>
         </ion-toolbar>
       </ion-header>
+
+      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+        <ion-fab-button (click)="createIngredient()">
+          <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   `,
   styles: [``],
@@ -37,6 +47,15 @@ import {
     IonMenuButton,
     IonTitle,
     IonContent,
+    IonFabButton,
+    IonFab,
+    IonIcon,
   ],
 })
-export class IngredientsPage {}
+export class IngredientsPage {
+  private ingredientModals = inject(IngredientModalsService);
+
+  protected createIngredient(): void {
+    this.ingredientModals.openCreateModal();
+  }
+}

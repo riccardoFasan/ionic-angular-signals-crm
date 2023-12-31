@@ -1,5 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { IngredientApiService, IngredientDTO } from '../../../foods/data-access/database';
+import {
+  IngredientApiService,
+  IngredientDTO,
+} from '../../../foods/data-access/database';
 import { List } from 'src/app/shared/utility';
 import { Ingredient } from '../ingredient.model';
 

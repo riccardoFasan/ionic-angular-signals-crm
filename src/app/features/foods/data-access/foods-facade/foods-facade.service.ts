@@ -2,7 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { FoodApiService, FoodDTO, FoodIngredientApiService } from '../database';
 import { List } from 'src/app/shared/utility';
 import { Food } from '../food.model';
-import { Ingredient, IngredientsFacadeService } from 'src/app/features/ingredients/data-access';
+import {
+  Ingredient,
+  IngredientsFacadeService,
+} from 'src/app/features/ingredients/data-access';
 
 @Injectable({
   providedIn: 'root',

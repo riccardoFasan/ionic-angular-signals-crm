@@ -27,6 +27,7 @@ import {
   fastFoodOutline,
   listOutline,
   listSharp,
+  add,
 } from 'ionicons/icons';
 
 if (environment.production) {
@@ -52,4 +53,5 @@ addIcons({
   fastFoodOutline,
   listOutline,
   listSharp,
+  add,
 });
