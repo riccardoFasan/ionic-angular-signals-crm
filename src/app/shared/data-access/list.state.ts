@@ -5,7 +5,7 @@ export type ListState<T> = {
   searchCriteria: SearchCriteria;
   count: number;
   loading: boolean;
-  error?: string;
+  error?: Error;
 };
 
 export const INITIAL_LIST_PAGINATION: Pagination = {
@@ -13,7 +13,7 @@ export const INITIAL_LIST_PAGINATION: Pagination = {
   pageIndex: 0,
 };
 
-export const INITIAL_LIST_STATE: ListState<unknown> = {
+export const INITIAL_LIST_STATE: ListState<any> = {
   items: [],
   count: 0,
   searchCriteria: {
