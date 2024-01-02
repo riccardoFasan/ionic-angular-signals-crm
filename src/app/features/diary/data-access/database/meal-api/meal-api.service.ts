@@ -20,8 +20,8 @@ export class MealApiService {
       );`);
   }
 
-  async getList(page: number, pageSize: number): Promise<List<MealDTO>> {
-    const offset = (page - 1) * pageSize;
+  async getList(pageIndex: number, pageSize: number): Promise<List<MealDTO>> {
+    const offset = pageIndex * pageSize;
 
     const listResult = await this.database.query(
       `SELECT * FROM meal
@@ -33,7 +33,7 @@ export class MealApiService {
     const items: MealDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;
 
-    return { page, pageSize, total, items };
+    return { pageIndex, pageSize, total, items };
   }
 
   async get(id: number): Promise<MealDTO> {

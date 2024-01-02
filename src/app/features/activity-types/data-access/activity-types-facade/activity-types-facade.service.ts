@@ -9,8 +9,11 @@ import { ActivityType } from '../activity-type.model';
 export class ActivityTypesFacadeService {
   private activityTypeApi = inject(ActivityTypeApiService);
 
-  async getList(page: number, pageSize: number): Promise<List<ActivityType>> {
-    const list = await this.activityTypeApi.getList(page, pageSize);
+  async getList(
+    pageIndex: number,
+    pageSize: number,
+  ): Promise<List<ActivityType>> {
+    const list = await this.activityTypeApi.getList(pageIndex, pageSize);
     const items = list.items.map((dto) => this.mapFromDTO(dto));
     return { ...list, items };
   }

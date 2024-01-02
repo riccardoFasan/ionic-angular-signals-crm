@@ -15,8 +15,8 @@ export class FoodsFacadeService {
   private foodIngredientApi = inject(FoodIngredientApiService);
   private ingredientsFacade = inject(IngredientsFacadeService);
 
-  async getList(page: number, pageSize: number): Promise<List<Food>> {
-    const list = await this.foodApi.getList(page, pageSize);
+  async getList(pageIndex: number, pageSize: number): Promise<List<Food>> {
+    const list = await this.foodApi.getList(pageIndex, pageSize);
     const foodsIngredients = await Promise.all(
       list.items.map((foodDTO) => this.getIngredients(foodDTO.id)),
     );

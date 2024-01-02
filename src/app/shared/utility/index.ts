@@ -10,4 +10,4 @@ export * from './search-criteria.type';
 export * from './sorting.type';
 export * from './sort-order.enum';
 export * from './on-handler-error';
-export * from './fallback-error-message';
+export * from './fallback-messages';

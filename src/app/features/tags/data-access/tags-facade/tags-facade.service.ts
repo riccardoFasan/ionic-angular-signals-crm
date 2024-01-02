@@ -9,8 +9,8 @@ import { List } from 'src/app/shared/utility';
 export class TagsFacadeService {
   private tagApi = inject(TagApiService);
 
-  async getList(page: number, pageSize: number): Promise<List<Tag>> {
-    const list = await this.tagApi.getList(page, pageSize);
+  async getList(pageIndex: number, pageSize: number): Promise<List<Tag>> {
+    const list = await this.tagApi.getList(pageIndex, pageSize);
     const items = list.items.map((dto) => this.mapFromDTO(dto));
     return { ...list, items };
   }

@@ -1,10 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  IngredientApiService,
-  IngredientDTO,
-} from '../../../foods/data-access/database';
 import { List } from 'src/app/shared/utility';
 import { Ingredient } from '../ingredient.model';
+import { IngredientApiService, IngredientDTO } from '../database';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +9,11 @@ import { Ingredient } from '../ingredient.model';
 export class IngredientsFacadeService {
   private ingredientApi = inject(IngredientApiService);
 
-  async getList(page: number, pageSize: number): Promise<List<Ingredient>> {
-    const list = await this.ingredientApi.getList(page, pageSize);
+  async getList(
+    pageIndex: number,
+    pageSize: number,
+  ): Promise<List<Ingredient>> {
+    const list = await this.ingredientApi.getList(pageIndex, pageSize);
     return { ...list, items: list.items.map(this.mapFromDTO) };
   }
 

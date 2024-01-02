@@ -27,10 +27,10 @@ export class ActivityTypeApiService {
   }
 
   async getList(
-    page: number,
+    pageIndex: number,
     pageSize: number,
   ): Promise<List<ActivityTypeDTO>> {
-    const offset = (page - 1) * pageSize;
+    const offset = pageIndex * pageSize;
 
     const listResult = await this.database.query(
       `SELECT * FROM activity_type
@@ -44,7 +44,7 @@ export class ActivityTypeApiService {
     const items: ActivityTypeDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;
 
-    return { page, pageSize, total, items };
+    return { pageIndex, pageSize, total, items };
   }
 
   async get(id: number): Promise<ActivityTypeDTO> {

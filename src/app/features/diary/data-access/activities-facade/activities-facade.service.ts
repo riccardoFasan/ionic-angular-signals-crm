@@ -21,8 +21,8 @@ export class ActivitiesFacadeService {
   private activityTypesFacade = inject(ActivityTypesFacadeService);
   private tagsFacade = inject(TagsFacadeService);
 
-  async getList(page: number, pageSize: number): Promise<List<Activity>> {
-    const list = await this.activityApi.getList(page, pageSize);
+  async getList(pageIndex: number, pageSize: number): Promise<List<Activity>> {
+    const list = await this.activityApi.getList(pageIndex, pageSize);
 
     const [activitiesTags, activityTypes] = await Promise.all([
       Promise.all(
