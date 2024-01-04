@@ -15,7 +15,7 @@ import { ToastsService, onHandlerError } from '../../utility';
 import { Effect } from '../effect.type';
 
 @Injectable()
-export class DetailStoreService<T, E> {
+export class DetailStoreService<T> {
   private handler = inject(STORE_HANDLER);
   private toasts = inject(ToastsService);
 
@@ -27,7 +27,7 @@ export class DetailStoreService<T, E> {
 
   private id$ = new Subject<number>();
   private refresh$ = new Subject<void>();
-  private effect$ = new Subject<Effect<E>>();
+  private effect$ = new Subject<Effect>();
 
   constructor() {
     this.id$

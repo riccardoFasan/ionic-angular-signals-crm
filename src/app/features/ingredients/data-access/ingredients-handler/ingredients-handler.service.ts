@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, defer } from 'rxjs';
-import { EffectType, StoreHandler } from 'src/app/shared/data-access';
+import { Effect, EffectType, StoreHandler } from 'src/app/shared/data-access';
 import {
   CreateIngredientFormData,
   Ingredient,
@@ -12,9 +12,7 @@ import { List, SearchCriteria, ToastsService } from 'src/app/shared/utility';
 @Injectable({
   providedIn: 'root',
 })
-export class IngredientsHandlerService
-  implements StoreHandler<Ingredient, EffectType>
-{
+export class IngredientsHandlerService implements StoreHandler<Ingredient> {
   private ingredientsFacade = inject(IngredientsFacadeService);
   private toasts = inject(ToastsService);
 
@@ -40,8 +38,7 @@ export class IngredientsHandlerService
   }
 
   effect(
-    type: EffectType,
-    formData: unknown,
+    { type, formData }: Effect,
     item?: Ingredient,
   ): Observable<Ingredient> {
     if (type === EffectType.Create) {
@@ -70,7 +67,7 @@ export class IngredientsHandlerService
     throw new Error(`Effect not implemented for: ${type}`);
   }
 
-  onEffect(type: EffectType, item: Ingredient): Observable<void> {
+  onEffect({ type }: Effect, item: Ingredient): Observable<void> {
     const message = this.getMessage(type, item);
     this.toasts.success(message);
     throw new Error(`Effect not implemented for: ${type}`);
