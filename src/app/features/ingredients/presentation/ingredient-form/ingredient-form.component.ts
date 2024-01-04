@@ -85,6 +85,10 @@ export class IngredientFormComponent {
 
   protected submit(): void {
     if (this.form.invalid) return;
-    this.save.emit(this.form.value);
+    const formData = {
+      name: this.form.value.name,
+      notes: this.form.value.notes || '',
+    };
+    this.save.emit(formData);
   }
 }

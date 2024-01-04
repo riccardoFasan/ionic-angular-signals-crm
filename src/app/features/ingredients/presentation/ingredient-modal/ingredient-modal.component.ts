@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  effect,
+  inject,
+} from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -17,11 +23,13 @@ import {
 import {
   CreateIngredientFormData,
   IngredientsHandlerService,
+  UpdateIngredientFormData,
 } from '../../data-access';
+import { IngredientModalsService } from '../../utility';
 import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
 
 @Component({
-  selector: 'app-create-ingredient-modal',
+  selector: 'app-ingredient-modal',
   standalone: true,
   imports: [
     IonContent,
@@ -35,14 +43,20 @@ import { IngredientFormComponent } from '../ingredient-form/ingredient-form.comp
   template: `
     <ion-header>
       <ion-toolbar>
-        <ion-title>Create ingredient</ion-title>
+        <ion-title>
+          {{ ingredient() ? ingredient().name : 'Create ingredient' }}
+        </ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="dismiss()">Close</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <app-ingredient-form [loading]="loading()" (save)="save($event)" />
+      <app-ingredient-form
+        [loading]="loading()"
+        (save)="save($event)"
+        [ingredient]="ingredient()"
+      />
     </ion-content>
   `,
   styles: ``,
@@ -55,15 +69,31 @@ import { IngredientFormComponent } from '../ingredient-form/ingredient-form.comp
     },
   ],
 })
-export class CreateIngredientModalComponent {
-  private modalCtrl = inject(ModalController);
+export class IngredientModalComponent implements OnInit {
   private detailStore = inject(DetailStoreService);
+  private modalCtrl = inject(ModalController);
+
+  private id!: number;
 
   protected loading = this.detailStore.loading;
+  protected ingredient = this.detailStore.item;
+
+  constructor() {
+    effect(() => {
+      const ingredient = this.ingredient();
+      if (!ingredient) return;
+      this.detailStore.id$.next(ingredient.id);
+    });
+  }
+
+  ngOnInit(): void {
+    if (!this.id) return;
+    this.detailStore.id$.next(this.id);
+  }
 
   protected save(payload: CreateIngredientFormData): void {
     const effect: Effect = {
-      type: EffectType.Create,
+      type: this.ingredient() ? EffectType.Update : EffectType.Create,
       payload,
     };
     this.detailStore.effect$.next(effect);

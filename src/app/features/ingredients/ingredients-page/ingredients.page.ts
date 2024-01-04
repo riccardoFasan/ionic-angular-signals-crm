@@ -56,6 +56,6 @@ export class IngredientsPage {
   private ingredientModals = inject(IngredientModalsService);
 
   protected createIngredient(): void {
-    this.ingredientModals.openCreateModal();
+    this.ingredientModals.openModal();
   }
 }
