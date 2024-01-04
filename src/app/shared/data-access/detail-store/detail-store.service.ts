@@ -25,9 +25,9 @@ export class DetailStoreService<T> {
   item = computed<T | undefined>(() => this.state().item);
   error = computed<Error | undefined>(() => this.state().error);
 
-  private id$ = new Subject<number>();
-  private refresh$ = new Subject<void>();
-  private effect$ = new Subject<Effect>();
+  id$ = new Subject<number>();
+  refresh$ = new Subject<void>();
+  effect$ = new Subject<Effect>();
 
   constructor() {
     this.id$

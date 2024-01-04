@@ -37,13 +37,10 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
     );
   }
 
-  effect(
-    { type, formData }: Effect,
-    item?: Ingredient,
-  ): Observable<Ingredient> {
+  effect({ type, payload }: Effect, item?: Ingredient): Observable<Ingredient> {
     if (type === EffectType.Create) {
       return defer(() =>
-        this.ingredientsFacade.create(formData as CreateIngredientFormData),
+        this.ingredientsFacade.create(payload as CreateIngredientFormData),
       );
     }
 
@@ -55,7 +52,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
       return defer(() =>
         this.ingredientsFacade.update(
           item!.id,
-          formData as UpdateIngredientFormData,
+          payload as UpdateIngredientFormData,
         ),
       );
     }
@@ -69,8 +66,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
 
   onEffect({ type }: Effect, item: Ingredient): Observable<void> {
     const message = this.getMessage(type, item);
-    this.toasts.success(message);
-    throw new Error(`Effect not implemented for: ${type}`);
+    return defer(() => this.toasts.success(message));
   }
 
   private getMessage(
@@ -89,6 +85,6 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
       return `Ingredient ${item.name} deleted`;
     }
 
-    return;
+    throw new Error(`getMessage not implemented for: ${type}`);
   }
 }

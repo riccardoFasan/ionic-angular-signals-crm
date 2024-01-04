@@ -28,6 +28,8 @@ import {
   listOutline,
   listSharp,
   add,
+  alertCircleOutline,
+  checkmarkCircleOutline,
 } from 'ionicons/icons';
 
 if (environment.production) {
@@ -54,4 +56,6 @@ addIcons({
   listOutline,
   listSharp,
   add,
+  alertCircleOutline,
+  checkmarkCircleOutline,
 });
