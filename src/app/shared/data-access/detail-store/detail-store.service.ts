@@ -1,4 +1,5 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DetailState, INITIAL_DETAIL_STATE } from '../detail.state';
 import {
   Subject,
@@ -9,10 +10,8 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { STORE_HANDLER } from '../store-handler.token';
-import { onHandlerError } from '../../utility/on-handler-error';
-import { ToastsService } from '../../utility';
+import { ToastsService, onHandlerError } from '../../utility';
 import { Effect } from '../effect.type';
 
 @Injectable()

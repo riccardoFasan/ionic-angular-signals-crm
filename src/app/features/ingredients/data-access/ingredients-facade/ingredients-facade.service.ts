@@ -1,6 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { List } from 'src/app/shared/utility';
-import { Ingredient } from '../ingredient.model';
+import {
+  CreateIngredientFormData,
+  Ingredient,
+  UpdateIngredientFormData,
+} from '../ingredient.model';
 import { IngredientApiService, IngredientDTO } from '../database';
 
 @Injectable({
@@ -22,13 +26,16 @@ export class IngredientsFacadeService {
     return this.mapFromDTO(dto);
   }
 
-  async create(name: string, notes?: string): Promise<Ingredient> {
-    const id = await this.ingredientApi.create(name, notes);
+  async create(formData: CreateIngredientFormData): Promise<Ingredient> {
+    const id = await this.ingredientApi.create(formData.name, formData.notes);
     return await this.get(id);
   }
 
-  async update(id: number, name: string, notes?: string): Promise<Ingredient> {
-    await this.ingredientApi.update(id, name, notes);
+  async update(
+    id: number,
+    formData: UpdateIngredientFormData,
+  ): Promise<Ingredient> {
+    await this.ingredientApi.update(id, formData.name, formData.notes);
     return await this.get(id);
   }
 

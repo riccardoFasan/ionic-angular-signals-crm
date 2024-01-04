@@ -1,18 +1,19 @@
 import { Injectable, inject } from '@angular/core';
-import { EffectType, StoreHandler } from 'src/app/shared/data-access';
-import { Ingredient } from '../ingredient.model';
-import { IngredientsFacadeService } from '../ingredients-facade/ingredients-facade.service';
 import { Observable, defer } from 'rxjs';
+import { EffectType, StoreHandler } from 'src/app/shared/data-access';
+import {
+  CreateIngredientFormData,
+  Ingredient,
+  UpdateIngredientFormData,
+} from '../ingredient.model';
+import { IngredientsFacadeService } from '../ingredients-facade/ingredients-facade.service';
 import { List, SearchCriteria, ToastsService } from 'src/app/shared/utility';
-import { Effect } from 'src/app/shared/data-access/effect.type';
-
-type IngredientFormData = Ingredient | Omit<Ingredient, 'id'>;
 
 @Injectable({
   providedIn: 'root',
 })
 export class IngredientsHandlerService
-  implements StoreHandler<Ingredient, IngredientFormData>
+  implements StoreHandler<Ingredient, EffectType>
 {
   private ingredientsFacade = inject(IngredientsFacadeService);
   private toasts = inject(ToastsService);
@@ -39,12 +40,13 @@ export class IngredientsHandlerService
   }
 
   effect(
-    { type, data }: Effect<IngredientFormData>,
+    type: EffectType,
+    formData: unknown,
     item?: Ingredient,
   ): Observable<Ingredient> {
     if (type === EffectType.Create) {
       return defer(() =>
-        this.ingredientsFacade.create(data!.name, data!.notes),
+        this.ingredientsFacade.create(formData as CreateIngredientFormData),
       );
     }
 
@@ -54,7 +56,10 @@ export class IngredientsHandlerService
 
     if (type === EffectType.Update) {
       return defer(() =>
-        this.ingredientsFacade.update(item!.id, data!.name, data!.notes),
+        this.ingredientsFacade.update(
+          item!.id,
+          formData as UpdateIngredientFormData,
+        ),
       );
     }
 
@@ -65,10 +70,7 @@ export class IngredientsHandlerService
     throw new Error(`Effect not implemented for: ${type}`);
   }
 
-  onEffect(
-    { type }: Effect<IngredientFormData>,
-    item: Ingredient,
-  ): Observable<void> {
+  onEffect(type: EffectType, item: Ingredient): Observable<void> {
     const message = this.getMessage(type, item);
     this.toasts.success(message);
     throw new Error(`Effect not implemented for: ${type}`);
