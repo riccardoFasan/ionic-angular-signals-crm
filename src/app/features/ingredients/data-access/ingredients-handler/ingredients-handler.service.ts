@@ -29,12 +29,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
   }
 
   getList(searchCriteria: SearchCriteria): Observable<List<Ingredient>> {
-    return defer(() =>
-      this.ingredientsFacade.getList(
-        searchCriteria.pagination.pageIndex,
-        searchCriteria.pagination.pageSize,
-      ),
-    );
+    return defer(() => this.ingredientsFacade.getList(searchCriteria));
   }
 
   effect({ type, payload }: Effect, item?: Ingredient): Observable<Ingredient> {
