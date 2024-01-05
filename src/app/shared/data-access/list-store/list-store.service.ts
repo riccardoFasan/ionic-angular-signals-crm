@@ -8,6 +8,7 @@ import {
 } from '../list.state';
 import { Subject, catchError, filter, map, merge, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MachineState } from '../machine-state.enum';
 
 @Injectable()
 export class ListStoreService<T> {
@@ -19,7 +20,7 @@ export class ListStoreService<T> {
   items = computed<T[]>(() => this.state().items);
   searchCriteria = computed(() => this.state().searchCriteria);
   total = computed<number>(() => this.state().total);
-  loading = computed<boolean>(() => this.state().loading);
+  mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
   private nextPageSearchCriteria = computed<SearchCriteria>(() => {
@@ -53,7 +54,7 @@ export class ListStoreService<T> {
         tap((searchCriteria) =>
           this.state.update((state) => ({
             ...state,
-            loading: true,
+            mode: MachineState.Fetching,
             searchCriteria,
           })),
         ),
@@ -67,7 +68,7 @@ export class ListStoreService<T> {
             ...state,
             items,
             total,
-            loading: false,
+            mode: MachineState.Idle,
             error: undefined,
           })),
         ),
@@ -81,7 +82,7 @@ export class ListStoreService<T> {
         tap(() =>
           this.state.update((state) => ({
             ...state,
-            loading: true,
+            mode: MachineState.Fetching,
           })),
         ),
         switchMap(() =>
@@ -94,7 +95,7 @@ export class ListStoreService<T> {
             ...state,
             searchCriteria: this.nextPageSearchCriteria(),
             items: [...state.items, ...items],
-            loading: false,
+            mode: MachineState.Idle,
             error: undefined,
           })),
         ),

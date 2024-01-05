@@ -4,6 +4,7 @@ import { DetailState, INITIAL_DETAIL_STATE } from '../detail.state';
 import {
   Subject,
   catchError,
+  delay,
   distinctUntilChanged,
   filter,
   map,
@@ -13,6 +14,7 @@ import {
 import { STORE_HANDLER } from '../store-handler.token';
 import { ToastsService, onHandlerError } from '../../utility';
 import { Effect } from '../effect.type';
+import { MachineState } from '../machine-state.enum';
 
 @Injectable()
 export class DetailStoreService<T> {
@@ -22,7 +24,7 @@ export class DetailStoreService<T> {
   private state = signal<DetailState<T>>(INITIAL_DETAIL_STATE);
 
   item = computed<T | undefined>(() => this.state().item);
-  loading = computed<boolean>(() => this.state().loading);
+  mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
   id$ = new Subject<number>();
@@ -35,7 +37,13 @@ export class DetailStoreService<T> {
         takeUntilDestroyed(),
         filter((id) => !!id),
         distinctUntilChanged(),
-        tap(() => this.state.update((state) => ({ ...state, loading: true }))),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Fetching,
+          })),
+        ),
+        delay(50000),
         switchMap((id) =>
           this.handler
             .get(id)
@@ -45,7 +53,7 @@ export class DetailStoreService<T> {
           this.state.update((state) => ({
             ...state,
             item,
-            loading: false,
+            mode: MachineState.Idle,
             error: undefined,
           })),
         ),
@@ -56,7 +64,12 @@ export class DetailStoreService<T> {
       .pipe(
         takeUntilDestroyed(),
         filter(() => !!this.item()),
-        tap(() => this.state.update((state) => ({ ...state, loading: true }))),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Fetching,
+          })),
+        ),
         map(() => this.handler.extractId(this.item()!)),
         switchMap((id) =>
           this.handler
@@ -67,7 +80,7 @@ export class DetailStoreService<T> {
           this.state.update((state) => ({
             ...state,
             item,
-            loading: false,
+            mode: MachineState.Idle,
             error: undefined,
           })),
         ),
@@ -77,7 +90,12 @@ export class DetailStoreService<T> {
     this.effect$
       .pipe(
         takeUntilDestroyed(),
-        tap(() => this.state.update((state) => ({ ...state, loading: true }))),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Processing,
+          })),
+        ),
         switchMap((effect) =>
           this.handler.effect(effect, this.item()).pipe(
             catchError((error) => onHandlerError(error, this.state)),
@@ -88,7 +106,7 @@ export class DetailStoreService<T> {
           this.state.update((state) => ({
             ...state,
             item,
-            loading: false,
+            mode: MachineState.Idle,
             error: undefined,
           })),
         ),

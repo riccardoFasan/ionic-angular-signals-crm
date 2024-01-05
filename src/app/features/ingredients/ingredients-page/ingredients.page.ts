@@ -17,12 +17,7 @@ import {
   IonItemOptions,
 } from '@ionic/angular/standalone';
 import { IngredientModalsService } from '../utility';
-import {
-  Effect,
-  EffectType,
-  ListStoreService,
-  STORE_HANDLER,
-} from 'src/app/shared/data-access';
+import { ListStoreService, STORE_HANDLER } from 'src/app/shared/data-access';
 import { Ingredient, IngredientsHandlerService } from '../data-access';
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 
@@ -73,7 +68,7 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
       <app-scrollable-list
         [items]="ingredients()"
         [canLoadNextPage]="canLoadNextPage()"
-        [loading]="loading()"
+        [loading]="mode() === 'FETCHING'"
         [trackFn]="trackFn"
         (scrollEnd)="loadNextPage()"
       >
@@ -110,7 +105,7 @@ export class IngredientsPage implements ViewWillEnter {
   private ingredientModals = inject(IngredientModalsService);
 
   protected ingredients = this.listStore.items;
-  protected loading = this.listStore.loading;
+  protected mode = this.listStore.mode;
   protected canLoadNextPage = this.listStore.canLoadNextPage;
 
   protected trackFn = (ingredient: Ingredient): number =>

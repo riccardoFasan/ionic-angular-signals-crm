@@ -1,10 +1,11 @@
 import { Pagination, SearchCriteria } from '../utility';
+import { MachineState } from './machine-state.enum';
 
 export type ListState<T> = {
   items: T[];
   searchCriteria: SearchCriteria;
   total: number;
-  loading: boolean;
+  mode: MachineState;
   error?: Error;
 };
 
@@ -22,5 +23,5 @@ export const INITIAL_LIST_STATE: ListState<any> = {
   items: [],
   total: 0,
   searchCriteria: INITIAL_SEARCH_CRITERIA,
-  loading: false,
+  mode: MachineState.Idle,
 };

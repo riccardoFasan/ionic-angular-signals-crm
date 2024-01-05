@@ -6,3 +6,4 @@ export * from './list.state';
 export * from './detail.state';
 export * from './effect-type.enum';
 export * from './effect.type';
+export * from './machine-state.enum';

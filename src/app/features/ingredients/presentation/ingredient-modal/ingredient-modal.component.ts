@@ -4,6 +4,7 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
+  IonSkeletonText,
   IonTitle,
   IonToolbar,
   ModalController,
@@ -33,28 +34,69 @@ import { IngredientFormComponent } from '../ingredient-form/ingredient-form.comp
     IonButtons,
     IonButton,
     IngredientFormComponent,
+    IonSkeletonText,
   ],
   template: `
     <ion-header>
       <ion-toolbar>
         <ion-title>
-          {{ ingredient() ? 'Edit ' + ingredient().name : 'Create ingredient' }}
+          @if (mode() === 'FETCHING') {
+            <ion-skeleton-text animated="true" />
+          } @else {
+            {{
+              ingredient() ? 'Edit ' + ingredient().name : 'Create ingredient'
+            }}
+          }
         </ion-title>
         <ion-buttons slot="end">
+          @if (ingredient()) {
+            <ion-button (click)="remove()">Delete</ion-button>
+          }
           <ion-button (click)="dismiss()">Close</ion-button>
-          <ion-button (click)="remove()">Delete</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <app-ingredient-form
-        [loading]="loading()"
-        (save)="save($event)"
-        [ingredient]="ingredient()"
-      />
+      @if (mode() === 'FETCHING') {
+        <ion-skeleton-text animated="true" />
+        <ion-skeleton-text animated="true" />
+        <ion-skeleton-text animated="true" />
+      } @else {
+        <app-ingredient-form
+          [loading]="mode() === 'PROCESSING'"
+          (save)="save($event)"
+          [ingredient]="ingredient()"
+        />
+      }
     </ion-content>
   `,
-  styles: ``,
+  styles: `
+    ion-title ion-skeleton-text {
+      width: 66%;
+      height: 1.25rem;
+    }
+
+    ion-content ion-skeleton-text {
+      height: 1.5rem;
+      
+      &:not(:last-child)  {
+        margin-bottom: 0.75rem;
+      }
+
+      &:nth-child(1){
+        width: 75%
+      }
+      
+      &:nth-child(2){
+        width: 66%
+      }
+
+      &:nth-child(3){
+        width: 80%
+      }
+
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     DetailStoreService,
@@ -70,7 +112,7 @@ export class IngredientModalComponent implements ViewWillEnter {
 
   private id!: number;
 
-  protected loading = this.detailStore.loading;
+  protected mode = this.detailStore.mode;
   protected ingredient = this.detailStore.item;
 
   ionViewWillEnter(): void {

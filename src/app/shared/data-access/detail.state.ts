@@ -1,10 +1,12 @@
+import { MachineState } from './machine-state.enum';
+
 export type DetailState<T> = {
-  loading: boolean;
+  mode: MachineState;
   item?: T;
   error?: Error;
 };
 
 export const INITIAL_DETAIL_STATE: DetailState<any> = {
   item: undefined,
-  loading: false,
+  mode: MachineState.Idle,
 };
