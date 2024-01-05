@@ -42,6 +42,7 @@ import { IngredientFormComponent } from '../ingredient-form/ingredient-form.comp
         </ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="dismiss()">Close</ion-button>
+          <ion-button (click)="remove()">Delete</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -85,6 +86,16 @@ export class IngredientModalComponent implements ViewWillEnter {
       payload,
     };
     this.detailStore.effect$.next(effect);
+  }
+
+  protected remove(): void {
+    if (!this.ingredient()) return;
+    const effect: Effect = {
+      type: EffectType.Delete,
+      payload: this.ingredient(),
+    };
+    this.detailStore.effect$.next(effect);
+    this.dismiss();
   }
 
   protected dismiss(): void {

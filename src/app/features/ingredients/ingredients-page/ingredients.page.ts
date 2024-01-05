@@ -12,9 +12,17 @@ import {
   IonItem,
   IonLabel,
   ViewWillEnter,
+  IonItemSliding,
+  IonItemOption,
+  IonItemOptions,
 } from '@ionic/angular/standalone';
 import { IngredientModalsService } from '../utility';
-import { ListStoreService, STORE_HANDLER } from 'src/app/shared/data-access';
+import {
+  Effect,
+  EffectType,
+  ListStoreService,
+  STORE_HANDLER,
+} from 'src/app/shared/data-access';
 import { Ingredient, IngredientsHandlerService } from '../data-access';
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 
@@ -32,6 +40,9 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
     IonFab,
     IonIcon,
     IonItem,
+    IonItemSliding,
+    IonItemOptions,
+    IonItemOption,
     IonLabel,
     ScrollableListComponent,
   ],
@@ -67,15 +78,26 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
         (scrollEnd)="loadNextPage()"
       >
         <ng-template #itemTemplate let-item>
-          <ion-item>
-            <ion-label>{{ item.name }}</ion-label>
-          </ion-item>
+          <ion-item-sliding>
+            <ion-item>
+              <ion-label>{{ item.name }}</ion-label>
+            </ion-item>
+
+            <ion-item-options>
+              <ion-item-option (click)="openModal(item.id)">
+                Edit
+              </ion-item-option>
+              <!-- <ion-item-option (click)="remove(item.id)" color="danger">
+                Delete
+              </ion-item-option> -->
+            </ion-item-options>
+          </ion-item-sliding>
         </ng-template>
       </app-scrollable-list>
 
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button (click)="createIngredient()">
-          <ion-icon name="add"></ion-icon>
+        <ion-fab-button (click)="openModal()">
+          <ion-icon name="add" />
         </ion-fab-button>
       </ion-fab>
     </ion-content>
@@ -103,7 +125,15 @@ export class IngredientsPage implements ViewWillEnter {
     this.listStore.loadNextPage$.next();
   }
 
-  protected createIngredient(): void {
-    this.ingredientModals.openModal();
+  // protected remove(ingredient:Ingredient): void {
+  //   const effect: Effect = {
+  //     type: EffectType.Delete,
+  //     payload: ingredient,
+  //   };
+  //   this.listStore.effect$.next(effect);
+  // }
+
+  protected openModal(id?: number): void {
+    this.ingredientModals.openModal(id);
   }
 }
