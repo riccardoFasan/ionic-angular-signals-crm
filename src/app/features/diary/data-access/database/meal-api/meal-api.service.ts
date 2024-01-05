@@ -33,9 +33,13 @@ export class MealApiService {
 
     if (filters) {
       const filterClauses = Object.entries(filters)
-        .map(([field, value]) => `${field} LIKE '%${value}%'`)
+        .reduce((clauses: string[], [field, value]) => {
+          if (value !== undefined)
+            return [...clauses, `${field} LIKE '%${value}%'`];
+          return clauses;
+        }, [])
         .join(' AND ');
-      selectQuery += ` WHERE ${filterClauses}`;
+      if (filterClauses) selectQuery += ` WHERE ${filterClauses}`;
     }
 
     if (sorting) {

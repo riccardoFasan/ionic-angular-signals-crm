@@ -9,7 +9,7 @@ export type ListState<T> = {
 };
 
 export const INITIAL_LIST_PAGINATION: Pagination = {
-  pageSize: 10,
+  pageSize: 18,
   pageIndex: 0,
 };
 

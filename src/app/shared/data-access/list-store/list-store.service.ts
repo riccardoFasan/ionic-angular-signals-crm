@@ -31,7 +31,7 @@ export class ListStoreService<T> {
     };
   });
 
-  private canLoadNextPage = computed<boolean>(() => {
+  canLoadNextPage = computed<boolean>(() => {
     const { pagination } = this.nextPageSearchCriteria();
     const { pageIndex, pageSize } = pagination;
     return pageIndex * pageSize < this.total();

@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  effect,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -13,6 +7,7 @@ import {
   IonTitle,
   IonToolbar,
   ModalController,
+  ViewWillEnter,
 } from '@ionic/angular/standalone';
 import {
   DetailStoreService,
@@ -25,7 +20,6 @@ import {
   IngredientsHandlerService,
   UpdateIngredientFormData,
 } from '../../data-access';
-import { IngredientModalsService } from '../../utility';
 import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
 
 @Component({
@@ -44,7 +38,7 @@ import { IngredientFormComponent } from '../ingredient-form/ingredient-form.comp
     <ion-header>
       <ion-toolbar>
         <ion-title>
-          {{ ingredient() ? ingredient().name : 'Create ingredient' }}
+          {{ ingredient() ? 'Edit ' + ingredient().name : 'Create ingredient' }}
         </ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="dismiss()">Close</ion-button>
@@ -69,7 +63,7 @@ import { IngredientFormComponent } from '../ingredient-form/ingredient-form.comp
     },
   ],
 })
-export class IngredientModalComponent implements OnInit {
+export class IngredientModalComponent implements ViewWillEnter {
   private detailStore = inject(DetailStoreService);
   private modalCtrl = inject(ModalController);
 
@@ -78,20 +72,14 @@ export class IngredientModalComponent implements OnInit {
   protected loading = this.detailStore.loading;
   protected ingredient = this.detailStore.item;
 
-  constructor() {
-    effect(() => {
-      const ingredient = this.ingredient();
-      if (!ingredient) return;
-      this.detailStore.id$.next(ingredient.id);
-    });
-  }
-
-  ngOnInit(): void {
+  ionViewWillEnter(): void {
     if (!this.id) return;
     this.detailStore.id$.next(this.id);
   }
 
-  protected save(payload: CreateIngredientFormData): void {
+  protected save(
+    payload: CreateIngredientFormData | UpdateIngredientFormData,
+  ): void {
     const effect: Effect = {
       type: this.ingredient() ? EffectType.Update : EffectType.Create,
       payload,

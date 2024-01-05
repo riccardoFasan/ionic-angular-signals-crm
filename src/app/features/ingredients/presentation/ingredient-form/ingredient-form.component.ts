@@ -4,6 +4,8 @@ import {
   EventEmitter,
   Input,
   Output,
+  effect,
+  signal,
 } from '@angular/core';
 import {
   FormControl,
@@ -57,7 +59,7 @@ import { Ingredient } from '../../data-access';
         expand="block"
         [disabled]="loading || (form.invalid && form.touched)"
       >
-        Save
+        {{ data ? 'Edit' : 'Create' }}
       </ion-button>
     </form>
   `,
@@ -69,12 +71,15 @@ export class IngredientFormComponent {
 
   @Input() set ingredient(ingredient: Ingredient | undefined) {
     if (!ingredient) return;
+    this.data = ingredient;
 
     this.form.patchValue({
       name: ingredient.name,
       notes: ingredient.notes,
     });
   }
+
+  protected data?: Ingredient;
 
   @Output() save = new EventEmitter();
 
