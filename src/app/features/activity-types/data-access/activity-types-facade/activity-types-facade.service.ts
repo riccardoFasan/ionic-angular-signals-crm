@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ActivityTypeApiService, ActivityTypeDTO } from '../database';
-import { List } from 'src/app/shared/utility';
+import { List, SearchCriteria } from 'src/app/shared/utility';
 import { ActivityType } from '../activity-type.model';
 
 @Injectable({
@@ -9,11 +9,12 @@ import { ActivityType } from '../activity-type.model';
 export class ActivityTypesFacadeService {
   private activityTypeApi = inject(ActivityTypeApiService);
 
-  async getList(
-    pageIndex: number,
-    pageSize: number,
-  ): Promise<List<ActivityType>> {
-    const list = await this.activityTypeApi.getList(pageIndex, pageSize);
+  async getList(searchCriteria: SearchCriteria): Promise<List<ActivityType>> {
+    const filters = this.mapToApiFilters(searchCriteria.filters);
+    const list = await this.activityTypeApi.getList({
+      ...searchCriteria,
+      filters,
+    });
     const items = list.items.map((dto) => this.mapFromDTO(dto));
     return { ...list, items };
   }
@@ -47,6 +48,16 @@ export class ActivityTypesFacadeService {
       name: dto.name,
       icon: dto.icon,
       color: dto.color,
+    };
+  }
+
+  private mapToApiFilters(
+    filters: SearchCriteria['filters'],
+  ): Record<string, string> {
+    return {
+      ...filters,
+      created_at: (filters['createdAt'] as Date)?.toISOString(),
+      updated_at: (filters['updatedAt'] as Date)?.toISOString(),
     };
   }
 }

@@ -4,5 +4,5 @@ import { Sorting } from './sorting.type';
 export type SearchCriteria = {
   pagination: Pagination;
   sorting?: Sorting;
-  filters: Record<string, string | number | boolean>;
+  filters: Record<string, string | number | boolean | Date>;
 };

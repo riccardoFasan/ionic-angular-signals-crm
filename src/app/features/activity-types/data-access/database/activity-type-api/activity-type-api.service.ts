@@ -3,6 +3,7 @@ import {
   DatabaseService,
   List,
   NotFoundError,
+  SearchCriteria,
   nowIsoString,
 } from 'src/app/shared/utility';
 import { ActivityTypeDTO } from '../activity-type.dto';
@@ -27,19 +28,32 @@ export class ActivityTypeApiService {
   }
 
   async getList(
-    pageIndex: number,
-    pageSize: number,
+    searchCriteria: SearchCriteria,
   ): Promise<List<ActivityTypeDTO>> {
+    let selectQuery = `SELECT * FROM activity_type`;
+    const countQuery = `SELECT COUNT(*) FROM activity_type;`;
+
+    const { filters, sorting } = searchCriteria;
+
+    if (filters) {
+      const filterClauses = Object.entries(filters)
+        .map(([field, value]) => `${field} LIKE '%${value}%'`)
+        .join(' AND ');
+      selectQuery += ` WHERE ${filterClauses}`;
+    }
+
+    if (sorting) {
+      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    }
+
+    const { pageIndex, pageSize } = searchCriteria.pagination;
     const offset = pageIndex * pageSize;
+    selectQuery += ` LIMIT ${pageSize} OFFSET ${offset};`;
 
-    const listResult = await this.database.query(
-      `SELECT * FROM activity_type
-      LIMIT ${pageSize} OFFSET ${offset};`,
-    );
-
-    const countResult = await this.database.query(
-      `SELECT COUNT(*) FROM activity_type;`,
-    );
+    const [listResult, countResult] = await Promise.all([
+      this.database.query(selectQuery),
+      this.database.query(countQuery),
+    ]);
 
     const items: ActivityTypeDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;

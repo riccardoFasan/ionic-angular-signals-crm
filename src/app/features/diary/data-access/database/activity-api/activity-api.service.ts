@@ -1,5 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService, List, nowIsoString } from 'src/app/shared/utility';
+import {
+  DatabaseService,
+  List,
+  SearchCriteria,
+  nowIsoString,
+} from 'src/app/shared/utility';
 import { ActivityDTO } from '../activity.dto';
 
 @Injectable({
@@ -23,20 +28,31 @@ export class ActivityApiService {
     `);
   }
 
-  async getList(
-    pageIndex: number,
-    pageSize: number,
-  ): Promise<List<ActivityDTO>> {
+  async getList(searchCriteria: SearchCriteria): Promise<List<ActivityDTO>> {
+    let selectQuery = `SELECT * FROM activity`;
+    const countQuery = `SELECT COUNT(*) FROM activity;`;
+
+    const { filters, sorting } = searchCriteria;
+
+    if (filters) {
+      const filterClauses = Object.entries(filters)
+        .map(([field, value]) => `${field} LIKE '%${value}%'`)
+        .join(' AND ');
+      selectQuery += ` WHERE ${filterClauses}`;
+    }
+
+    if (sorting) {
+      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    }
+
+    const { pageIndex, pageSize } = searchCriteria.pagination;
     const offset = pageIndex * pageSize;
+    selectQuery += ` LIMIT ${pageSize} OFFSET ${offset};`;
 
-    const listResult = await this.database.query(
-      `SELECT * FROM activity
-      LIMIT ${pageSize} OFFSET ${offset};`,
-    );
-
-    const countResult = await this.database.query(
-      `SELECT COUNT(*) FROM activity;`,
-    );
+    const [listResult, countResult] = await Promise.all([
+      this.database.query(selectQuery),
+      this.database.query(countQuery),
+    ]);
 
     const items: ActivityDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { List } from 'src/app/shared/utility';
+import { List, SearchCriteria } from 'src/app/shared/utility';
 import {
   CreateIngredientFormData,
   Ingredient,
@@ -13,11 +13,12 @@ import { IngredientApiService, IngredientDTO } from '../database';
 export class IngredientsFacadeService {
   private ingredientApi = inject(IngredientApiService);
 
-  async getList(
-    pageIndex: number,
-    pageSize: number,
-  ): Promise<List<Ingredient>> {
-    const list = await this.ingredientApi.getList(pageIndex, pageSize);
+  async getList(searchCriteria: SearchCriteria): Promise<List<Ingredient>> {
+    const filters = this.mapToApiFilters(searchCriteria.filters);
+    const list = await this.ingredientApi.getList({
+      ...searchCriteria,
+      filters,
+    });
     return { ...list, items: list.items.map(this.mapFromDTO) };
   }
 
@@ -52,6 +53,16 @@ export class IngredientsFacadeService {
       updatedAt: new Date(dto.updated_at),
       name: dto.name,
       notes: dto.notes,
+    };
+  }
+
+  private mapToApiFilters(
+    filters: SearchCriteria['filters'],
+  ): Record<string, string> {
+    return {
+      ...filters,
+      created_at: (filters['createdAt'] as Date)?.toISOString(),
+      updated_at: (filters['updatedAt'] as Date)?.toISOString(),
     };
   }
 }

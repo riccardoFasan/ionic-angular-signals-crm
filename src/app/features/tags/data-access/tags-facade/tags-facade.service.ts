@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TagApiService, TagDTO } from '../database';
 import { Tag } from '../tag.model';
-import { List } from 'src/app/shared/utility';
+import { List, SearchCriteria } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -9,8 +9,12 @@ import { List } from 'src/app/shared/utility';
 export class TagsFacadeService {
   private tagApi = inject(TagApiService);
 
-  async getList(pageIndex: number, pageSize: number): Promise<List<Tag>> {
-    const list = await this.tagApi.getList(pageIndex, pageSize);
+  async getList(searchCriteria: SearchCriteria): Promise<List<Tag>> {
+    const filters = this.mapToApiFilters(searchCriteria.filters);
+    const list = await this.tagApi.getList({
+      ...searchCriteria,
+      filters,
+    });
     const items = list.items.map((dto) => this.mapFromDTO(dto));
     return { ...list, items };
   }
@@ -42,6 +46,16 @@ export class TagsFacadeService {
       createdAt: new Date(dto.created_at),
       updatedAt: new Date(dto.updated_at),
       name: dto.name,
+    };
+  }
+
+  private mapToApiFilters(
+    filters: SearchCriteria['filters'],
+  ): Record<string, string> {
+    return {
+      ...filters,
+      created_at: (filters['createdAt'] as Date)?.toISOString(),
+      updated_at: (filters['updatedAt'] as Date)?.toISOString(),
     };
   }
 }

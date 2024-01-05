@@ -3,6 +3,7 @@ import { MealApiService, MealDTO, MealFoodApiService } from '../database';
 import { FoodsFacadeService } from 'src/app/features/foods/data-access';
 import { Meal } from '../meal.model';
 import { Consumption } from '../consumption.model';
+import { SearchCriteria } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +13,12 @@ export class MealsFacadeService {
   private mealFoodApi = inject(MealFoodApiService);
   private foodsFacade = inject(FoodsFacadeService);
 
-  async getList(pageIndex: number, pageSize: number): Promise<Meal[]> {
-    const list = await this.mealApi.getList(pageIndex, pageSize);
+  async getList(searchCriteria: SearchCriteria): Promise<Meal[]> {
+    const filters = this.mapToApiFilters(searchCriteria.filters);
+    const list = await this.mealApi.getList({
+      ...searchCriteria,
+      filters,
+    });
     const mealsConsumptions = await Promise.all(
       list.items.map((mealDTO) => this.getConsumptions(mealDTO.id)),
     );
@@ -167,6 +172,16 @@ export class MealsFacadeService {
       name: dto.name,
       notes: dto.notes,
       consumptions,
+    };
+  }
+
+  private mapToApiFilters(
+    filters: SearchCriteria['filters'],
+  ): Record<string, string> {
+    return {
+      ...filters,
+      created_at: (filters['createdAt'] as Date)?.toISOString(),
+      updated_at: (filters['updatedAt'] as Date)?.toISOString(),
     };
   }
 }

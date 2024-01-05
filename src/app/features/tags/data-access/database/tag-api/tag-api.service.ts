@@ -3,6 +3,7 @@ import {
   DatabaseService,
   List,
   NotFoundError,
+  SearchCriteria,
   nowIsoString,
 } from 'src/app/shared/utility';
 import { TagDTO } from '../tag.dto';
@@ -25,15 +26,31 @@ export class TagApiService {
     `);
   }
 
-  async getList(pageIndex: number, pageSize: number): Promise<List<TagDTO>> {
+  async getList(searchCriteria: SearchCriteria): Promise<List<TagDTO>> {
+    let selectQuery = `SELECT * FROM tag`;
+    const countQuery = `SELECT COUNT(*) FROM tag;`;
+
+    const { filters, sorting } = searchCriteria;
+
+    if (filters) {
+      const filterClauses = Object.entries(filters)
+        .map(([field, value]) => `${field} LIKE '%${value}%'`)
+        .join(' AND ');
+      selectQuery += ` WHERE ${filterClauses}`;
+    }
+
+    if (sorting) {
+      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    }
+
+    const { pageIndex, pageSize } = searchCriteria.pagination;
     const offset = pageIndex * pageSize;
+    selectQuery += ` LIMIT ${pageSize} OFFSET ${offset};`;
 
-    const listResult = await this.database.query(
-      `SELECT * FROM tag
-      LIMIT ${pageSize} OFFSET ${offset};`,
-    );
-
-    const countResult = await this.database.query(`SELECT COUNT(*) FROM tag;`);
+    const [listResult, countResult] = await Promise.all([
+      this.database.query(selectQuery),
+      this.database.query(countQuery),
+    ]);
 
     const items: TagDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;

@@ -3,6 +3,7 @@ import {
   DatabaseService,
   List,
   NotFoundError,
+  SearchCriteria,
   nowIsoString,
 } from 'src/app/shared/utility';
 import { FoodDTO } from '../food.dto';
@@ -25,15 +26,31 @@ export class FoodApiService {
       );`);
   }
 
-  async getList(pageIndex: number, pageSize: number): Promise<List<FoodDTO>> {
+  async getList(searchCriteria: SearchCriteria): Promise<List<FoodDTO>> {
+    let selectQuery = `SELECT * FROM food`;
+    const countQuery = `SELECT COUNT(*) FROM food;`;
+
+    const { filters, sorting } = searchCriteria;
+
+    if (filters) {
+      const filterClauses = Object.entries(filters)
+        .map(([field, value]) => `${field} LIKE '%${value}%'`)
+        .join(' AND ');
+      selectQuery += ` WHERE ${filterClauses}`;
+    }
+
+    if (sorting) {
+      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    }
+
+    const { pageIndex, pageSize } = searchCriteria.pagination;
     const offset = pageIndex * pageSize;
+    selectQuery += ` LIMIT ${pageSize} OFFSET ${offset};`;
 
-    const listResult = await this.database.query(
-      `SELECT * FROM food
-      LIMIT ${pageSize} OFFSET ${offset};`,
-    );
-
-    const countResult = await this.database.query(`SELECT COUNT(*) FROM food;`);
+    const [listResult, countResult] = await Promise.all([
+      this.database.query(selectQuery),
+      this.database.query(countQuery),
+    ]);
 
     const items: FoodDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;
