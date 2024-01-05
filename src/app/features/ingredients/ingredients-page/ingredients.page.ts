@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -9,17 +9,14 @@ import {
   IonFabButton,
   IonFab,
   IonIcon,
-  IonList,
   IonItem,
   IonLabel,
-  IonInfiniteScroll,
-  IonInfiniteScrollContent,
-  InfiniteScrollCustomEvent,
   ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { IngredientModalsService } from '../utility';
 import { ListStoreService, STORE_HANDLER } from 'src/app/shared/data-access';
-import { IngredientsHandlerService } from '../data-access';
+import { Ingredient, IngredientsHandlerService } from '../data-access';
+import { ScrollableListComponent } from 'src/app/shared/presentation';
 
 @Component({
   selector: 'app-ingredients',
@@ -34,11 +31,9 @@ import { IngredientsHandlerService } from '../data-access';
     IonFabButton,
     IonFab,
     IonIcon,
-    IonList,
     IonItem,
     IonLabel,
-    IonInfiniteScroll,
-    IonInfiniteScrollContent,
+    ScrollableListComponent,
   ],
   providers: [
     ListStoreService,
@@ -64,16 +59,19 @@ import { IngredientsHandlerService } from '../data-access';
         </ion-toolbar>
       </ion-header>
 
-      <ion-list>
-        @for (ingredient of ingredients(); track ingredient.id) {
+      <app-scrollable-list
+        [items]="ingredients()"
+        [canLoadNextPage]="canLoadNextPage()"
+        [loading]="loading()"
+        [trackFn]="trackFn"
+        (scrollEnd)="loadNextPage()"
+      >
+        <ng-template #itemTemplate let-item>
           <ion-item>
-            <ion-label>{{ ingredient.name }}</ion-label>
+            <ion-label>{{ item.name }}</ion-label>
           </ion-item>
-        }
-      </ion-list>
-      <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
-        <ion-infinite-scroll-content />
-      </ion-infinite-scroll>
+        </ng-template>
+      </app-scrollable-list>
 
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
         <ion-fab-button (click)="createIngredient()">
@@ -86,36 +84,23 @@ import { IngredientsHandlerService } from '../data-access';
 })
 export class IngredientsPage implements ViewWillEnter {
   private listStore = inject(ListStoreService);
+  private storeHandler = inject(STORE_HANDLER);
   private ingredientModals = inject(IngredientModalsService);
 
   protected ingredients = this.listStore.items;
-  protected total = this.listStore.total;
-  protected searchCriteria = this.listStore.searchCriteria;
   protected loading = this.listStore.loading;
   protected canLoadNextPage = this.listStore.canLoadNextPage;
 
-  private ionScrollEvent?: InfiniteScrollCustomEvent;
-
-  constructor() {
-    effect(() => {
-      const loading = this.loading();
-      if (loading) return;
-
-      this.ionScrollEvent?.target.complete();
-    });
-  }
+  protected trackFn = (ingredient: Ingredient): number =>
+    this.storeHandler.extractId(ingredient);
 
   ionViewWillEnter(): void {
     this.listStore.loadFirstPage$.next();
   }
 
-  protected onIonInfinite(event: InfiniteScrollCustomEvent): void {
-    if (!this.canLoadNextPage()) {
-      event.target.complete();
-      return;
-    }
+  protected loadNextPage(): void {
+    if (!this.canLoadNextPage()) return;
     this.listStore.loadNextPage$.next();
-    this.ionScrollEvent = event;
   }
 
   protected createIngredient(): void {

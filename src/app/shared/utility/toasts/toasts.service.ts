@@ -15,7 +15,7 @@ export class ToastsService {
     const toast = await this.toastsCtrl.create({
       message: message || FALLBACK_ERROR_MESSAGE,
       color: 'danger',
-      duration: 3000,
+      duration: 2000,
       icon: 'alert-circle-outline',
     });
     await toast.present();
@@ -25,7 +25,7 @@ export class ToastsService {
     const toast = await this.toastsCtrl.create({
       message: message || FALLBACK_SUCCESS_MESSAGE,
       color: 'success',
-      duration: 3000,
+      duration: 2000,
       icon: 'checkmark-circle-outline',
     });
     await toast.present();

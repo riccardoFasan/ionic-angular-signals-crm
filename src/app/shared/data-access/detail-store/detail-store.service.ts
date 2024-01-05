@@ -77,7 +77,6 @@ export class DetailStoreService<T> {
     this.effect$
       .pipe(
         takeUntilDestroyed(),
-        filter(() => !this.item()),
         tap(() => this.state.update((state) => ({ ...state, loading: true }))),
         switchMap((effect) =>
           this.handler.effect(effect, this.item()).pipe(

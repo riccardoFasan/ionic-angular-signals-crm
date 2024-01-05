@@ -82,7 +82,6 @@ export class ListStoreService<T> {
           this.state.update((state) => ({
             ...state,
             loading: true,
-            searchCriteria: this.nextPageSearchCriteria(),
           })),
         ),
         switchMap(() =>
@@ -93,6 +92,7 @@ export class ListStoreService<T> {
         tap(({ items }) =>
           this.state.update((state) => ({
             ...state,
+            searchCriteria: this.nextPageSearchCriteria(),
             items: [...state.items, ...items],
             loading: false,
             error: undefined,
