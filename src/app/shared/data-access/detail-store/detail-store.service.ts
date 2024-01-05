@@ -21,8 +21,8 @@ export class DetailStoreService<T> {
 
   private state = signal<DetailState<T>>(INITIAL_DETAIL_STATE);
 
-  loading = computed<boolean>(() => this.state().loading);
   item = computed<T | undefined>(() => this.state().item);
+  loading = computed<boolean>(() => this.state().loading);
   error = computed<Error | undefined>(() => this.state().error);
 
   id$ = new Subject<number>();
@@ -103,10 +103,10 @@ export class DetailStoreService<T> {
 
     effect(() => {
       const error = this.error();
-      if (error) {
-        const message = this.handler.interpretError?.(error, this.item());
-        this.toasts.error(message);
-      }
+      if (!error) return;
+
+      const message = this.handler.interpretError?.(error, this.item());
+      this.toasts.error(message);
     });
   }
 }

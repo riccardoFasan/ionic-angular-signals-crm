@@ -1,9 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-
 import { DetailStoreService } from './detail-store.service';
 
 describe('DetailStoreService', () => {
-  let service: DetailStoreService;
+  let service: DetailStoreService<unknown>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
