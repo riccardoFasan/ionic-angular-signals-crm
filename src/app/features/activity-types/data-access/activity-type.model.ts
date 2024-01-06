@@ -6,3 +6,13 @@ export type ActivityType = {
   icon?: string;
   color?: string;
 };
+
+export type CreateActivityTypeFormData = Omit<
+  ActivityType,
+  'id' | 'createdAt' | 'updatedAt'
+>;
+
+export type UpdateActivityTypeFormData = Omit<
+  ActivityType,
+  'createdAt' | 'updatedAt'
+>;
