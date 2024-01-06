@@ -4,6 +4,6 @@ export * from './store-handler.interface';
 export * from './store-handler.token';
 export * from './list.state';
 export * from './detail.state';
-export * from './effect-type.enum';
-export * from './effect.type';
+export * from './operation-type.enum';
+export * from './operation.type';
 export * from './machine-state.enum';

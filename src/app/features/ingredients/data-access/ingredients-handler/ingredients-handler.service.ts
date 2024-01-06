@@ -1,6 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, defer } from 'rxjs';
-import { Effect, EffectType, StoreHandler } from 'src/app/shared/data-access';
+import {
+  Operation,
+  OperationType,
+  StoreHandler,
+} from 'src/app/shared/data-access';
 import {
   CreateIngredientFormData,
   Ingredient,
@@ -32,18 +36,24 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
     return defer(() => this.ingredientsFacade.getList(searchCriteria));
   }
 
-  effect({ type, payload }: Effect, item?: Ingredient): Observable<Ingredient> {
-    if (type === EffectType.Create) {
+  operate(
+    { type, payload }: Operation,
+    item?: Ingredient,
+  ): Observable<Ingredient> {
+    if (type === OperationType.Create) {
       return defer(() =>
         this.ingredientsFacade.create(payload as CreateIngredientFormData),
       );
     }
 
-    if ((type === EffectType.Delete || type === EffectType.Update) && !item) {
+    if (
+      (type === OperationType.Delete || type === OperationType.Update) &&
+      !item
+    ) {
       throw new Error('Item is required for update and delete effects');
     }
 
-    if (type === EffectType.Update) {
+    if (type === OperationType.Update) {
       return defer(() =>
         this.ingredientsFacade.update(
           item!.id,
@@ -52,31 +62,31 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
       );
     }
 
-    if (type === EffectType.Delete) {
+    if (type === OperationType.Delete) {
       return defer(() => this.ingredientsFacade.delete(item!.id));
     }
 
-    throw new Error(`Effect not implemented for: ${type}`);
+    throw new Error(`Operation not implemented for: ${type}`);
   }
 
-  onEffect({ type }: Effect, item: Ingredient): Observable<void> {
+  onOperation({ type }: Operation, item: Ingredient): Observable<void> {
     const message = this.getMessage(type, item);
     return defer(() => this.toasts.success(message));
   }
 
   private getMessage(
-    type: EffectType | string,
+    type: OperationType | string,
     item: Ingredient,
   ): string | undefined {
-    if (type === EffectType.Create) {
+    if (type === OperationType.Create) {
       return `Ingredient ${item.name} created`;
     }
 
-    if (type === EffectType.Update) {
+    if (type === OperationType.Update) {
       return `Ingredient ${item.name} updated`;
     }
 
-    if (type === EffectType.Delete) {
+    if (type === OperationType.Delete) {
       return `Ingredient ${item.name} deleted`;
     }
 

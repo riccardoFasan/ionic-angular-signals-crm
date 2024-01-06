@@ -12,8 +12,8 @@ import {
 } from '@ionic/angular/standalone';
 import {
   DetailStoreService,
-  Effect,
-  EffectType,
+  OperationType,
+  Operation,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import {
@@ -123,20 +123,20 @@ export class IngredientModalComponent implements ViewWillEnter {
   protected save(
     payload: CreateIngredientFormData | UpdateIngredientFormData,
   ): void {
-    const effect: Effect = {
-      type: this.ingredient() ? EffectType.Update : EffectType.Create,
+    const operation: Operation = {
+      type: this.ingredient() ? OperationType.Update : OperationType.Create,
       payload,
     };
-    this.detailStore.effect$.next(effect);
+    this.detailStore.operation$.next(operation);
   }
 
   protected remove(): void {
     if (!this.ingredient()) return;
-    const effect: Effect = {
-      type: EffectType.Delete,
+    const operation: Operation = {
+      type: OperationType.Delete,
       payload: this.ingredient(),
     };
-    this.detailStore.effect$.next(effect);
+    this.detailStore.operation$.next(operation);
     this.dismiss();
   }
 

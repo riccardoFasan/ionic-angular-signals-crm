@@ -4,7 +4,6 @@ import { DetailState, INITIAL_DETAIL_STATE } from '../detail.state';
 import {
   Subject,
   catchError,
-  delay,
   distinctUntilChanged,
   filter,
   map,
@@ -13,7 +12,7 @@ import {
 } from 'rxjs';
 import { STORE_HANDLER } from '../store-handler.token';
 import { ToastsService, onHandlerError } from '../../utility';
-import { Effect } from '../effect.type';
+import { Operation } from '../operation.type';
 import { MachineState } from '../machine-state.enum';
 
 @Injectable()
@@ -29,7 +28,7 @@ export class DetailStoreService<T> {
 
   id$ = new Subject<number>();
   refresh$ = new Subject<void>();
-  effect$ = new Subject<Effect>();
+  operation$ = new Subject<Operation>();
 
   constructor() {
     this.id$
@@ -43,7 +42,6 @@ export class DetailStoreService<T> {
             mode: MachineState.Fetching,
           })),
         ),
-        delay(50000),
         switchMap((id) =>
           this.handler
             .get(id)
@@ -87,7 +85,7 @@ export class DetailStoreService<T> {
       )
       .subscribe();
 
-    this.effect$
+    this.operation$
       .pipe(
         takeUntilDestroyed(),
         tap(() =>
@@ -96,10 +94,10 @@ export class DetailStoreService<T> {
             mode: MachineState.Processing,
           })),
         ),
-        switchMap((effect) =>
-          this.handler.effect(effect, this.item()).pipe(
+        switchMap((operation) =>
+          this.handler.operate(operation, this.item()).pipe(
             catchError((error) => onHandlerError(error, this.state)),
-            map((item) => [effect, item]),
+            map((item) => [operation, item]),
           ),
         ),
         tap(([_, item]) =>
@@ -110,9 +108,9 @@ export class DetailStoreService<T> {
             error: undefined,
           })),
         ),
-        switchMap(([effect, item]) =>
+        switchMap(([operation, item]) =>
           this.handler
-            .onEffect(effect, item)
+            .onOperation(operation, item)
             .pipe(catchError((error) => onHandlerError(error, this.state))),
         ),
       )
