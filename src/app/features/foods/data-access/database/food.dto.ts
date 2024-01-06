@@ -3,6 +3,6 @@ export type FoodDTO = {
   name: string;
   created_at: string;
   updated_at: string;
-  calories?: number
+  calories?: number;
   notes?: string;
 };

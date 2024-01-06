@@ -1,7 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { IngredientApiService, IngredientDTO } from '../../../foods/data-access/database';
-import { List } from 'src/app/shared/utility';
-import { Ingredient } from '../ingredient.model';
+import { List, SearchCriteria } from 'src/app/shared/utility';
+import {
+  CreateIngredientFormData,
+  Ingredient,
+  UpdateIngredientFormData,
+} from '../ingredient.model';
+import { IngredientApiService, IngredientDTO } from '../database';
 
 @Injectable({
   providedIn: 'root',
@@ -9,8 +13,12 @@ import { Ingredient } from '../ingredient.model';
 export class IngredientsFacadeService {
   private ingredientApi = inject(IngredientApiService);
 
-  async getList(page: number, pageSize: number): Promise<List<Ingredient>> {
-    const list = await this.ingredientApi.getList(page, pageSize);
+  async getList(searchCriteria: SearchCriteria): Promise<List<Ingredient>> {
+    const filters = this.mapToApiFilters(searchCriteria.filters);
+    const list = await this.ingredientApi.getList({
+      ...searchCriteria,
+      filters,
+    });
     return { ...list, items: list.items.map(this.mapFromDTO) };
   }
 
@@ -19,13 +27,16 @@ export class IngredientsFacadeService {
     return this.mapFromDTO(dto);
   }
 
-  async create(name: string, notes?: string): Promise<Ingredient> {
-    const id = await this.ingredientApi.create(name, notes);
+  async create(formData: CreateIngredientFormData): Promise<Ingredient> {
+    const id = await this.ingredientApi.create(formData.name, formData.notes);
     return await this.get(id);
   }
 
-  async update(id: number, name: string, notes?: string): Promise<Ingredient> {
-    await this.ingredientApi.update(id, name, notes);
+  async update(
+    id: number,
+    formData: UpdateIngredientFormData,
+  ): Promise<Ingredient> {
+    await this.ingredientApi.update(id, formData.name, formData.notes);
     return await this.get(id);
   }
 
@@ -42,6 +53,16 @@ export class IngredientsFacadeService {
       updatedAt: new Date(dto.updated_at),
       name: dto.name,
       notes: dto.notes,
+    };
+  }
+
+  private mapToApiFilters(
+    filters: SearchCriteria['filters'],
+  ): Record<string, string> {
+    return {
+      ...filters,
+      created_at: (filters['createdAt'] as Date)?.toISOString(),
+      updated_at: (filters['updatedAt'] as Date)?.toISOString(),
     };
   }
 }

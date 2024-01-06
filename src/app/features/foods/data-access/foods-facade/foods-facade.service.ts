@@ -1,8 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { FoodApiService, FoodDTO, FoodIngredientApiService } from '../database';
-import { List } from 'src/app/shared/utility';
+import { List, SearchCriteria } from 'src/app/shared/utility';
 import { Food } from '../food.model';
-import { Ingredient, IngredientsFacadeService } from 'src/app/features/ingredients/data-access';
+import {
+  Ingredient,
+  IngredientsFacadeService,
+} from 'src/app/features/ingredients/data-access';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +15,12 @@ export class FoodsFacadeService {
   private foodIngredientApi = inject(FoodIngredientApiService);
   private ingredientsFacade = inject(IngredientsFacadeService);
 
-  async getList(page: number, pageSize: number): Promise<List<Food>> {
-    const list = await this.foodApi.getList(page, pageSize);
+  async getList(searchCriteria: SearchCriteria): Promise<List<Food>> {
+    const filters = this.mapToApiFilters(searchCriteria.filters);
+    const list = await this.foodApi.getList({
+      ...searchCriteria,
+      filters,
+    });
     const foodsIngredients = await Promise.all(
       list.items.map((foodDTO) => this.getIngredients(foodDTO.id)),
     );
@@ -138,6 +145,16 @@ export class FoodsFacadeService {
       notes: foodDTO.notes,
       calories: foodDTO.calories,
       ingredients,
+    };
+  }
+
+  private mapToApiFilters(
+    filters: SearchCriteria['filters'],
+  ): Record<string, string> {
+    return {
+      ...filters,
+      created_at: (filters['createdAt'] as Date)?.toISOString(),
+      updated_at: (filters['updatedAt'] as Date)?.toISOString(),
     };
   }
 }

@@ -3,6 +3,7 @@ import {
   DatabaseService,
   List,
   NotFoundError,
+  SearchCriteria,
   nowIsoString,
 } from 'src/app/shared/utility';
 import { TagDTO } from '../tag.dto';
@@ -25,20 +26,40 @@ export class TagApiService {
     `);
   }
 
-  async getList(page: number, pageSize: number): Promise<List<TagDTO>> {
-    const offset = (page - 1) * pageSize;
+  async getList(searchCriteria: SearchCriteria): Promise<List<TagDTO>> {
+    let selectQuery = `SELECT * FROM tag`;
+    const countQuery = `SELECT COUNT(*) FROM tag;`;
 
-    const listResult = await this.database.query(
-      `SELECT * FROM tag
-      LIMIT ${pageSize} OFFSET ${offset};`,
-    );
+    const { filters, sorting } = searchCriteria;
 
-    const countResult = await this.database.query(`SELECT COUNT(*) FROM tag;`);
+    if (filters) {
+      const filterClauses = Object.entries(filters)
+        .reduce((clauses: string[], [field, value]) => {
+          if (value !== undefined)
+            return [...clauses, `${field} LIKE '%${value}%'`];
+          return clauses;
+        }, [])
+        .join(' AND ');
+      if (filterClauses) selectQuery += ` WHERE ${filterClauses}`;
+    }
+
+    if (sorting) {
+      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    }
+
+    const { pageIndex, pageSize } = searchCriteria.pagination;
+    const offset = pageIndex * pageSize;
+    selectQuery += ` LIMIT ${pageSize} OFFSET ${offset};`;
+
+    const [listResult, countResult] = await Promise.all([
+      this.database.query(selectQuery),
+      this.database.query(countQuery),
+    ]);
 
     const items: TagDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;
 
-    return { page, pageSize, total, items };
+    return { pageIndex, pageSize, total, items };
   }
 
   async get(id: number): Promise<TagDTO> {

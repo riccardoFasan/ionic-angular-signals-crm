@@ -10,7 +10,7 @@ import {
 } from 'src/app/features/activity-types/data-access';
 import { Tag, TagsFacadeService } from 'src/app/features/tags/data-access';
 import { Activity } from '../activity.model';
-import { List } from 'src/app/shared/utility';
+import { List, SearchCriteria } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -21,8 +21,12 @@ export class ActivitiesFacadeService {
   private activityTypesFacade = inject(ActivityTypesFacadeService);
   private tagsFacade = inject(TagsFacadeService);
 
-  async getList(page: number, pageSize: number): Promise<List<Activity>> {
-    const list = await this.activityApi.getList(page, pageSize);
+  async getList(searchCriteria: SearchCriteria): Promise<List<Activity>> {
+    const filters = this.mapToApiFilters(searchCriteria.filters);
+    const list = await this.activityApi.getList({
+      ...searchCriteria,
+      filters,
+    });
 
     const [activitiesTags, activityTypes] = await Promise.all([
       Promise.all(
@@ -167,6 +171,16 @@ export class ActivitiesFacadeService {
       notes: activityDTO.notes,
       type,
       tags,
+    };
+  }
+
+  private mapToApiFilters(
+    filters: SearchCriteria['filters'],
+  ): Record<string, string> {
+    return {
+      ...filters,
+      created_at: (filters['createdAt'] as Date)?.toISOString(),
+      updated_at: (filters['updatedAt'] as Date)?.toISOString(),
     };
   }
 }

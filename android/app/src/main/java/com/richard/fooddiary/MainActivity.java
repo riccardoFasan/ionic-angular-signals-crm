@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.richard.fooddiary;
 
 import com.getcapacitor.BridgeActivity;
 

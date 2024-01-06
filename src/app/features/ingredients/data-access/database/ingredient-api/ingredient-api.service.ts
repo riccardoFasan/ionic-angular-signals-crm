@@ -4,6 +4,7 @@ import {
   NotFoundError,
   List,
   nowIsoString,
+  SearchCriteria,
 } from 'src/app/shared/utility';
 import { IngredientDTO } from '../ingredient.dto';
 
@@ -24,22 +25,40 @@ export class IngredientApiService {
       );`);
   }
 
-  async getList(page: number, pageSize: number): Promise<List<IngredientDTO>> {
-    const offset = (page - 1) * pageSize;
+  async getList(searchCriteria: SearchCriteria): Promise<List<IngredientDTO>> {
+    let selectQuery = `SELECT * FROM ingredient`;
+    const countQuery = `SELECT COUNT(*) FROM ingredient;`;
 
-    const listResult = await this.database.query(
-      `SELECT * FROM ingredient
-      LIMIT ${pageSize} OFFSET ${offset};`,
-    );
+    const { filters, sorting } = searchCriteria;
 
-    const countResult = await this.database.query(
-      `SELECT COUNT(*) FROM ingredient;`,
-    );
+    if (filters) {
+      const filterClauses = Object.entries(filters)
+        .reduce((clauses: string[], [field, value]) => {
+          if (value !== undefined)
+            return [...clauses, `${field} LIKE '%${value}%'`];
+          return clauses;
+        }, [])
+        .join(' AND ');
+      if (filterClauses) selectQuery += ` WHERE ${filterClauses}`;
+    }
+
+    if (sorting) {
+      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    }
+
+    const { pageIndex, pageSize } = searchCriteria.pagination;
+    const offset = pageIndex * pageSize;
+    selectQuery += ` LIMIT ${pageSize} OFFSET ${offset};`;
+
+    const [listResult, countResult] = await Promise.all([
+      this.database.query(selectQuery),
+      this.database.query(countQuery),
+    ]);
 
     const items: IngredientDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;
 
-    return { page, pageSize, total, items };
+    return { pageIndex, pageSize, total, items };
   }
 
   async get(id: number): Promise<IngredientDTO> {

@@ -1,5 +1,5 @@
 export type List<T> = {
-  page: number;
+  pageIndex: number;
   pageSize: number;
   total: number;
   items: T[];

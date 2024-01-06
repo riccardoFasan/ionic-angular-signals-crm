@@ -27,6 +27,9 @@ import {
   fastFoodOutline,
   listOutline,
   listSharp,
+  add,
+  alertCircleOutline,
+  checkmarkCircleOutline,
 } from 'ionicons/icons';
 
 if (environment.production) {
@@ -52,4 +55,7 @@ addIcons({
   fastFoodOutline,
   listOutline,
   listSharp,
+  add,
+  alertCircleOutline,
+  checkmarkCircleOutline,
 });

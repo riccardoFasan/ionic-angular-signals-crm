@@ -1,5 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { DatabaseService, List, nowIsoString } from 'src/app/shared/utility';
+import {
+  DatabaseService,
+  List,
+  SearchCriteria,
+  nowIsoString,
+} from 'src/app/shared/utility';
 import { ActivityDTO } from '../activity.dto';
 
 @Injectable({
@@ -23,22 +28,39 @@ export class ActivityApiService {
     `);
   }
 
-  async getList(page: number, pageSize: number): Promise<List<ActivityDTO>> {
-    const offset = (page - 1) * pageSize;
+  async getList(searchCriteria: SearchCriteria): Promise<List<ActivityDTO>> {
+    let selectQuery = `SELECT * FROM activity`;
+    const countQuery = `SELECT COUNT(*) FROM activity;`;
 
-    const listResult = await this.database.query(
-      `SELECT * FROM activity
-      LIMIT ${pageSize} OFFSET ${offset};`,
-    );
+    const { filters, sorting } = searchCriteria;
+    if (filters) {
+      const filterClauses = Object.entries(filters)
+        .reduce((clauses: string[], [field, value]) => {
+          if (value !== undefined)
+            return [...clauses, `${field} LIKE '%${value}%'`];
+          return clauses;
+        }, [])
+        .join(' AND ');
+      if (filterClauses) selectQuery += ` WHERE ${filterClauses}`;
+    }
 
-    const countResult = await this.database.query(
-      `SELECT COUNT(*) FROM activity;`,
-    );
+    if (sorting) {
+      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    }
+
+    const { pageIndex, pageSize } = searchCriteria.pagination;
+    const offset = pageIndex * pageSize;
+    selectQuery += ` LIMIT ${pageSize} OFFSET ${offset};`;
+
+    const [listResult, countResult] = await Promise.all([
+      this.database.query(selectQuery),
+      this.database.query(countQuery),
+    ]);
 
     const items: ActivityDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;
 
-    return { page, pageSize, total, items };
+    return { pageIndex, pageSize, total, items };
   }
 
   async get(id: number): Promise<ActivityDTO> {

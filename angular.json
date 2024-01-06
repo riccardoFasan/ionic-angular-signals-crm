@@ -25,6 +25,19 @@
           "style": "scss",
           "inlineTemplate": true,
           "inlineStyle": true
+        },
+        "@ionic/angular-toolkit:component": {
+          "styleext": "scss",
+          "changeDetection": "OnPush",
+          "style": "scss",
+          "inlineTemplate": true,
+          "inlineStyle": true
+        },
+        "@angular-eslint/schematics:application": {
+          "setParserOptionsProject": true
+        },
+        "@angular-eslint/schematics:library": {
+          "setParserOptionsProject": true
         }
       },
       "root": "",
@@ -134,23 +147,6 @@
           }
         }
       }
-    }
-  },
-  "cli": {
-    "schematicCollections": ["@ionic/angular-toolkit"]
-  },
-  "schematics": {
-    "@ionic/angular-toolkit:component": {
-      "styleext": "scss"
-    },
-    "@ionic/angular-toolkit:page": {
-      "styleext": "scss"
-    },
-    "@angular-eslint/schematics:application": {
-      "setParserOptionsProject": true
-    },
-    "@angular-eslint/schematics:library": {
-      "setParserOptionsProject": true
     }
   }
 }

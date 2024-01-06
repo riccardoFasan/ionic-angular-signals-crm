@@ -3,6 +3,7 @@ import {
   DatabaseService,
   List,
   NotFoundError,
+  SearchCriteria,
   nowIsoString,
 } from 'src/app/shared/utility';
 import { FoodDTO } from '../food.dto';
@@ -25,20 +26,40 @@ export class FoodApiService {
       );`);
   }
 
-  async getList(page: number, pageSize: number): Promise<List<FoodDTO>> {
-    const offset = (page - 1) * pageSize;
+  async getList(searchCriteria: SearchCriteria): Promise<List<FoodDTO>> {
+    let selectQuery = `SELECT * FROM food`;
+    const countQuery = `SELECT COUNT(*) FROM food;`;
 
-    const listResult = await this.database.query(
-      `SELECT * FROM food
-      LIMIT ${pageSize} OFFSET ${offset};`,
-    );
+    const { filters, sorting } = searchCriteria;
 
-    const countResult = await this.database.query(`SELECT COUNT(*) FROM food;`);
+    if (filters) {
+      const filterClauses = Object.entries(filters)
+        .reduce((clauses: string[], [field, value]) => {
+          if (value !== undefined)
+            return [...clauses, `${field} LIKE '%${value}%'`];
+          return clauses;
+        }, [])
+        .join(' AND ');
+      if (filterClauses) selectQuery += ` WHERE ${filterClauses}`;
+    }
+
+    if (sorting) {
+      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    }
+
+    const { pageIndex, pageSize } = searchCriteria.pagination;
+    const offset = pageIndex * pageSize;
+    selectQuery += ` LIMIT ${pageSize} OFFSET ${offset};`;
+
+    const [listResult, countResult] = await Promise.all([
+      this.database.query(selectQuery),
+      this.database.query(countQuery),
+    ]);
 
     const items: FoodDTO[] = listResult.values || [];
     const total = countResult.values?.[0]['COUNT(*)'] || 0;
 
-    return { page, pageSize, total, items };
+    return { pageIndex, pageSize, total, items };
   }
 
   async get(id: number): Promise<FoodDTO> {
@@ -52,7 +73,11 @@ export class FoodApiService {
     return item;
   }
 
-  async create(name: string, notes?: string, calories?:number): Promise<number> {
+  async create(
+    name: string,
+    notes?: string,
+    calories?: number,
+  ): Promise<number> {
     const result = await this.database.query(
       `INSERT INTO food (created_at, updated_at, name, notes, calories)
       VALUES ("${nowIsoString()}", "${nowIsoString()}", "${name}", "${notes}", "${calories}") RETURNING *;`,
@@ -60,7 +85,12 @@ export class FoodApiService {
     return result.values?.[0].id;
   }
 
-  async update(id: number, name: string, notes?: string, calories?:number): Promise<void> {
+  async update(
+    id: number,
+    name: string,
+    notes?: string,
+    calories?: number,
+  ): Promise<void> {
     await this.database.query(
       `UPDATE food
       SET updated_at = "${nowIsoString()}", name = "${name}", notes = "${notes}", calories = "${calories}"
