@@ -14,5 +14,6 @@ export class IngredientModalsService {
       componentProps: { id },
     });
     await modal.present();
+    await modal.onWillDismiss();
   }
 }

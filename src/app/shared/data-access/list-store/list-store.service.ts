@@ -9,6 +9,7 @@ import {
 import { Subject, catchError, filter, map, merge, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MachineState } from '../machine-state.enum';
+import { Operation } from '../operation.type';
 
 @Injectable()
 export class ListStoreService<T> {
@@ -42,7 +43,7 @@ export class ListStoreService<T> {
   loadFirstPage$ = new Subject<void>();
   loadNextPage$ = new Subject<void>();
   filters$ = new Subject<SearchCriteria['filters']>();
-  // TODO: single item effect
+  operation$ = new Subject<{ operation: Operation; item?: T }>();
   // TODO: sort
 
   constructor() {
@@ -98,6 +99,37 @@ export class ListStoreService<T> {
             mode: MachineState.Idle,
             error: undefined,
           })),
+        ),
+      )
+      .subscribe();
+
+    this.operation$
+      .pipe(
+        takeUntilDestroyed(),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Processing,
+          })),
+        ),
+        switchMap(({ operation, item }) =>
+          this.handler.operate(operation, item).pipe(
+            catchError((error) => onHandlerError(error, this.state)),
+            map((item) => [operation, item]),
+          ),
+        ),
+        tap(([_, item]) =>
+          this.state.update((state) => ({
+            ...state,
+            item,
+            mode: MachineState.Idle,
+            error: undefined,
+          })),
+        ),
+        switchMap(([operation, item]) =>
+          this.handler
+            .onOperation(operation, item)
+            .pipe(catchError((error) => onHandlerError(error, this.state))),
         ),
       )
       .subscribe();

@@ -17,7 +17,12 @@ import {
   IonItemOptions,
 } from '@ionic/angular/standalone';
 import { IngredientModalsService } from '../utility';
-import { ListStoreService, STORE_HANDLER } from 'src/app/shared/data-access';
+import {
+  ListStoreService,
+  Operation,
+  OperationType,
+  STORE_HANDLER,
+} from 'src/app/shared/data-access';
 import { Ingredient, IngredientsHandlerService } from '../data-access';
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 
@@ -73,18 +78,23 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
         (scrollEnd)="loadNextPage()"
       >
         <ng-template #itemTemplate let-item>
-          <ion-item-sliding>
+          <ion-item-sliding #itemSliding>
             <ion-item>
               <ion-label>{{ item.name }}</ion-label>
             </ion-item>
 
             <ion-item-options>
-              <ion-item-option (click)="openModal(item.id)">
+              <ion-item-option
+                (click)="[openModal(item.id), itemSliding.close()]"
+              >
                 Edit
               </ion-item-option>
-              <!-- <ion-item-option (click)="remove(item.id)" color="danger">
+              <ion-item-option
+                (click)="[remove(item), itemSliding.close()]"
+                color="danger"
+              >
                 Delete
-              </ion-item-option> -->
+              </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
         </ng-template>
@@ -120,15 +130,17 @@ export class IngredientsPage implements ViewWillEnter {
     this.listStore.loadNextPage$.next();
   }
 
-  // protected remove(ingredient:Ingredient): void {
-  //   const effect: Effect = {
-  //     type: EffectType.Delete,
-  //     payload: ingredient,
-  //   };
-  //   this.listStore.effect$.next(effect);
-  // }
+  protected remove(ingredient: Ingredient): void {
+    const operation: Operation = {
+      type: OperationType.Delete,
+      payload: ingredient,
+    };
+    console.log(ingredient);
+    this.listStore.operation$.next({ operation, item: ingredient });
+  }
 
-  protected openModal(id?: number): void {
-    this.ingredientModals.openModal(id);
+  protected async openModal(id?: number): Promise<void> {
+    await this.ingredientModals.openModal(id);
+    this.listStore.refresh$.next();
   }
 }
