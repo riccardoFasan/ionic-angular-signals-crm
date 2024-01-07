@@ -46,12 +46,12 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
       [loading]="mode() === 'PROCESSING'"
       [title]="title()"
     >
-      <ng-template buttons>
+      <span buttons>
         @if (ingredient()) {
           <ion-button (click)="remove()">Delete</ion-button>
         }
         <ion-button (click)="dismiss()">Close</ion-button>
-      </ng-template>
+      </span>
       <app-ingredient-form
         [loading]="mode() === 'PROCESSING'"
         (save)="save($event)"

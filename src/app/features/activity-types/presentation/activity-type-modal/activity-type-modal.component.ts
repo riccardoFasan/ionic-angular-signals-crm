@@ -45,12 +45,12 @@ import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-f
       [loading]="mode() === 'PROCESSING'"
       [title]="title()"
     >
-      <ng-template buttons>
+      <span buttons>
         @if (activityType()) {
           <ion-button (click)="remove()">Delete</ion-button>
         }
         <ion-button (click)="dismiss()">Close</ion-button>
-      </ng-template>
+      </span>
       <app-activity-type-form
         [loading]="mode() === 'PROCESSING'"
         (save)="save($event)"

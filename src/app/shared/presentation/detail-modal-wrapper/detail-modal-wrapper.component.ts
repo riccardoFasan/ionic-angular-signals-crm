@@ -32,7 +32,7 @@ import {
           }
         </ion-title>
         <ion-buttons slot="end">
-          <ng-content select="buttons" />
+          <ng-content select="[buttons]" />
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -47,7 +47,11 @@ import {
     </ion-content>
   `,
   styles: `
-   ion-title ion-skeleton-text {
+     :host {
+       height: 100%;
+     }
+   
+     ion-title ion-skeleton-text {
       width: 66%;
       height: 1.25rem;
     }
