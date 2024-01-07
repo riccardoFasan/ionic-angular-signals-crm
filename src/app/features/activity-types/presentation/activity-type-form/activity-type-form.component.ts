@@ -16,8 +16,11 @@ import {
   IonButton,
   IonInput,
   IonItem,
+  IonIcon,
   IonList,
   IonTextarea,
+  IonSelect,
+  IonSelectOption,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -26,8 +29,11 @@ import {
   imports: [
     IonButton,
     IonList,
+    IonIcon,
     IonItem,
     IonInput,
+    IonSelect,
+    IonSelectOption,
     IonTextarea,
     ReactiveFormsModule,
   ],
@@ -43,8 +49,57 @@ import {
             required="true"
           />
         </ion-item>
-        <!-- TODO: icons select -->
-        <!-- TODO: colors select -->
+        <ion-select
+          label="Icon"
+          formControlName="icon"
+          placeholder="Choose an icon"
+        >
+          <ion-select-option value="bycicle">
+            <ion-icon ios="bycicle-outline" md="bycicle-sharp" /> Bycicle
+          </ion-select-option>
+          <ion-select-option value="sunny">
+            <ion-icon ios="sunny-outline" md="sunny-sharp" /> Sunny
+          </ion-select-option>
+          <ion-select-option value="train">
+            <ion-icon ios="train-outline" md="train-sharp" /> Train
+          </ion-select-option>
+          <ion-select-option value="rocket">
+            <ion-icon ios="rocket-outline" md="rocket-sharp" /> Rocket
+          </ion-select-option>
+          <ion-select-option value="pizza">
+            <ion-icon ios="pizza-outline" md="pizza-sharp" /> Pizza
+          </ion-select-option>
+          <ion-select-option value="planet">
+            <ion-icon ios="planet-outline" md="planet-sharp" /> Planet
+          </ion-select-option>
+          <ion-select-option value="pulse">
+            <ion-icon ios="pulse-outline" md="pulse-sharp" /> Pulse
+          </ion-select-option>
+          <ion-select-option value="walk">
+            <ion-icon ios="walk-outline" md="walk-sharp" /> Walk
+          </ion-select-option>
+          <ion-select-option value="bed">
+            <ion-icon ios="bed-outline" md="bed-sharp" /> Bed
+          </ion-select-option>
+          <ion-select-option value="skull">
+            <ion-icon ios="skull-outline" md="skull-sharp" /> Skull
+          </ion-select-option>
+          <ion-select-option [value]="null">No one</ion-select-option>
+        </ion-select>
+        <ion-select
+          label="Color"
+          formControlName="color"
+          placeholder="Choose a color"
+        >
+          <ion-select-option value="red">Red</ion-select-option>
+          <ion-select-option value="green">Green</ion-select-option>
+          <ion-select-option value="yellow">Yellow</ion-select-option>
+          <ion-select-option value="blue">Blue</ion-select-option>
+          <ion-select-option value="orange">Orange</ion-select-option>
+          <ion-select-option value="black">Black</ion-select-option>
+          <ion-select-option value="white">White</ion-select-option>
+          <ion-select-option [value]="null">No one</ion-select-option>
+        </ion-select>
       </ion-list>
       <ion-button
         type="submit"
