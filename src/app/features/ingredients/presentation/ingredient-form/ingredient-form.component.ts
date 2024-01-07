@@ -4,8 +4,6 @@ import {
   EventEmitter,
   Input,
   Output,
-  effect,
-  signal,
 } from '@angular/core';
 import {
   FormControl,

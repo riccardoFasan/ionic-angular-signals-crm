@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
-import { ActivityTypeModalComponent } from '../../presentation/activity-type-modal/activity-type-modal.component';
+import { ActivityTypeModalComponent } from '../../presentation';
 
 @Injectable({
   providedIn: 'root',

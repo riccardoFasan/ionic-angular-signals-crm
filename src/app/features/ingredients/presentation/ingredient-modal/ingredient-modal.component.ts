@@ -1,10 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
 import {
   IonButton,
   IonButtons,
   IonContent,
   IonHeader,
-  IonSkeletonText,
   IonTitle,
   IonToolbar,
   ModalController,
@@ -22,6 +26,7 @@ import {
   UpdateIngredientFormData,
 } from '../../data-access';
 import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
+import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
 
 @Component({
   selector: 'app-ingredient-modal',
@@ -33,70 +38,28 @@ import { IngredientFormComponent } from '../ingredient-form/ingredient-form.comp
     IonTitle,
     IonButtons,
     IonButton,
+    DetailModalWrapperComponent,
     IngredientFormComponent,
-    IonSkeletonText,
   ],
   template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>
-          @if (mode() === 'FETCHING') {
-            <ion-skeleton-text animated="true" />
-          } @else {
-            {{
-              ingredient() ? 'Edit ' + ingredient().name : 'Create ingredient'
-            }}
-          }
-        </ion-title>
-        <ion-buttons slot="end">
-          @if (ingredient()) {
-            <ion-button (click)="remove()">Delete</ion-button>
-          }
-          <ion-button (click)="dismiss()">Close</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content class="ion-padding">
-      @if (mode() === 'FETCHING') {
-        <ion-skeleton-text animated="true" />
-        <ion-skeleton-text animated="true" />
-        <ion-skeleton-text animated="true" />
-      } @else {
-        <app-ingredient-form
-          [loading]="mode() === 'PROCESSING'"
-          (save)="save($event)"
-          [ingredient]="ingredient()"
-        />
-      }
-    </ion-content>
+    <app-detail-modal-wrapper
+      [loading]="mode() === 'PROCESSING'"
+      [title]="title()"
+    >
+      <ng-template buttons>
+        @if (ingredient()) {
+          <ion-button (click)="remove()">Delete</ion-button>
+        }
+        <ion-button (click)="dismiss()">Close</ion-button>
+      </ng-template>
+      <app-ingredient-form
+        [loading]="mode() === 'PROCESSING'"
+        (save)="save($event)"
+        [ingredient]="ingredient()"
+      />
+    </app-detail-modal-wrapper>
   `,
-  styles: `
-    ion-title ion-skeleton-text {
-      width: 66%;
-      height: 1.25rem;
-    }
-
-    ion-content ion-skeleton-text {
-      height: 1.5rem;
-      
-      &:not(:last-child)  {
-        margin-bottom: 0.75rem;
-      }
-
-      &:nth-child(1){
-        width: 75%
-      }
-      
-      &:nth-child(2){
-        width: 66%
-      }
-
-      &:nth-child(3){
-        width: 80%
-      }
-
-    }
-  `,
+  styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     DetailStoreService,
@@ -114,6 +77,11 @@ export class IngredientModalComponent implements ViewWillEnter {
 
   protected mode = this.detailStore.mode;
   protected ingredient = this.detailStore.item;
+
+  protected title = computed<string>(() => {
+    const ingredientName = this.ingredient()?.name;
+    return ingredientName ? `Edit ${ingredientName}` : 'Create ingredient';
+  });
 
   ionViewWillEnter(): void {
     if (!this.id) return;
