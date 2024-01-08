@@ -53,6 +53,7 @@ import {
           label="Icon"
           formControlName="icon"
           placeholder="Choose an icon"
+          interface="action-sheet"
         >
           <ion-select-option value="bycicle">
             <ion-icon ios="bycicle-outline" md="bycicle-sharp" /> Bycicle
@@ -90,6 +91,7 @@ import {
           label="Color"
           formControlName="color"
           placeholder="Choose a color"
+          interface="action-sheet"
         >
           <ion-select-option value="red">Red</ion-select-option>
           <ion-select-option value="green">Green</ion-select-option>
