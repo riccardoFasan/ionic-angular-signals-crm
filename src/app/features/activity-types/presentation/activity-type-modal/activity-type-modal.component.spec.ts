@@ -8,10 +8,9 @@ describe('ActivityTypeModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ActivityTypeModalComponent]
-    })
-    .compileComponents();
-    
+      imports: [ActivityTypeModalComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(ActivityTypeModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
