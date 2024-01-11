@@ -46,13 +46,6 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
     IonLabel,
     ScrollableListComponent,
   ],
-  providers: [
-    ListStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: IngredientsHandlerService,
-    },
-  ],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -108,6 +101,13 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
     </ion-content>
   `,
   styles: [``],
+  providers: [
+    ListStoreService,
+    {
+      provide: STORE_HANDLER,
+      useClass: IngredientsHandlerService,
+    },
+  ],
 })
 export class IngredientsPage implements ViewWillEnter {
   private listStore = inject(ListStoreService);

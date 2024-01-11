@@ -41,7 +41,11 @@ import {
       <ion-infinite-scroll-content />
     </ion-infinite-scroll>
   `,
-  styles: ``,
+  styles: `
+    ion-list:empty {
+      display: none;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScrollableListComponent {
