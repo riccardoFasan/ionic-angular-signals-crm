@@ -1,7 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { ActivityTypeApiService, ActivityTypeDTO } from '../database';
 import { List, SearchCriteria } from 'src/app/shared/utility';
-import { ActivityType } from '../activity-type.model';
+import {
+  ActivityType,
+  CreateActivityTypeFormData,
+  UpdateActivityTypeFormData,
+} from '../activity-type.model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,12 +28,18 @@ export class ActivityTypesFacadeService {
     return this.mapFromDTO(dto);
   }
 
-  async create(name: string, color: string): Promise<ActivityType> {
+  async create({
+    name,
+    color,
+  }: CreateActivityTypeFormData): Promise<ActivityType> {
     const id = await this.activityTypeApi.create(name, color);
     return await this.get(id);
   }
 
-  async update(id: number, name: string, color: string): Promise<ActivityType> {
+  async update(
+    id: number,
+    { name, color }: UpdateActivityTypeFormData,
+  ): Promise<ActivityType> {
     await this.activityTypeApi.update(id, name), color;
     return await this.get(id);
   }

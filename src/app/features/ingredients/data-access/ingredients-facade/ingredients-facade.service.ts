@@ -27,16 +27,16 @@ export class IngredientsFacadeService {
     return this.mapFromDTO(dto);
   }
 
-  async create(formData: CreateIngredientFormData): Promise<Ingredient> {
-    const id = await this.ingredientApi.create(formData.name, formData.notes);
+  async create({ name, notes }: CreateIngredientFormData): Promise<Ingredient> {
+    const id = await this.ingredientApi.create(name, notes);
     return await this.get(id);
   }
 
   async update(
     id: number,
-    formData: UpdateIngredientFormData,
+    { name, notes }: UpdateIngredientFormData,
   ): Promise<Ingredient> {
-    await this.ingredientApi.update(id, formData.name, formData.notes);
+    await this.ingredientApi.update(id, name, notes);
     return await this.get(id);
   }
 

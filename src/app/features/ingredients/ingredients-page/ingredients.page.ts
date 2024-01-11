@@ -135,7 +135,6 @@ export class IngredientsPage implements ViewWillEnter {
       type: OperationType.Delete,
       payload: ingredient,
     };
-    console.log(ingredient);
     this.listStore.operation$.next({ operation, item: ingredient });
   }
 

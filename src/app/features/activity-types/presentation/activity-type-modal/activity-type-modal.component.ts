@@ -12,24 +12,23 @@ import {
   IonTitle,
   IonToolbar,
   ModalController,
-  ViewWillEnter,
 } from '@ionic/angular/standalone';
 import {
   DetailStoreService,
-  OperationType,
   Operation,
+  OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import {
-  CreateIngredientFormData,
-  IngredientsHandlerService,
-  UpdateIngredientFormData,
+  ActivityTypesHandlerService,
+  CreateActivityTypeFormData,
+  UpdateActivityTypeFormData,
 } from '../../data-access';
-import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
+import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-form.component';
 
 @Component({
-  selector: 'app-ingredient-modal',
+  selector: 'app-activity-type-modal',
   standalone: true,
   imports: [
     IonContent,
@@ -39,7 +38,7 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
     IonButtons,
     IonButton,
     DetailModalWrapperComponent,
-    IngredientFormComponent,
+    ActivityTypeFormComponent,
   ],
   template: `
     <app-detail-modal-wrapper
@@ -47,15 +46,15 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
       [title]="title()"
     >
       <ng-container ngProjectAs="[buttons]">
-        @if (ingredient()) {
+        @if (activityType()) {
           <ion-button (click)="remove()">Delete</ion-button>
         }
         <ion-button (click)="dismiss()">Close</ion-button>
       </ng-container>
-      <app-ingredient-form
+      <app-activity-type-form
         [loading]="mode() === 'PROCESSING'"
         (save)="save($event)"
-        [ingredient]="ingredient()"
+        [activityType]="activityType()"
       />
     </app-detail-modal-wrapper>
   `,
@@ -65,22 +64,22 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
     DetailStoreService,
     {
       provide: STORE_HANDLER,
-      useClass: IngredientsHandlerService,
+      useClass: ActivityTypesHandlerService,
     },
   ],
 })
-export class IngredientModalComponent implements ViewWillEnter {
+export class ActivityTypeModalComponent {
   private detailStore = inject(DetailStoreService);
   private modalCtrl = inject(ModalController);
 
   private id!: number;
 
   protected mode = this.detailStore.mode;
-  protected ingredient = this.detailStore.item;
+  protected activityType = this.detailStore.item;
 
   protected title = computed<string>(() => {
-    const ingredientName = this.ingredient()?.name;
-    return ingredientName ? `Edit ${ingredientName}` : 'Create ingredient';
+    const activityTypeName = this.activityType()?.name;
+    return activityTypeName ? `Edit ${activityTypeName}` : 'Create activity';
   });
 
   ionViewWillEnter(): void {
@@ -89,20 +88,20 @@ export class IngredientModalComponent implements ViewWillEnter {
   }
 
   protected save(
-    payload: CreateIngredientFormData | UpdateIngredientFormData,
+    payload: CreateActivityTypeFormData | UpdateActivityTypeFormData,
   ): void {
     const operation: Operation = {
-      type: this.ingredient() ? OperationType.Update : OperationType.Create,
+      type: this.activityType() ? OperationType.Update : OperationType.Create,
       payload,
     };
     this.detailStore.operation$.next(operation);
   }
 
   protected remove(): void {
-    if (!this.ingredient()) return;
+    if (!this.activityType()) return;
     const operation: Operation = {
       type: OperationType.Delete,
-      payload: this.ingredient(),
+      payload: this.activityType(),
     };
     this.detailStore.operation$.next(operation);
     this.dismiss();

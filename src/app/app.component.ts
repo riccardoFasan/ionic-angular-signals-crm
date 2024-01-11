@@ -14,7 +14,6 @@ import {
   IonLabel,
   IonRouterOutlet,
 } from '@ionic/angular/standalone';
-
 import { InitializerService } from './shared/utility/initializer/initializer.service';
 
 @Component({

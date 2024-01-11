@@ -8,10 +8,9 @@ describe('IngredientFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IngredientFormComponent]
-    })
-    .compileComponents();
-    
+      imports: [IngredientFormComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(IngredientFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

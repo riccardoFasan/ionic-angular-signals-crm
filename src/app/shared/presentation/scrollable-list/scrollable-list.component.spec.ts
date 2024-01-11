@@ -8,10 +8,9 @@ describe('ScrollableListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ScrollableListComponent]
-    })
-    .compileComponents();
-    
+      imports: [ScrollableListComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(ScrollableListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
