@@ -64,9 +64,9 @@ import { ActivityTypesModalsService } from '../utility';
       </ion-header>
 
       <app-scrollable-list
-        [items]="activityTypes()"
-        [canLoadNextPage]="canLoadNextPage()"
-        [loading]="mode() === 'FETCHING'"
+        [items]="listStore.items()"
+        [canLoadNextPage]="listStore.canLoadNextPage()"
+        [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
         (scrollEnd)="loadNextPage()"
       >
@@ -110,13 +110,9 @@ import { ActivityTypesModalsService } from '../utility';
   styles: [``],
 })
 export class ActivityTypesPage implements ViewWillEnter {
-  private listStore = inject(ListStoreService);
-  private storeHandler = inject(STORE_HANDLER);
-  private activityTypeModals = inject(ActivityTypesModalsService);
-
-  protected activityTypes = this.listStore.items;
-  protected mode = this.listStore.mode;
-  protected canLoadNextPage = this.listStore.canLoadNextPage;
+  protected listStore = inject(ListStoreService);
+  protected storeHandler = inject(STORE_HANDLER);
+  protected activityTypeModals = inject(ActivityTypesModalsService);
 
   protected trackFn = (activityType: ActivityType): number =>
     this.storeHandler.extractId(activityType);
@@ -126,7 +122,7 @@ export class ActivityTypesPage implements ViewWillEnter {
   }
 
   protected loadNextPage(): void {
-    if (!this.canLoadNextPage()) return;
+    if (!this.listStore.canLoadNextPage()) return;
     this.listStore.loadNextPage$.next();
   }
 

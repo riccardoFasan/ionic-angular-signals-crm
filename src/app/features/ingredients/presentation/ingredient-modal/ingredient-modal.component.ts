@@ -43,19 +43,19 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
   ],
   template: `
     <app-detail-modal-wrapper
-      [loading]="mode() === 'PROCESSING'"
+      [loading]="detailStore.mode() === 'PROCESSING'"
       [title]="title()"
     >
       <ng-container ngProjectAs="[buttons]">
-        @if (ingredient()) {
+        @if (detailStore.item()) {
           <ion-button (click)="remove()">Delete</ion-button>
         }
-        <ion-button (click)="dismiss()">Close</ion-button>
+        <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-ingredient-form
-        [loading]="mode() === 'PROCESSING'"
+        [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [ingredient]="ingredient()"
+        [ingredient]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,
@@ -70,16 +70,13 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
   ],
 })
 export class IngredientModalComponent implements ViewWillEnter {
-  private detailStore = inject(DetailStoreService);
-  private modalCtrl = inject(ModalController);
+  protected detailStore = inject(DetailStoreService);
+  protected modalCtrl = inject(ModalController);
 
   private id!: number;
 
-  protected mode = this.detailStore.mode;
-  protected ingredient = this.detailStore.item;
-
   protected title = computed<string>(() => {
-    const ingredientName = this.ingredient()?.name;
+    const ingredientName = this.detailStore.item()?.name;
     return ingredientName ? `Edit ${ingredientName}` : 'Create ingredient';
   });
 
@@ -92,23 +89,21 @@ export class IngredientModalComponent implements ViewWillEnter {
     payload: CreateIngredientFormData | UpdateIngredientFormData,
   ): void {
     const operation: Operation = {
-      type: this.ingredient() ? OperationType.Update : OperationType.Create,
+      type: this.detailStore.item()
+        ? OperationType.Update
+        : OperationType.Create,
       payload,
     };
     this.detailStore.operation$.next(operation);
   }
 
   protected remove(): void {
-    if (!this.ingredient()) return;
+    if (!this.detailStore.item()) return;
     const operation: Operation = {
       type: OperationType.Delete,
-      payload: this.ingredient(),
+      payload: this.detailStore.item(),
     };
     this.detailStore.operation$.next(operation);
-    this.dismiss();
-  }
-
-  protected dismiss(): void {
     this.modalCtrl.dismiss();
   }
 }

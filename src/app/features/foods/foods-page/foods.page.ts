@@ -64,9 +64,9 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
       </ion-header>
 
       <app-scrollable-list
-        [items]="foods()"
-        [canLoadNextPage]="canLoadNextPage()"
-        [loading]="mode() === 'FETCHING'"
+        [items]="listStore.items()"
+        [canLoadNextPage]="listStore.canLoadNextPage()"
+        [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
         (scrollEnd)="loadNextPage()"
       >
@@ -110,13 +110,9 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
   ],
 })
 export class FoodsPage implements ViewWillEnter {
-  private listStore = inject(ListStoreService);
-  private storeHandler = inject(STORE_HANDLER);
-  private foodModals = inject(FoodModalsService);
-
-  protected foods = this.listStore.items;
-  protected mode = this.listStore.mode;
-  protected canLoadNextPage = this.listStore.canLoadNextPage;
+  protected listStore = inject(ListStoreService);
+  protected storeHandler = inject(STORE_HANDLER);
+  protected foodModals = inject(FoodModalsService);
 
   protected trackFn = (food: Food): number => this.storeHandler.extractId(food);
 
@@ -125,7 +121,7 @@ export class FoodsPage implements ViewWillEnter {
   }
 
   protected loadNextPage(): void {
-    if (!this.canLoadNextPage()) return;
+    if (!this.listStore.canLoadNextPage()) return;
     this.listStore.loadNextPage$.next();
   }
 
