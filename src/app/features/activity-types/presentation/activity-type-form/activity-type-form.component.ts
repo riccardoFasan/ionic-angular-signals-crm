@@ -5,7 +5,11 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { ActivityType } from '../../data-access';
+import {
+  ActivityType,
+  CreateActivityTypeFormData,
+  UpdateActivityTypeFormData,
+} from '../../data-access';
 import {
   FormControl,
   FormGroup,
@@ -117,10 +121,10 @@ export class ActivityTypeFormComponent {
 
   @Output() save = new EventEmitter();
 
-  protected form: FormGroup = new FormGroup({
-    name: new FormControl(null, Validators.required),
-    icon: new FormControl(null),
-    color: new FormControl(null),
+  protected form = new FormGroup({
+    name: new FormControl<string>('', Validators.required),
+    icon: new FormControl<string>(''),
+    color: new FormControl<string>(''),
   });
 
   protected submit(): void {

@@ -81,9 +81,9 @@ export class IngredientFormComponent {
 
   @Output() save = new EventEmitter();
 
-  protected form: FormGroup = new FormGroup({
-    name: new FormControl(null, Validators.required),
-    notes: new FormControl(null),
+  protected form = new FormGroup({
+    name: new FormControl<string>('', Validators.required),
+    notes: new FormControl<string>(''),
   });
 
   protected submit(): void {

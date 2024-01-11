@@ -76,8 +76,8 @@ export class IngredientModalComponent implements ViewWillEnter {
   private id!: number;
 
   protected title = computed<string>(() => {
-    const ingredientName = this.detailStore.item()?.name;
-    return ingredientName ? `Edit ${ingredientName}` : 'Create ingredient';
+    const itemName = this.detailStore.item()?.name;
+    return itemName ? `Edit ${itemName}` : 'Create ingredient';
   });
 
   ionViewWillEnter(): void {

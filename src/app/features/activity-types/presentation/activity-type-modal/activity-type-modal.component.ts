@@ -12,6 +12,7 @@ import {
   IonTitle,
   IonToolbar,
   ModalController,
+  ViewWillEnter,
 } from '@ionic/angular/standalone';
 import {
   DetailStoreService,
@@ -68,15 +69,15 @@ import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-f
     },
   ],
 })
-export class ActivityTypeModalComponent {
+export class ActivityTypeModalComponent implements ViewWillEnter {
   protected detailStore = inject(DetailStoreService);
   protected modalCtrl = inject(ModalController);
 
   private id!: number;
 
   protected title = computed<string>(() => {
-    const activityTypeName = this.detailStore.item()?.name;
-    return activityTypeName ? `Edit ${activityTypeName}` : 'Create activity';
+    const itemName = this.detailStore.item()?.name;
+    return itemName ? `Edit ${itemName}` : 'Create activity';
   });
 
   ionViewWillEnter(): void {
