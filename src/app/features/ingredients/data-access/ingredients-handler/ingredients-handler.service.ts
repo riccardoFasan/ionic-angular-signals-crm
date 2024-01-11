@@ -40,33 +40,32 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
     { type, payload }: Operation,
     item?: Ingredient,
   ): Observable<Ingredient> {
-    if (type === OperationType.Create) {
-      return defer(() =>
-        this.ingredientsFacade.create(payload as CreateIngredientFormData),
-      );
-    }
+    switch (type) {
+      case OperationType.Create:
+        return defer(() =>
+          this.ingredientsFacade.create(payload as CreateIngredientFormData),
+        );
 
-    if (
-      (type === OperationType.Delete || type === OperationType.Update) &&
-      !item
-    ) {
-      throw new Error('Item is required for update and delete effects');
-    }
+      case OperationType.Update:
+        if (!item) {
+          throw new Error('Item is required for update effects');
+        }
+        return defer(() =>
+          this.ingredientsFacade.update(
+            item.id,
+            payload as UpdateIngredientFormData,
+          ),
+        );
 
-    if (type === OperationType.Update) {
-      return defer(() =>
-        this.ingredientsFacade.update(
-          item!.id,
-          payload as UpdateIngredientFormData,
-        ),
-      );
-    }
+      case OperationType.Delete:
+        if (!item) {
+          throw new Error('Item is required for delete effects');
+        }
+        return defer(() => this.ingredientsFacade.delete(item.id));
 
-    if (type === OperationType.Delete) {
-      return defer(() => this.ingredientsFacade.delete(item!.id));
+      default:
+        throw new Error(`Operation not implemented for: ${type}`);
     }
-
-    throw new Error(`Operation not implemented for: ${type}`);
   }
 
   onOperation({ type }: Operation, item: Ingredient): Observable<void> {
@@ -78,18 +77,15 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
     type: OperationType | string,
     item: Ingredient,
   ): string | undefined {
-    if (type === OperationType.Create) {
-      return `Ingredient ${item.name} created`;
+    switch (type) {
+      case OperationType.Create:
+        return `Ingredient ${item.name} created`;
+      case OperationType.Update:
+        return `Ingredient ${item.name} updated`;
+      case OperationType.Delete:
+        return `Ingredient ${item.name} deleted`;
+      default:
+        throw new Error(`getMessage not implemented for: ${type}`);
     }
-
-    if (type === OperationType.Update) {
-      return `Ingredient ${item.name} updated`;
-    }
-
-    if (type === OperationType.Delete) {
-      return `Ingredient ${item.name} deleted`;
-    }
-
-    throw new Error(`getMessage not implemented for: ${type}`);
   }
 }

@@ -13,5 +13,5 @@ export type CreateIngredientFormData = Omit<
 
 export type UpdateIngredientFormData = Omit<
   Ingredient,
-  'createdAt' | 'updatedAt'
+  'id' | 'createdAt' | 'updatedAt'
 >;

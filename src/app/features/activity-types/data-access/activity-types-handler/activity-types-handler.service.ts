@@ -40,33 +40,34 @@ export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
     { type, payload }: Operation,
     item?: ActivityType,
   ): Observable<ActivityType> {
-    if (type === OperationType.Create) {
-      return defer(() =>
-        this.activityTypesFacade.create(payload as CreateActivityTypeFormData),
-      );
-    }
+    switch (type) {
+      case OperationType.Create:
+        return defer(() =>
+          this.activityTypesFacade.create(
+            payload as CreateActivityTypeFormData,
+          ),
+        );
 
-    if (
-      (type === OperationType.Delete || type === OperationType.Update) &&
-      !item
-    ) {
-      throw new Error('Item is required for update and delete effects');
-    }
+      case OperationType.Update:
+        if (!item) {
+          throw new Error('Item is required for update effects');
+        }
+        return defer(() =>
+          this.activityTypesFacade.update(
+            item.id,
+            payload as UpdateActivityTypeFormData,
+          ),
+        );
 
-    if (type === OperationType.Update) {
-      return defer(() =>
-        this.activityTypesFacade.update(
-          item!.id,
-          payload as UpdateActivityTypeFormData,
-        ),
-      );
-    }
+      case OperationType.Delete:
+        if (!item) {
+          throw new Error('Item is required for delete effects');
+        }
+        return defer(() => this.activityTypesFacade.delete(item.id));
 
-    if (type === OperationType.Delete) {
-      return defer(() => this.activityTypesFacade.delete(item!.id));
+      default:
+        throw new Error(`Operation ${type} not supported.`);
     }
-
-    throw new Error(`Operation not implemented for: ${type}`);
   }
 
   onOperation({ type }: Operation, item: ActivityType): Observable<void> {
@@ -78,18 +79,15 @@ export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
     type: OperationType | string,
     item: ActivityType,
   ): string | undefined {
-    if (type === OperationType.Create) {
-      return `ActivityType ${item.name} created`;
+    switch (type) {
+      case OperationType.Create:
+        return `ActivityType ${item.name} created`;
+      case OperationType.Update:
+        return `ActivityType ${item.name} updated`;
+      case OperationType.Delete:
+        return `ActivityType ${item.name} deleted`;
+      default:
+        throw new Error(`getMessage not implemented for: ${type}`);
     }
-
-    if (type === OperationType.Update) {
-      return `ActivityType ${item.name} updated`;
-    }
-
-    if (type === OperationType.Delete) {
-      return `ActivityType ${item.name} deleted`;
-    }
-
-    throw new Error(`getMessage not implemented for: ${type}`);
   }
 }

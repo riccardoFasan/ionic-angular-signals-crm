@@ -9,3 +9,6 @@ export type Food = {
   calories?: number;
   notes?: string;
 };
+
+export type CreateFoodFormData = Omit<Food, 'id' | 'createdAt' | 'updatedAt'>;
+export type UpdateFoodFormData = Omit<Food, 'id' | 'createdAt' | 'updatedAt'>;
