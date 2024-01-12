@@ -30,6 +30,7 @@ import {
   add,
   alertCircleOutline,
   checkmarkCircleOutline,
+  caretDownSharp,
 } from 'ionicons/icons';
 
 if (environment.production) {
@@ -58,4 +59,5 @@ addIcons({
   add,
   alertCircleOutline,
   checkmarkCircleOutline,
+  caretDownSharp,
 });

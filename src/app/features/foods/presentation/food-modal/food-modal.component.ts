@@ -16,20 +16,20 @@ import {
 } from '@ionic/angular/standalone';
 import {
   DetailStoreService,
-  OperationType,
   Operation,
+  OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import {
-  CreateIngredientFormData,
-  IngredientsHandlerService,
-  UpdateIngredientFormData,
+  FoodsHandlerService,
+  CreateFoodFormData,
+  UpdateFoodFormData,
 } from '../../data-access';
-import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
+import { FoodFormComponent } from '../food-form/food-form.component';
 
 @Component({
-  selector: 'app-ingredient-modal',
+  selector: 'app-food-modal',
   standalone: true,
   imports: [
     IonContent,
@@ -39,7 +39,7 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
     IonButtons,
     IonButton,
     DetailModalWrapperComponent,
-    IngredientFormComponent,
+    FoodFormComponent,
   ],
   template: `
     <app-detail-modal-wrapper
@@ -52,10 +52,10 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
         }
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
-      <app-ingredient-form
+      <app-food-form
         [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [ingredient]="detailStore.item()"
+        [food]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,
@@ -65,11 +65,11 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
     DetailStoreService,
     {
       provide: STORE_HANDLER,
-      useClass: IngredientsHandlerService,
+      useClass: FoodsHandlerService,
     },
   ],
 })
-export class IngredientModalComponent implements OnInit {
+export class FoodModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);
   protected modalCtrl = inject(ModalController);
 
@@ -77,7 +77,7 @@ export class IngredientModalComponent implements OnInit {
 
   protected title = computed<string>(() => {
     const itemName = this.detailStore.item()?.name;
-    return itemName ? `Edit ${itemName}` : 'Create ingredient';
+    return itemName ? `Edit ${itemName}` : 'Create food';
   });
 
   ngOnInit(): void {
@@ -85,9 +85,7 @@ export class IngredientModalComponent implements OnInit {
     this.detailStore.id$.next(this.id);
   }
 
-  protected save(
-    payload: CreateIngredientFormData | UpdateIngredientFormData,
-  ): void {
+  protected save(payload: CreateFoodFormData | UpdateFoodFormData): void {
     const operation: Operation = {
       type: this.detailStore.item()
         ? OperationType.Update

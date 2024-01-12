@@ -37,11 +37,17 @@ import {
       }
     </ion-list>
 
-    <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
-      <ion-infinite-scroll-content />
-    </ion-infinite-scroll>
+    @if (canLoadNextPage) {
+      <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+        <ion-infinite-scroll-content />
+      </ion-infinite-scroll>
+    }
   `,
-  styles: ``,
+  styles: `
+    ion-list:empty {
+      display: none;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScrollableListComponent {

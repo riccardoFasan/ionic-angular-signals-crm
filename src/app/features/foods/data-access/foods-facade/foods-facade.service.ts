@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { FoodApiService, FoodDTO, FoodIngredientApiService } from '../database';
 import { List, SearchCriteria } from 'src/app/shared/utility';
-import { Food } from '../food.model';
+import { CreateFoodFormData, Food, UpdateFoodFormData } from '../food.model';
 import {
   Ingredient,
   IngredientsFacadeService,
@@ -38,11 +38,11 @@ export class FoodsFacadeService {
     return this.mapFromDTO(foodDTO, ingredients);
   }
 
-  async create(
-    name: string,
-    ingredients?: Ingredient[],
-    notes?: string,
-  ): Promise<Food> {
+  async create({
+    name,
+    ingredients,
+    notes,
+  }: CreateFoodFormData): Promise<Food> {
     const foodId = await this.foodApi.create(name, notes);
     if (ingredients) {
       await Promise.all(
@@ -56,9 +56,7 @@ export class FoodsFacadeService {
 
   async update(
     foodId: number,
-    name: string,
-    ingredients?: Ingredient[],
-    notes?: string,
+    { name, ingredients, notes }: UpdateFoodFormData,
   ): Promise<Food> {
     await Promise.all([
       this.foodApi.update(foodId, name, notes),

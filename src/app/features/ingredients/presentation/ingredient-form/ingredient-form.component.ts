@@ -37,7 +37,7 @@ import { Ingredient } from '../../data-access';
         <ion-item>
           <ion-input
             label="Ingredient name *"
-            labelPlacement="floating"
+            labelPlacement="stacked"
             placeholder="Write the name of the ingredient"
             formControlName="name"
             required="true"
@@ -46,7 +46,7 @@ import { Ingredient } from '../../data-access';
         <ion-item>
           <ion-textarea
             label="Notes"
-            labelPlacement="floating"
+            labelPlacement="stacked"
             placeholder="Write something"
             formControlName="notes"
           />
@@ -81,9 +81,9 @@ export class IngredientFormComponent {
 
   @Output() save = new EventEmitter();
 
-  protected form: FormGroup = new FormGroup({
-    name: new FormControl(null, Validators.required),
-    notes: new FormControl(null),
+  protected form = new FormGroup({
+    name: new FormControl<string>('', Validators.required),
+    notes: new FormControl<string>(''),
   });
 
   protected submit(): void {

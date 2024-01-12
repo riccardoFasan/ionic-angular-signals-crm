@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   computed,
   inject,
 } from '@angular/core';
@@ -42,19 +43,19 @@ import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-f
   ],
   template: `
     <app-detail-modal-wrapper
-      [loading]="mode() === 'PROCESSING'"
+      [loading]="detailStore.mode() === 'PROCESSING'"
       [title]="title()"
     >
       <ng-container ngProjectAs="[buttons]">
-        @if (activityType()) {
+        @if (detailStore.item()) {
           <ion-button (click)="remove()">Delete</ion-button>
         }
-        <ion-button (click)="dismiss()">Close</ion-button>
+        <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-activity-type-form
-        [loading]="mode() === 'PROCESSING'"
+        [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [activityType]="activityType()"
+        [activityType]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,
@@ -68,21 +69,18 @@ import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-f
     },
   ],
 })
-export class ActivityTypeModalComponent {
-  private detailStore = inject(DetailStoreService);
-  private modalCtrl = inject(ModalController);
+export class ActivityTypeModalComponent implements OnInit {
+  protected detailStore = inject(DetailStoreService);
+  protected modalCtrl = inject(ModalController);
 
   private id!: number;
 
-  protected mode = this.detailStore.mode;
-  protected activityType = this.detailStore.item;
-
   protected title = computed<string>(() => {
-    const activityTypeName = this.activityType()?.name;
-    return activityTypeName ? `Edit ${activityTypeName}` : 'Create activity';
+    const itemName = this.detailStore.item()?.name;
+    return itemName ? `Edit ${itemName}` : 'Create activity';
   });
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     if (!this.id) return;
     this.detailStore.id$.next(this.id);
   }
@@ -91,23 +89,21 @@ export class ActivityTypeModalComponent {
     payload: CreateActivityTypeFormData | UpdateActivityTypeFormData,
   ): void {
     const operation: Operation = {
-      type: this.activityType() ? OperationType.Update : OperationType.Create,
+      type: this.detailStore.item()
+        ? OperationType.Update
+        : OperationType.Create,
       payload,
     };
     this.detailStore.operation$.next(operation);
   }
 
   protected remove(): void {
-    if (!this.activityType()) return;
+    if (!this.detailStore.item()) return;
     const operation: Operation = {
       type: OperationType.Delete,
-      payload: this.activityType(),
+      payload: this.detailStore.item(),
     };
     this.detailStore.operation$.next(operation);
-    this.dismiss();
-  }
-
-  protected dismiss(): void {
     this.modalCtrl.dismiss();
   }
 }

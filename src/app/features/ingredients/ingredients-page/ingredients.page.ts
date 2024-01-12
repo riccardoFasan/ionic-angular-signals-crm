@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -11,7 +11,6 @@ import {
   IonIcon,
   IonItem,
   IonLabel,
-  ViewWillEnter,
   IonItemSliding,
   IonItemOption,
   IonItemOptions,
@@ -46,13 +45,6 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
     IonLabel,
     ScrollableListComponent,
   ],
-  providers: [
-    ListStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: IngredientsHandlerService,
-    },
-  ],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -71,9 +63,9 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
       </ion-header>
 
       <app-scrollable-list
-        [items]="ingredients()"
-        [canLoadNextPage]="canLoadNextPage()"
-        [loading]="mode() === 'FETCHING'"
+        [items]="listStore.items()"
+        [canLoadNextPage]="listStore.canLoadNextPage()"
+        [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
         (scrollEnd)="loadNextPage()"
       >
@@ -108,25 +100,28 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
     </ion-content>
   `,
   styles: [``],
+  providers: [
+    ListStoreService,
+    {
+      provide: STORE_HANDLER,
+      useClass: IngredientsHandlerService,
+    },
+  ],
 })
-export class IngredientsPage implements ViewWillEnter {
-  private listStore = inject(ListStoreService);
-  private storeHandler = inject(STORE_HANDLER);
-  private ingredientModals = inject(IngredientModalsService);
-
-  protected ingredients = this.listStore.items;
-  protected mode = this.listStore.mode;
-  protected canLoadNextPage = this.listStore.canLoadNextPage;
+export class IngredientsPage implements OnInit {
+  protected listStore = inject(ListStoreService);
+  protected storeHandler = inject(STORE_HANDLER);
+  protected ingredientModals = inject(IngredientModalsService);
 
   protected trackFn = (ingredient: Ingredient): number =>
     this.storeHandler.extractId(ingredient);
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
   }
 
   protected loadNextPage(): void {
-    if (!this.canLoadNextPage()) return;
+    if (!this.listStore.canLoadNextPage()) return;
     this.listStore.loadNextPage$.next();
   }
 
