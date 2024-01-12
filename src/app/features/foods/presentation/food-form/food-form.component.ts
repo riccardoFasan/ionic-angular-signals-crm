@@ -23,6 +23,8 @@ import {
 } from '@ionic/angular/standalone';
 import { Food } from '../../data-access';
 import { Ingredient } from 'src/app/features/ingredients/data-access';
+import { SearchableSelectComponent } from 'src/app/shared/presentation';
+import { IngredientsSelectDirective } from 'src/app/features/ingredients/presentation';
 
 @Component({
   selector: 'app-food-form',
@@ -37,6 +39,8 @@ import { Ingredient } from 'src/app/features/ingredients/data-access';
     IonSelectOption,
     IonTextarea,
     ReactiveFormsModule,
+    IngredientsSelectDirective,
+    SearchableSelectComponent,
   ],
   template: `
     <form [formGroup]="form" (ngSubmit)="submit()">
@@ -44,17 +48,28 @@ import { Ingredient } from 'src/app/features/ingredients/data-access';
         <ion-item>
           <ion-input
             label="Food name *"
-            labelPlacement="floating"
+            labelPlacement="stacked"
             placeholder="Write the name of the food"
             formControlName="name"
             required="true"
           />
         </ion-item>
-        <!-- TODO: ingredients -->
+        <ion-item>
+          <app-searchable-select
+            appIngredientsSelect
+            label="Ingredients"
+            labelPlacement="stacked"
+            placeholder="Choose some ingredient"
+            formControlName="ingredients"
+            searchKey="name"
+            multiple="true"
+            required="true"
+          />
+        </ion-item>
         <ion-item>
           <ion-input
             label="Calories"
-            labelPlacement="floating"
+            labelPlacement="stacked"
             placeholder="Write the amount of calories"
             formControlName="calories"
             type="number"
@@ -63,7 +78,7 @@ import { Ingredient } from 'src/app/features/ingredients/data-access';
         <ion-item>
           <ion-textarea
             label="Notes"
-            labelPlacement="floating"
+            labelPlacement="stacked"
             placeholder="Write something"
             formControlName="notes"
           />

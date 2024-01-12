@@ -47,7 +47,7 @@ import {
         <ion-item>
           <ion-input
             label="Activity name *"
-            labelPlacement="floating"
+            labelPlacement="stacked"
             placeholder="Write the name of the activity"
             formControlName="name"
             required="true"

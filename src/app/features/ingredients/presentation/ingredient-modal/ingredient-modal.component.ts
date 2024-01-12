@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   computed,
   inject,
 } from '@angular/core';
@@ -12,7 +13,6 @@ import {
   IonTitle,
   IonToolbar,
   ModalController,
-  ViewWillEnter,
 } from '@ionic/angular/standalone';
 import {
   DetailStoreService,
@@ -69,7 +69,7 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
     },
   ],
 })
-export class IngredientModalComponent implements ViewWillEnter {
+export class IngredientModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);
   protected modalCtrl = inject(ModalController);
 
@@ -80,7 +80,7 @@ export class IngredientModalComponent implements ViewWillEnter {
     return itemName ? `Edit ${itemName}` : 'Create ingredient';
   });
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     if (!this.id) return;
     this.detailStore.id$.next(this.id);
   }

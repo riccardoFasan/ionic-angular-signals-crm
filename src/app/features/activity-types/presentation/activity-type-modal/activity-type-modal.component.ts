@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   computed,
   inject,
 } from '@angular/core';
@@ -12,7 +13,6 @@ import {
   IonTitle,
   IonToolbar,
   ModalController,
-  ViewWillEnter,
 } from '@ionic/angular/standalone';
 import {
   DetailStoreService,
@@ -69,7 +69,7 @@ import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-f
     },
   ],
 })
-export class ActivityTypeModalComponent implements ViewWillEnter {
+export class ActivityTypeModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);
   protected modalCtrl = inject(ModalController);
 
@@ -80,7 +80,7 @@ export class ActivityTypeModalComponent implements ViewWillEnter {
     return itemName ? `Edit ${itemName}` : 'Create activity';
   });
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     if (!this.id) return;
     this.detailStore.id$.next(this.id);
   }

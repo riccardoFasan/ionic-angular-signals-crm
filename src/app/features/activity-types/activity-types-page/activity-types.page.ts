@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -11,7 +11,6 @@ import {
   IonIcon,
   IonItem,
   IonLabel,
-  ViewWillEnter,
   IonItemSliding,
   IonItemOption,
   IonItemOptions,
@@ -109,7 +108,7 @@ import { ActivityTypesModalsService } from '../utility';
   ],
   styles: [``],
 })
-export class ActivityTypesPage implements ViewWillEnter {
+export class ActivityTypesPage implements OnInit {
   protected listStore = inject(ListStoreService);
   protected storeHandler = inject(STORE_HANDLER);
   protected activityTypeModals = inject(ActivityTypesModalsService);
@@ -117,7 +116,7 @@ export class ActivityTypesPage implements ViewWillEnter {
   protected trackFn = (activityType: ActivityType): number =>
     this.storeHandler.extractId(activityType);
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
   }
 

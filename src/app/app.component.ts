@@ -14,7 +14,7 @@ import {
   IonLabel,
   IonRouterOutlet,
 } from '@ionic/angular/standalone';
-import { InitializerService } from './shared/utility/initializer/initializer.service';
+import { InitializerService } from './shared/utility';
 
 @Component({
   selector: 'app-root',
@@ -37,8 +37,8 @@ import { InitializerService } from './shared/utility/initializer/initializer.ser
                   <ion-icon
                     aria-hidden="true"
                     slot="start"
-                    [ios]="'book-outline'"
-                    [md]="'book-sharp'"
+                    ios="book-outline"
+                    md="book-sharp"
                   />
                   <ion-label>Diary</ion-label>
                 </ion-item>
@@ -55,8 +55,8 @@ import { InitializerService } from './shared/utility/initializer/initializer.ser
                   <ion-icon
                     aria-hidden="true"
                     slot="start"
-                    [ios]="'calendar-outline'"
-                    [md]="'calendar-sharp'"
+                    ios="calendar-outline"
+                    md="calendar-sharp"
                   />
                   <ion-label>Activities</ion-label>
                 </ion-item>
@@ -73,8 +73,8 @@ import { InitializerService } from './shared/utility/initializer/initializer.ser
                   <ion-icon
                     aria-hidden="true"
                     slot="start"
-                    [ios]="'pricetag-outline'"
-                    [md]="'pricetag-sharp'"
+                    ios="pricetag-outline"
+                    md="pricetag-sharp"
                   />
                   <ion-label>Tags</ion-label>
                 </ion-item>
@@ -91,8 +91,8 @@ import { InitializerService } from './shared/utility/initializer/initializer.ser
                   <ion-icon
                     aria-hidden="true"
                     slot="start"
-                    [ios]="'fast-food-outline'"
-                    [md]="'fast-food-sharp'"
+                    ios="fast-food-outline"
+                    md="fast-food-sharp"
                   />
                   <ion-label>Foods</ion-label>
                 </ion-item>
@@ -109,8 +109,8 @@ import { InitializerService } from './shared/utility/initializer/initializer.ser
                   <ion-icon
                     aria-hidden="true"
                     slot="start"
-                    [ios]="'list-outline'"
-                    [md]="'list-sharp'"
+                    ios="list-outline"
+                    md="list-sharp"
                   />
                   <ion-label>Ingredients</ion-label>
                 </ion-item>

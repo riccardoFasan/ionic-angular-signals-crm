@@ -37,7 +37,7 @@ import { Ingredient } from '../../data-access';
         <ion-item>
           <ion-input
             label="Ingredient name *"
-            labelPlacement="floating"
+            labelPlacement="stacked"
             placeholder="Write the name of the ingredient"
             formControlName="name"
             required="true"
@@ -46,7 +46,7 @@ import { Ingredient } from '../../data-access';
         <ion-item>
           <ion-textarea
             label="Notes"
-            labelPlacement="floating"
+            labelPlacement="stacked"
             placeholder="Write something"
             formControlName="notes"
           />

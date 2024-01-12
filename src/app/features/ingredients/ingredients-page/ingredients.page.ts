@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -11,7 +11,6 @@ import {
   IonIcon,
   IonItem,
   IonLabel,
-  ViewWillEnter,
   IonItemSliding,
   IonItemOption,
   IonItemOptions,
@@ -109,7 +108,7 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
     },
   ],
 })
-export class IngredientsPage implements ViewWillEnter {
+export class IngredientsPage implements OnInit {
   protected listStore = inject(ListStoreService);
   protected storeHandler = inject(STORE_HANDLER);
   protected ingredientModals = inject(IngredientModalsService);
@@ -117,7 +116,7 @@ export class IngredientsPage implements ViewWillEnter {
   protected trackFn = (ingredient: Ingredient): number =>
     this.storeHandler.extractId(ingredient);
 
-  ionViewWillEnter(): void {
+  ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
   }
 
