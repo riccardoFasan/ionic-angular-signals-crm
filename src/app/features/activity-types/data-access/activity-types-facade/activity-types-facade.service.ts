@@ -31,16 +31,17 @@ export class ActivityTypesFacadeService {
   async create({
     name,
     color,
+    icon,
   }: CreateActivityTypeFormData): Promise<ActivityType> {
-    const id = await this.activityTypeApi.create(name, color);
+    const id = await this.activityTypeApi.create(name, color, icon);
     return await this.get(id);
   }
 
   async update(
     id: number,
-    { name, color }: UpdateActivityTypeFormData,
+    { name, color, icon }: UpdateActivityTypeFormData,
   ): Promise<ActivityType> {
-    await this.activityTypeApi.update(id, name), color;
+    await this.activityTypeApi.update(id, name, color, icon);
     return await this.get(id);
   }
 

@@ -5,15 +5,7 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import {
-  IonButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-} from '@ionic/angular/standalone';
+import { IonButton, ModalController } from '@ionic/angular/standalone';
 import {
   DetailStoreService,
   OperationType,
@@ -31,16 +23,7 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
 @Component({
   selector: 'app-ingredient-modal',
   standalone: true,
-  imports: [
-    IonContent,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonButton,
-    DetailModalWrapperComponent,
-    IngredientFormComponent,
-  ],
+  imports: [IonButton, DetailModalWrapperComponent, IngredientFormComponent],
   template: `
     <app-detail-modal-wrapper
       [loading]="detailStore.mode() === 'PROCESSING'"

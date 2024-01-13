@@ -5,3 +5,7 @@ export type Tag = {
   name: string;
   color?: string;
 };
+
+export type CreateTagFormData = Omit<Tag, 'id' | 'createdAt' | 'updatedAt'>;
+
+export type UpdateTagFormData = Omit<Tag, 'id' | 'createdAt' | 'updatedAt'>;

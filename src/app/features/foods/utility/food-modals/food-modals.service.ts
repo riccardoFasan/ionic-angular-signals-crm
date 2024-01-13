@@ -6,7 +6,7 @@ import { FoodModalComponent } from '../../presentation';
   providedIn: 'root',
 })
 export class FoodModalsService {
-  private modalCtrl: ModalController = inject(ModalController);
+  private modalCtrl = inject(ModalController);
 
   async openModal(id?: number): Promise<void> {
     const modal = await this.modalCtrl.create({

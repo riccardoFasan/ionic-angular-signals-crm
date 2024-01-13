@@ -5,15 +5,7 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import {
-  IonButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-} from '@ionic/angular/standalone';
+import { IonButton, ModalController } from '@ionic/angular/standalone';
 import {
   DetailStoreService,
   Operation,
@@ -31,16 +23,7 @@ import { FoodFormComponent } from '../food-form/food-form.component';
 @Component({
   selector: 'app-food-modal',
   standalone: true,
-  imports: [
-    IonContent,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonButton,
-    DetailModalWrapperComponent,
-    FoodFormComponent,
-  ],
+  imports: [IonButton, DetailModalWrapperComponent, FoodFormComponent],
   template: `
     <app-detail-modal-wrapper
       [loading]="detailStore.mode() === 'PROCESSING'"

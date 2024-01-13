@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -6,10 +6,45 @@ import {
   IonMenuButton,
   IonTitle,
   IonContent,
+  IonItemSliding,
+  IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonLabel,
+  IonFab,
+  IonFabButton,
+  IonIcon,
 } from '@ionic/angular/standalone';
+import {
+  ListStoreService,
+  Operation,
+  OperationType,
+  STORE_HANDLER,
+} from 'src/app/shared/data-access';
+import { Tag, TagsHandlerService } from '../data-access';
+import { ScrollableListComponent } from 'src/app/shared/presentation';
+import { TagModalsService } from '../utility';
 
 @Component({
   selector: 'app-tags',
+  standalone: true,
+  imports: [
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonItemSliding,
+    IonItem,
+    IonItemOption,
+    IonItemOptions,
+    IonLabel,
+    IonFab,
+    IonFabButton,
+    IonIcon,
+    ScrollableListComponent,
+  ],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -26,17 +61,79 @@ import {
           <ion-title size="large">Tags</ion-title>
         </ion-toolbar>
       </ion-header>
+
+      <app-scrollable-list
+        [items]="listStore.items()"
+        [canLoadNextPage]="listStore.canLoadNextPage()"
+        [loading]="listStore.mode() === 'FETCHING'"
+        [trackFn]="trackFn"
+        (scrollEnd)="loadNextPage()"
+      >
+        <ng-template #itemTemplate let-item>
+          <ion-item-sliding #itemSliding>
+            <ion-item>
+              <ion-label>{{ item.name }}</ion-label>
+            </ion-item>
+
+            <ion-item-options>
+              <ion-item-option
+                (click)="[openModal(item.id), itemSliding.close()]"
+              >
+                Edit
+              </ion-item-option>
+              <ion-item-option
+                (click)="[remove(item), itemSliding.close()]"
+                color="danger"
+              >
+                Delete
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ng-template>
+      </app-scrollable-list>
+
+      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+        <ion-fab-button (click)="openModal()">
+          <ion-icon name="add" />
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   `,
   styles: [``],
-  standalone: true,
-  imports: [
-    IonHeader,
-    IonToolbar,
-    IonButtons,
-    IonMenuButton,
-    IonTitle,
-    IonContent,
+  providers: [
+    ListStoreService,
+    {
+      provide: STORE_HANDLER,
+      useClass: TagsHandlerService,
+    },
   ],
 })
-export class TagsPage {}
+export class TagsPage implements OnInit {
+  protected listStore = inject(ListStoreService);
+  protected storeHandler = inject(STORE_HANDLER);
+  protected tagModals = inject(TagModalsService);
+
+  protected trackFn = (tag: Tag): number => this.storeHandler.extractId(tag);
+
+  ngOnInit(): void {
+    this.listStore.loadFirstPage$.next();
+  }
+
+  protected loadNextPage(): void {
+    if (!this.listStore.canLoadNextPage()) return;
+    this.listStore.loadNextPage$.next();
+  }
+
+  protected remove(tag: Tag): void {
+    const operation: Operation = {
+      type: OperationType.Delete,
+      payload: tag,
+    };
+    this.listStore.operation$.next({ operation, item: tag });
+  }
+
+  protected async openModal(id?: number): Promise<void> {
+    await this.tagModals.openModal(id);
+    this.listStore.refresh$.next();
+  }
+}
