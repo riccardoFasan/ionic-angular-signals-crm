@@ -24,7 +24,7 @@ import {
 } from 'src/app/shared/data-access';
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 import { IngredientsHandlerService } from '../../ingredients/data-access';
-import { MealModalsService } from '../../meals/utility/meal-modals/meal-modals.service';
+import { MealModalsService } from '../../meals/utility';
 import { ActivityModalsService } from '../../activities/utility';
 import { Meal } from '../../meals/data-access';
 import { Activity } from '../../activities/data-access';

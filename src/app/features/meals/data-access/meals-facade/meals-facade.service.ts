@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { MealApiService, MealDTO, MealFoodApiService } from '../database';
 import { FoodsFacadeService } from 'src/app/features/foods/data-access';
-import { Meal } from '../meal.model';
+import { CreateMealFormData, Meal, UpdateMealFormData } from '../meal.model';
 import { Consumption } from '../consumption.model';
-import { SearchCriteria } from 'src/app/shared/utility';
+import { List, SearchCriteria } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +13,7 @@ export class MealsFacadeService {
   private mealFoodApi = inject(MealFoodApiService);
   private foodsFacade = inject(FoodsFacadeService);
 
-  async getList(searchCriteria: SearchCriteria): Promise<Meal[]> {
+  async getList(searchCriteria: SearchCriteria): Promise<List<Meal>> {
     const filters = this.mapToApiFilters(searchCriteria.filters);
     const list = await this.mealApi.getList({
       ...searchCriteria,
@@ -25,65 +25,62 @@ export class MealsFacadeService {
     const items = list.items.map((mealDTO, i) =>
       this.mapFromDTO(mealDTO, mealsConsumptions[i]),
     );
-    return items;
+    return { ...list, items };
   }
 
-  async get(mealId: number): Promise<Meal> {
+  async get(id: number): Promise<Meal> {
     const [mealDTO, consumptions] = await Promise.all([
-      this.mealApi.get(mealId),
-      this.getConsumptions(mealId),
+      this.mealApi.get(id),
+      this.getConsumptions(id),
     ]);
     return this.mapFromDTO(mealDTO, consumptions);
   }
 
-  async create(
-    name: string,
-    at: Date,
-    foods?: Consumption[],
-    notes?: string,
-  ): Promise<Meal> {
-    const mealId = await this.mealApi.create(name, at.toISOString(), notes);
-    if (foods) {
+  async create({
+    name,
+    at,
+    consumptions,
+    notes,
+  }: CreateMealFormData): Promise<Meal> {
+    const id = await this.mealApi.create(name, at.toISOString(), notes);
+    if (consumptions) {
       await Promise.all(
-        foods.map((consumption) =>
+        consumptions.map((consumption) =>
           this.mealFoodApi.create(
-            mealId,
+            id,
             consumption.food.id,
             consumption.quantity,
           ),
         ),
       );
     }
-    return await this.get(mealId);
+    return await this.get(id);
   }
 
   async update(
-    mealId: number,
-    name: string,
-    at: Date,
-    foods?: Consumption[],
-    notes?: string,
+    id: number,
+    { name, at, consumptions, notes }: UpdateMealFormData,
   ): Promise<Meal> {
     await Promise.all([
-      this.mealApi.update(mealId, name, at.toISOString(), notes),
-      this.updateConsumptions(mealId, foods),
+      this.mealApi.update(id, name, at.toISOString(), notes),
+      this.updateConsumptions(id, consumptions),
     ]);
-    return await this.get(mealId);
+    return await this.get(id);
   }
 
-  async delete(mealId: number): Promise<Meal> {
-    const meal = await this.get(mealId);
+  async delete(id: number): Promise<Meal> {
+    const meal = await this.get(id);
     await Promise.all([
-      this.mealApi.delete(mealId),
+      this.mealApi.delete(id),
       ...meal.consumptions.map((consumption) =>
-        this.mealFoodApi.delete(mealId, consumption.food.id),
+        this.mealFoodApi.delete(id, consumption.food.id),
       ),
     ]);
     return meal;
   }
 
-  private async getConsumptions(mealId: number): Promise<Consumption[]> {
-    const mealFoodDTOs = await this.mealFoodApi.getByMeal(mealId);
+  private async getConsumptions(id: number): Promise<Consumption[]> {
+    const mealFoodDTOs = await this.mealFoodApi.getByMeal(id);
     return Promise.all(
       mealFoodDTOs.map(async (mealfoodDTO) => {
         const food = await this.foodsFacade.get(mealfoodDTO.food_id);
@@ -93,12 +90,12 @@ export class MealsFacadeService {
   }
 
   private async updateConsumptions(
-    mealId: number,
+    id: number,
     consumptions?: Consumption[],
   ): Promise<void> {
     if (!consumptions || consumptions.length === 0) return;
 
-    const currentMealFoodDTOs = await this.mealFoodApi.getByMeal(mealId);
+    const currentMealFoodDTOs = await this.mealFoodApi.getByMeal(id);
 
     const foodIdsAndQuantityToAdd = consumptions.reduce(
       (
@@ -154,9 +151,9 @@ export class MealsFacadeService {
 
     await Promise.all([
       foodIdsAndQuantityToAdd.map(({ foodId, quantity }) =>
-        this.mealFoodApi.create(mealId, foodId, quantity),
+        this.mealFoodApi.create(id, foodId, quantity),
       ),
-      foodIdsToRemove.map((foodId) => this.mealFoodApi.delete(mealId, foodId)),
+      foodIdsToRemove.map((foodId) => this.mealFoodApi.delete(id, foodId)),
       mealFoodsToUpdate.map(({ mealFoodId, quantity }) =>
         this.mealFoodApi.update(mealFoodId, quantity),
       ),

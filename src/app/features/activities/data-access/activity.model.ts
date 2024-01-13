@@ -11,3 +11,13 @@ export type Activity = {
   tags: Tag[];
   notes?: string;
 };
+
+export type CreateActivityFormData = Omit<
+  Activity,
+  'id' | 'createdAt' | 'updatedAt'
+>;
+
+export type UpdateActivityFormData = Omit<
+  Activity,
+  'id' | 'createdAt' | 'updatedAt'
+>;
