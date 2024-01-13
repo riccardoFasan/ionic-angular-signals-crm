@@ -95,15 +95,15 @@ import { IngredientsSelectDirective } from 'src/app/features/ingredients/utility
 export class FoodFormComponent {
   @Input() loading: boolean = false;
 
-  @Input() set food(food: Food | undefined) {
-    if (!food) return;
-    this.data = food;
+  @Input() set item(item: Food | undefined) {
+    if (!item) return;
+    this.data = item;
 
     this.form.patchValue({
-      name: food.name,
-      ingredients: food.ingredients,
-      calories: food.calories,
-      notes: food.notes,
+      name: item.name,
+      ingredients: item.ingredients,
+      calories: item.calories,
+      notes: item.notes,
     });
   }
 

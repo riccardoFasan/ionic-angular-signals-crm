@@ -8,10 +8,9 @@ describe('ActivityFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ActivityFormComponent]
-    })
-    .compileComponents();
-    
+      imports: [ActivityFormComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(ActivityFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

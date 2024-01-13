@@ -140,11 +140,10 @@ export class DiaryPage implements OnInit {
   }
 
   protected remove(item: Meal | Activity): void {
-    const operation: Operation = {
-      type: OperationType.Delete,
-      payload: item,
-    };
-    this.listStore.operation$.next({ operation, item });
+    this.listStore.operation$.next({
+      operation: { type: OperationType.Delete },
+      item,
+    });
   }
 
   protected async openActivityModal(id?: number): Promise<void> {

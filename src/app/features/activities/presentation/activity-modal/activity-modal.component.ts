@@ -4,14 +4,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   selector: 'app-activity-modal',
   standalone: true,
   imports: [],
-  template: `
-    <p>
-      activity-modal works!
-    </p>
-  `,
+  template: ` <p>activity-modal works!</p> `,
   styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActivityModalComponent {
-
-}
+export class ActivityModalComponent {}

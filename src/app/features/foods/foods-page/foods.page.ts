@@ -113,7 +113,7 @@ export class FoodsPage implements OnInit {
   protected storeHandler = inject(STORE_HANDLER);
   protected foodModals = inject(FoodModalsService);
 
-  protected trackFn = (food: Food): number => this.storeHandler.extractId(food);
+  protected trackFn = (item: Food): number => this.storeHandler.extractId(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
@@ -124,12 +124,11 @@ export class FoodsPage implements OnInit {
     this.listStore.loadNextPage$.next();
   }
 
-  protected remove(food: Food): void {
-    const operation: Operation = {
-      type: OperationType.Delete,
-      payload: food,
-    };
-    this.listStore.operation$.next({ operation, item: food });
+  protected remove(item: Food): void {
+    this.listStore.operation$.next({
+      operation: { type: OperationType.Delete },
+      item,
+    });
   }
 
   protected async openModal(id?: number): Promise<void> {

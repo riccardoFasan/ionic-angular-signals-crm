@@ -38,7 +38,7 @@ import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-f
       <app-activity-type-form
         [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [activityType]="detailStore.item()"
+        [item]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,
@@ -82,11 +82,7 @@ export class ActivityTypeModalComponent implements OnInit {
 
   protected remove(): void {
     if (!this.detailStore.item()) return;
-    const operation: Operation = {
-      type: OperationType.Delete,
-      payload: this.detailStore.item(),
-    };
-    this.detailStore.operation$.next(operation);
+    this.detailStore.operation$.next({ type: OperationType.Delete });
     this.modalCtrl.dismiss();
   }
 }

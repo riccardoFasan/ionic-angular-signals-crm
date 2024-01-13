@@ -113,7 +113,7 @@ export class TagsPage implements OnInit {
   protected storeHandler = inject(STORE_HANDLER);
   protected tagModals = inject(TagModalsService);
 
-  protected trackFn = (tag: Tag): number => this.storeHandler.extractId(tag);
+  protected trackFn = (item: Tag): number => this.storeHandler.extractId(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
@@ -124,12 +124,11 @@ export class TagsPage implements OnInit {
     this.listStore.loadNextPage$.next();
   }
 
-  protected remove(tag: Tag): void {
-    const operation: Operation = {
-      type: OperationType.Delete,
-      payload: tag,
-    };
-    this.listStore.operation$.next({ operation, item: tag });
+  protected remove(item: Tag): void {
+    this.listStore.operation$.next({
+      operation: { type: OperationType.Delete },
+      item,
+    });
   }
 
   protected async openModal(id?: number): Promise<void> {
