@@ -12,18 +12,15 @@ import {
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import {
-  ActivityTypesHandlerService,
-  CreateActivityTypeFormData,
-  UpdateActivityTypeFormData,
-} from '../../data-access';
+import { TagsHandlerService } from '../../data-access';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
-import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-form.component';
+import { TagFormComponent } from '../tag-form/tag-form.component';
+import { CreateTagFormData, UpdateTagFormData } from '../../data-access';
 
 @Component({
-  selector: 'app-activity-type-modal',
+  selector: 'app-tag-modal',
   standalone: true,
-  imports: [IonButton, DetailModalWrapperComponent, ActivityTypeFormComponent],
+  imports: [IonButton, DetailModalWrapperComponent, TagFormComponent],
   template: `
     <app-detail-modal-wrapper
       [loading]="detailStore.mode() === 'PROCESSING'"
@@ -35,10 +32,10 @@ import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-f
         }
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
-      <app-activity-type-form
+      <app-tag-form
         [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [activityType]="detailStore.item()"
+        [tag]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,
@@ -48,11 +45,11 @@ import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-f
     DetailStoreService,
     {
       provide: STORE_HANDLER,
-      useClass: ActivityTypesHandlerService,
+      useClass: TagsHandlerService,
     },
   ],
 })
-export class ActivityTypeModalComponent implements OnInit {
+export class TagModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);
   protected modalCtrl = inject(ModalController);
 
@@ -60,7 +57,7 @@ export class ActivityTypeModalComponent implements OnInit {
 
   protected title = computed<string>(() => {
     const itemName = this.detailStore.item()?.name;
-    return itemName ? `Edit ${itemName}` : 'Create activity';
+    return itemName ? `Edit ${itemName}` : 'Create tag';
   });
 
   ngOnInit(): void {
@@ -68,9 +65,7 @@ export class ActivityTypeModalComponent implements OnInit {
     this.detailStore.id$.next(this.id);
   }
 
-  protected save(
-    payload: CreateActivityTypeFormData | UpdateActivityTypeFormData,
-  ): void {
+  protected save(payload: CreateTagFormData | UpdateTagFormData): void {
     const operation: Operation = {
       type: this.detailStore.item()
         ? OperationType.Update

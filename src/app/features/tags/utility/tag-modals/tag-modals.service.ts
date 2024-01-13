@@ -1,16 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
-import { ActivityTypeModalComponent } from '../../presentation';
+import { TagModalComponent } from '../../presentation';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ActivityTypesModalsService {
+export class TagModalsService {
   private modalCtrl = inject(ModalController);
 
   async openModal(id?: number): Promise<void> {
     const modal = await this.modalCtrl.create({
-      component: ActivityTypeModalComponent,
+      component: TagModalComponent,
       componentProps: { id },
     });
     await modal.present();

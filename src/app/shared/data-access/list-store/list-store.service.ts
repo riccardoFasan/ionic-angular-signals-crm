@@ -118,10 +118,9 @@ export class ListStoreService<T> {
             map((item) => [operation, item]),
           ),
         ),
-        tap(([_, item]) =>
+        tap(() =>
           this.state.update((state) => ({
             ...state,
-            item,
             mode: MachineState.Idle,
             error: undefined,
           })),

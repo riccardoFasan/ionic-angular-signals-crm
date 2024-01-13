@@ -5,11 +5,7 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import {
-  ActivityType,
-  CreateActivityTypeFormData,
-  UpdateActivityTypeFormData,
-} from '../../data-access';
+import { Tag } from '../../data-access';
 import {
   FormControl,
   FormGroup,
@@ -22,13 +18,12 @@ import {
   IonItem,
   IonIcon,
   IonList,
-  IonTextarea,
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
 
 @Component({
-  selector: 'app-activity-type-form',
+  selector: 'app-tag-form',
   standalone: true,
   imports: [
     IonButton,
@@ -38,7 +33,6 @@ import {
     IonInput,
     IonSelect,
     IonSelectOption,
-    IonTextarea,
     ReactiveFormsModule,
   ],
   template: `
@@ -46,34 +40,14 @@ import {
       <ion-list>
         <ion-item>
           <ion-input
-            label="Activity name *"
+            label="Tag name *"
             labelPlacement="stacked"
-            placeholder="Write the name of the activity"
+            placeholder="Write the name of the tag"
             formControlName="name"
             required="true"
           />
         </ion-item>
-        <ion-item>
-          <ion-select
-            label="Icon"
-            labelPlacement="stacked"
-            formControlName="icon"
-            placeholder="Choose an icon"
-            interface="action-sheet"
-          >
-            <ion-select-option value="bycicle"> Bycicle </ion-select-option>
-            <ion-select-option value="sunny"> Sunny </ion-select-option>
-            <ion-select-option value="train"> Train </ion-select-option>
-            <ion-select-option value="rocket"> Rocket </ion-select-option>
-            <ion-select-option value="pizza"> Pizza </ion-select-option>
-            <ion-select-option value="planet"> Planet </ion-select-option>
-            <ion-select-option value="pulse"> Pulse </ion-select-option>
-            <ion-select-option value="walk"> Walk </ion-select-option>
-            <ion-select-option value="bed"> Bed </ion-select-option>
-            <ion-select-option value="skull"> Skull </ion-select-option>
-            <ion-select-option [value]="null">No one</ion-select-option>
-          </ion-select>
-        </ion-item>
+
         <ion-item>
           <ion-select
             label="Color"
@@ -105,35 +79,32 @@ import {
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActivityTypeFormComponent {
+export class TagFormComponent {
   @Input() loading: boolean = false;
 
-  @Input() set activityType(activityType: ActivityType | undefined) {
-    if (!activityType) return;
-    this.data = activityType;
+  @Input() set tag(tag: Tag | undefined) {
+    if (!tag) return;
+    this.data = tag;
 
     this.form.patchValue({
-      name: activityType.name,
-      icon: activityType.icon,
-      color: activityType.color,
+      name: tag.name,
+      color: tag.color,
     });
   }
 
-  protected data?: ActivityType;
+  protected data?: Tag;
 
   @Output() save = new EventEmitter();
 
   protected form = new FormGroup({
     name: new FormControl<string>('', Validators.required),
-    icon: new FormControl<string>(''),
     color: new FormControl<string>(''),
   });
 
   protected submit(): void {
     if (this.form.invalid) return;
     const formData = {
-      name: this.form.value.name,
-      icon: this.form.value.icon || '',
+      name: this.form.value.name || '',
       color: this.form.value.color || '',
     };
     this.save.emit(formData);

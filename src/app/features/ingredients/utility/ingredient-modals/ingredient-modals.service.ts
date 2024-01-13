@@ -6,7 +6,7 @@ import { IngredientModalComponent } from 'src/app/features/ingredients/presentat
   providedIn: 'root',
 })
 export class IngredientModalsService {
-  private modalCtrl: ModalController = inject(ModalController);
+  private modalCtrl = inject(ModalController);
 
   async openModal(id?: number): Promise<void> {
     const modal = await this.modalCtrl.create({

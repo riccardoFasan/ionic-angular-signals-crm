@@ -18,8 +18,6 @@ import {
   IonIcon,
   IonList,
   IonTextarea,
-  IonSelect,
-  IonSelectOption,
 } from '@ionic/angular/standalone';
 import { Food } from '../../data-access';
 import { Ingredient } from 'src/app/features/ingredients/data-access';
@@ -35,8 +33,6 @@ import { IngredientsSelectDirective } from 'src/app/features/ingredients/present
     IonIcon,
     IonItem,
     IonInput,
-    IonSelect,
-    IonSelectOption,
     IonTextarea,
     ReactiveFormsModule,
     IngredientsSelectDirective,

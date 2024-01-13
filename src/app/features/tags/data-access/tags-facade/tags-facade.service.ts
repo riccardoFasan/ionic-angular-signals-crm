@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TagApiService, TagDTO } from '../database';
-import { Tag } from '../tag.model';
+import { CreateTagFormData, Tag, UpdateTagFormData } from '../tag.model';
 import { List, SearchCriteria } from 'src/app/shared/utility';
 
 @Injectable({
@@ -24,13 +24,13 @@ export class TagsFacadeService {
     return this.mapFromDTO(dto);
   }
 
-  async create(name: string, color: string): Promise<Tag> {
+  async create({ name, color }: CreateTagFormData): Promise<Tag> {
     const id = await this.tagApi.create(name, color);
     return await this.get(id);
   }
 
-  async update(id: number, name: string, color: string): Promise<Tag> {
-    await this.tagApi.update(id, name), color;
+  async update(id: number, { name, color }: UpdateTagFormData): Promise<Tag> {
+    await this.tagApi.update(id, name, color);
     return await this.get(id);
   }
 
