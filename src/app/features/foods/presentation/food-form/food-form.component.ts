@@ -22,7 +22,7 @@ import {
 import { Food } from '../../data-access';
 import { Ingredient } from 'src/app/features/ingredients/data-access';
 import { SearchableSelectComponent } from 'src/app/shared/presentation';
-import { IngredientsSelectDirective } from 'src/app/features/ingredients/presentation';
+import { IngredientsSelectDirective } from 'src/app/features/ingredients/utility';
 
 @Component({
   selector: 'app-food-form',
