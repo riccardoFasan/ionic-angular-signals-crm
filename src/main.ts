@@ -31,6 +31,10 @@ import {
   alertCircleOutline,
   checkmarkCircleOutline,
   caretDownSharp,
+  pizzaSharp,
+  pizzaOutline,
+  calendarClearSharp,
+  calendarClearOutline,
 } from 'ionicons/icons';
 
 if (environment.production) {
@@ -60,4 +64,8 @@ addIcons({
   alertCircleOutline,
   checkmarkCircleOutline,
   caretDownSharp,
+  pizzaSharp,
+  pizzaOutline,
+  calendarClearSharp,
+  calendarClearOutline,
 });

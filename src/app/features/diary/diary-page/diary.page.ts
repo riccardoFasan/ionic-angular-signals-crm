@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { FoodsHandlerService } from '../../foods/data-access';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -6,10 +7,47 @@ import {
   IonMenuButton,
   IonTitle,
   IonContent,
+  IonFabButton,
+  IonFab,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonItemSliding,
+  IonItemOption,
+  IonItemOptions,
+  IonFabList,
 } from '@ionic/angular/standalone';
-
+import {
+  ListStoreService,
+  Operation,
+  OperationType,
+  STORE_HANDLER,
+} from 'src/app/shared/data-access';
+import { ScrollableListComponent } from 'src/app/shared/presentation';
+import { Activity, Meal } from '../data-access';
+import { DiaryModalsService } from '../utility';
+import { IngredientsHandlerService } from '../../ingredients/data-access';
 @Component({
   selector: 'app-diary',
+  standalone: true,
+  imports: [
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonFabButton,
+    IonFab,
+    IonFabList,
+    IonIcon,
+    IonItem,
+    IonItemSliding,
+    IonItemOptions,
+    IonItemOption,
+    IonLabel,
+    ScrollableListComponent,
+  ],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -26,17 +64,93 @@ import {
           <ion-title size="large">Diary</ion-title>
         </ion-toolbar>
       </ion-header>
+
+      <app-scrollable-list
+        [items]="listStore.items()"
+        [canLoadNextPage]="listStore.canLoadNextPage()"
+        [loading]="listStore.mode() === 'FETCHING'"
+        [trackFn]="trackFn"
+        (scrollEnd)="loadNextPage()"
+      >
+        <ng-template #itemTemplate let-item>
+          <ion-item-sliding #itemSliding>
+            <ion-item>
+              <ion-label>{{ item.name }}</ion-label>
+            </ion-item>
+
+            <ion-item-options>
+              <!-- <ion-item-option
+                (click)="[openModal(item.id), itemSliding.close()]"
+              >
+                Edit
+              </ion-item-option> -->
+              <ion-item-option
+                (click)="[remove(item), itemSliding.close()]"
+                color="danger"
+              >
+                Delete
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ng-template>
+      </app-scrollable-list>
+
+      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+        <ion-fab-button>
+          <ion-icon name="add" />
+        </ion-fab-button>
+        <ion-fab-list side="top">
+          <ion-fab-button (click)="openActivityModal()">
+            <ion-icon ios="calendar-clear-outline" md="calendar-clear-sharp" />
+          </ion-fab-button>
+          <ion-fab-button (click)="openMealModal()">
+            <ion-icon ios="pizza-outline" md="pizza-sharp" />
+          </ion-fab-button>
+        </ion-fab-list>
+      </ion-fab>
     </ion-content>
   `,
   styles: [``],
-  standalone: true,
-  imports: [
-    IonHeader,
-    IonToolbar,
-    IonButtons,
-    IonMenuButton,
-    IonTitle,
-    IonContent,
+  providers: [
+    ListStoreService,
+    {
+      provide: STORE_HANDLER,
+      useClass: IngredientsHandlerService,
+    },
   ],
 })
-export class DiaryPage {}
+export class DiaryPage implements OnInit {
+  protected listStore = inject(ListStoreService);
+  protected storeHandler = inject(STORE_HANDLER);
+  protected diaryModals = inject(DiaryModalsService);
+
+  protected trackFn = (item: Meal | Activity): number =>
+    this.storeHandler.extractId(item);
+
+  ngOnInit(): void {
+    this.listStore.loadFirstPage$.next();
+  }
+
+  protected loadNextPage(): void {
+    if (!this.listStore.canLoadNextPage()) return;
+    this.listStore.loadNextPage$.next();
+  }
+
+  protected remove(item: Meal | Activity): void {
+    const operation: Operation = {
+      type: OperationType.Delete,
+      payload: item,
+    };
+    this.listStore.operation$.next({ operation, item });
+  }
+
+  protected async openActivityModal(id?: number): Promise<void> {
+    await this.diaryModals.openActivityModal(id);
+    this.listStore.refresh$.next();
+  }
+
+  protected async openMealModal(id?: number): Promise<void> {
+    await this.diaryModals.openMealModal(id);
+    this.listStore.refresh$.next();
+  }
+}
