@@ -4,12 +4,12 @@ import {
   OperationType,
   StoreHandler,
 } from 'src/app/shared/data-access';
-import { Meal } from '../meal.model';
-import { Activity } from '../activity.model';
+import { Meal } from '../../../meals/data-access/meal.model';
+import { Activity } from '../../../activities/data-access/activity.model';
 import { Observable } from 'rxjs';
 import { SearchCriteria, List } from 'src/app/shared/utility';
-import { MealsFacadeService } from '../meals-facade/meals-facade.service';
-import { ActivitiesFacadeService } from '../activities-facade/activities-facade.service';
+import { MealsFacadeService } from '../../../meals/data-access/meals-facade/meals-facade.service';
+import { ActivitiesFacadeService } from '../../../activities/data-access/activities-facade/activities-facade.service';
 
 @Injectable({
   providedIn: 'root',

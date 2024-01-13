@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { DiaryModalsService } from './diary-modals.service';
+import { MealModalsService } from './meal-modals.service';
 
-describe('DiaryModalsService', () => {
-  let service: DiaryModalsService;
+describe('MealModalsService', () => {
+  let service: MealModalsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(DiaryModalsService);
+    service = TestBed.inject(MealModalsService);
   });
 
   it('should be created', () => {

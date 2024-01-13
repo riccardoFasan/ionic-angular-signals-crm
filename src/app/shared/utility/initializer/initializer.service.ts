@@ -8,7 +8,7 @@ import {
   ActivityTagApiService,
   MealApiService,
   MealFoodApiService,
-} from 'src/app/features/diary/data-access/database';
+} from 'src/app/features/meals/data-access/database';
 import {
   FoodApiService,
   FoodIngredientApiService,

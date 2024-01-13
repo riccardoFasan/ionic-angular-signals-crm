@@ -1,4 +1,3 @@
-import { FoodsHandlerService } from '../../foods/data-access';
 import { Component, OnInit, inject } from '@angular/core';
 import {
   IonHeader,
@@ -24,9 +23,12 @@ import {
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import { ScrollableListComponent } from 'src/app/shared/presentation';
-import { Activity, Meal } from '../data-access';
-import { DiaryModalsService } from '../utility';
 import { IngredientsHandlerService } from '../../ingredients/data-access';
+import { MealModalsService } from '../../meals/utility/meal-modals/meal-modals.service';
+import { ActivityModalsService } from '../../activities/utility';
+import { Meal } from '../../meals/data-access';
+import { Activity } from '../../activities/data-access';
+
 @Component({
   selector: 'app-diary',
   standalone: true,
@@ -122,7 +124,8 @@ import { IngredientsHandlerService } from '../../ingredients/data-access';
 export class DiaryPage implements OnInit {
   protected listStore = inject(ListStoreService);
   protected storeHandler = inject(STORE_HANDLER);
-  protected diaryModals = inject(DiaryModalsService);
+  protected mealModals = inject(MealModalsService);
+  protected activityModals = inject(ActivityModalsService);
 
   protected trackFn = (item: Meal | Activity): number =>
     this.storeHandler.extractId(item);
@@ -145,12 +148,12 @@ export class DiaryPage implements OnInit {
   }
 
   protected async openActivityModal(id?: number): Promise<void> {
-    await this.diaryModals.openActivityModal(id);
+    await this.activityModals.openModal(id);
     this.listStore.refresh$.next();
   }
 
   protected async openMealModal(id?: number): Promise<void> {
-    await this.diaryModals.openMealModal(id);
+    await this.mealModals.openModal(id);
     this.listStore.refresh$.next();
   }
 }

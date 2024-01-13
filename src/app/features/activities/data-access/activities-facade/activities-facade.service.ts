@@ -3,7 +3,7 @@ import {
   ActivityApiService,
   ActivityDTO,
   ActivityTagApiService,
-} from '../database';
+} from '../../../meals/data-access/database';
 import {
   ActivityType,
   ActivityTypesFacadeService,
