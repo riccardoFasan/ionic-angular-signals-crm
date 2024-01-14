@@ -138,6 +138,7 @@ export class ListStoreService<T> {
       if (!error) return;
 
       const message = this.handler.interpretError?.(error);
+      console.error({ error, message });
       this.toasts.error(message);
     });
   }

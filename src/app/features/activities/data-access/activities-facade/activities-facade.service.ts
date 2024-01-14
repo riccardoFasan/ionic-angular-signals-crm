@@ -51,11 +51,13 @@ export class ActivitiesFacadeService {
   }
 
   async get(id: number): Promise<Activity> {
-    const [activityDTO, activityType, tags] = await Promise.all([
+    const [activityDTO, tags] = await Promise.all([
       this.activityApi.get(id),
-      this.getActivityType(id),
       this.getTags(id),
     ]);
+    const activityType = await this.getActivityType(
+      activityDTO.activity_type_id,
+    );
     return this.mapFromDTO(activityDTO, activityType, tags);
   }
 

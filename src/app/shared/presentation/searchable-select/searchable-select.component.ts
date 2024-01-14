@@ -22,10 +22,10 @@ import {
   IonButton,
   IonToolbar,
   IonTitle,
-  IonLabel,
   IonItem,
   IonCheckbox,
   IonSearchbar,
+  IonRadio,
 } from '@ionic/angular/standalone';
 import { ScrollableListComponent } from '../scrollable-list/scrollable-list.component';
 import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
@@ -44,8 +44,8 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
     IonButtons,
     IonButton,
     IonItem,
-    IonLabel,
     IonCheckbox,
+    IonRadio,
     IonSearchbar,
     ScrollableListComponent,
     OptionSelectedPipe,
@@ -92,12 +92,17 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
           >
             <ng-template #itemTemplate let-item>
               <ion-item>
-                <ion-checkbox
-                  slot="start"
-                  [checked]="item | optionSelected: selected()"
-                  (ionChange)="toggleOption(item)"
-                />
-                <ion-label>{{ item.label }}</ion-label>
+                @if (multiple) {
+                  <ion-checkbox
+                    [attr.aria-label]="item.label"
+                    slot="start"
+                    [checked]="item | optionSelected: selected()"
+                    (ionChange)="toggleOption(item)"
+                  />
+                } @else {
+                  <ion-radio slot="start" (click)="toggleOption(item)" />
+                }
+                {{ item.label }}
               </ion-item>
             </ng-template>
           </app-scrollable-list>
@@ -158,7 +163,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
   constructor() {
     effect(() => {
       const values = this.values();
-      this.onChange(this.multiple ? values : values[0]);
+      this.onChange?.(this.multiple ? values : values[0]);
     });
   }
 
@@ -171,6 +176,8 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
       this.selected.set([]);
       return;
     }
+
+    this.onTouched?.();
 
     if (this.multiple) {
       const values = value as unknown[];
@@ -194,7 +201,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
   protected onSearchInput(event: CustomEvent): void {
     const query = event.detail.value;
     if (query.length > 0 && query.length < 3) return;
-    if (query) this.onTouched();
+    if (query) this.onTouched?.();
     this.listStore.filters$.next({ [this.searchKey]: query });
   }
 

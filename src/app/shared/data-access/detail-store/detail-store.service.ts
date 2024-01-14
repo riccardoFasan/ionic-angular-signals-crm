@@ -121,6 +121,7 @@ export class DetailStoreService<T> {
       if (!error) return;
 
       const message = this.handler.interpretError?.(error, this.item());
+      console.error({ error, message });
       this.toasts.error(message);
     });
   }
