@@ -64,13 +64,6 @@ import { TagsSelectDirective } from 'src/app/features/tags/utility';
             placeholder="Choose the date of the activity"
             formControlName="at"
           />
-          <!-- <ion-inpu t
-            label="At"
-            labelPlacement="stacked"
-            placeholder="Choose the date of the activity"
-            formControlName="at"
-            type="date"
-          /> -->
         </ion-item>
         <ion-item>
           <app-searchable-select
