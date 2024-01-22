@@ -17,7 +17,6 @@ import {
 } from '@ionic/angular/standalone';
 import {
   ListStoreService,
-  Operation,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
@@ -67,7 +66,8 @@ import { TagModalsService } from '../utility';
         [canLoadNextPage]="listStore.canLoadNextPage()"
         [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
-        (scrollEnd)="loadNextPage()"
+        (scrollEnd)="listStore.loadNextPage$.next()"
+        (refresh)="listStore.refresh$.next()"
       >
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
@@ -117,11 +117,6 @@ export class TagsPage implements OnInit {
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
-  }
-
-  protected loadNextPage(): void {
-    if (!this.listStore.canLoadNextPage()) return;
-    this.listStore.loadNextPage$.next();
   }
 
   protected remove(item: Tag): void {

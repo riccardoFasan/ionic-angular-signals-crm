@@ -88,7 +88,8 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
             [canLoadNextPage]="listStore.canLoadNextPage()"
             [loading]="listStore.mode() === 'FETCHING'"
             [trackFn]="trackFn"
-            (scrollEnd)="loadNextPage()"
+            (scrollEnd)="listStore.loadNextPage$.next()"
+            (refresh)="listStore.refresh$.next()"
           >
             <ng-template #itemTemplate let-item>
               <ion-item>
@@ -215,11 +216,6 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
       : [...selectedOptions, option];
 
     this.selected.set(selected);
-  }
-
-  protected loadNextPage(): void {
-    if (!this.listStore.canLoadNextPage()) return;
-    this.listStore.loadNextPage$.next();
   }
 
   private toOption(value: unknown): Option {

@@ -71,7 +71,8 @@ import { DiaryHandlerService } from '../data-access';
         [canLoadNextPage]="listStore.canLoadNextPage()"
         [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
-        (scrollEnd)="loadNextPage()"
+        (scrollEnd)="listStore.loadNextPage$.next()"
+        (refresh)="listStore.refresh$.next()"
       >
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
@@ -131,11 +132,6 @@ export class DiaryPage implements OnInit {
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
-  }
-
-  protected loadNextPage(): void {
-    if (!this.listStore.canLoadNextPage()) return;
-    this.listStore.loadNextPage$.next();
   }
 
   protected remove(item: Meal | Activity): void {

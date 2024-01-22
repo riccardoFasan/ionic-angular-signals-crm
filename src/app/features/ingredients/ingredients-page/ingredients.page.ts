@@ -18,7 +18,6 @@ import {
 import { IngredientModalsService } from '../utility';
 import {
   ListStoreService,
-  Operation,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
@@ -67,7 +66,8 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
         [canLoadNextPage]="listStore.canLoadNextPage()"
         [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
-        (scrollEnd)="loadNextPage()"
+        (scrollEnd)="listStore.loadNextPage$.next()"
+        (refresh)="listStore.refresh$.next()"
       >
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
@@ -118,11 +118,6 @@ export class IngredientsPage implements OnInit {
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
-  }
-
-  protected loadNextPage(): void {
-    if (!this.listStore.canLoadNextPage()) return;
-    this.listStore.loadNextPage$.next();
   }
 
   protected remove(item: Ingredient): void {

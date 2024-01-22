@@ -15,6 +15,9 @@ import {
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   InfiniteScrollCustomEvent,
+  RefresherCustomEvent,
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -25,10 +28,16 @@ import {
     IonList,
     IonItem,
     IonLabel,
+    IonRefresher,
     IonInfiniteScroll,
+    IonRefresherContent,
     IonInfiniteScrollContent,
   ],
   template: `
+    <ion-refresher slot="fixed" (ionRefresh)="onIonRefresh($event)">
+      <ion-refresher-content />
+    </ion-refresher>
+
     <ion-list>
       @for (item of items; track trackFn(item)) {
         <ng-container
@@ -56,16 +65,19 @@ export class ScrollableListComponent {
   @Input() canLoadNextPage: boolean = true;
 
   @Input({ required: true }) set loading(loading: boolean) {
-    if (loading || !this.ionScrollEvent) return;
-    this.ionScrollEvent.target.complete();
+    if (loading) return;
+    this.ionScrollEvent?.target.complete();
+    this.ionRefreshEvent?.target.complete();
   }
 
   @ContentChild('itemTemplate')
   protected itemTemplateRef!: TemplateRef<unknown>;
 
   @Output() scrollEnd = new EventEmitter<void>();
+  @Output() refresh = new EventEmitter<void>();
 
   private ionScrollEvent?: InfiniteScrollCustomEvent;
+  private ionRefreshEvent?: RefresherCustomEvent;
 
   protected onIonInfinite(event: InfiniteScrollCustomEvent): void {
     if (!this.canLoadNextPage) {
@@ -74,5 +86,10 @@ export class ScrollableListComponent {
     }
     this.ionScrollEvent = event;
     this.scrollEnd.emit();
+  }
+
+  protected onIonRefresh(event: RefresherCustomEvent): void {
+    this.ionRefreshEvent = event;
+    this.refresh.emit();
   }
 }
