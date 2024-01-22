@@ -5,7 +5,7 @@ import {
   StoreHandler,
 } from 'src/app/shared/data-access';
 import { Observable, defer } from 'rxjs';
-import { SearchCriteria, List } from 'src/app/shared/utility';
+import { SearchCriteria, List, ToastsService } from 'src/app/shared/utility';
 import { DiaryEvent } from '../diary-event.model';
 import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
 
@@ -14,6 +14,7 @@ import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
 })
 export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
   private diaryFacade = inject(DiaryFacadeService);
+  private toasts = inject(ToastsService);
 
   extractId(item: DiaryEvent): number {
     return item.id;
@@ -43,7 +44,20 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     }
   }
 
-  onOperation(): Observable<void> {
-    throw new Error('Method not implemented.');
+  onOperation({ type }: Operation, item: DiaryEvent): Observable<void> {
+    const message = this.getMessage(type, item);
+    return defer(() => this.toasts.success(message));
+  }
+
+  private getMessage(
+    type: OperationType | string,
+    item: DiaryEvent,
+  ): string | undefined {
+    switch (type) {
+      case OperationType.Delete:
+        return `Event ${item.name} deleted`;
+      default:
+        throw new Error(`getMessage not implemented for: ${type}`);
+    }
   }
 }
