@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import {
   ControlValueAccessor,
   FormsModule,
@@ -22,7 +17,6 @@ import {
 } from '@ionic/angular/standalone';
 import { SearchableSelectComponent } from 'src/app/shared/presentation';
 import { NgClass } from '@angular/common';
-import { Food } from 'src/app/features/foods/data-access';
 
 @Component({
   selector: 'app-consumption-input',
