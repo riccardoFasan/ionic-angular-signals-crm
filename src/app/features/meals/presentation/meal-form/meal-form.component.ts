@@ -114,7 +114,6 @@ export class MealFormComponent {
       notes: this.form.value.notes || '',
       consumptions: this.form.value.consumptions || [],
     };
-    console.log(formData);
-    // this.save.emit(formData);
+    this.save.emit(formData);
   }
 }
