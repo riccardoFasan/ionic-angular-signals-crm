@@ -6,7 +6,6 @@ import {
   Output,
 } from '@angular/core';
 import {
-  FormArray,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
@@ -17,17 +16,12 @@ import {
   IonIcon,
   IonInput,
   IonItem,
-  IonItemGroup,
   IonList,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import {
-  DatetimeInputComponent,
-  SearchableSelectComponent,
-} from 'src/app/shared/presentation';
+import { DatetimeInputComponent } from 'src/app/shared/presentation';
 import { Meal } from '../../data-access';
-import { FoodsSelectDirective } from 'src/app/features/foods/utility';
-import { Food } from 'src/app/features/foods/data-access';
+import { ConsumptionInputComponent } from '../consumption-input/consumption-input.component';
 
 @Component({
   selector: 'app-meal-form',
@@ -37,17 +31,15 @@ import { Food } from 'src/app/features/foods/data-access';
     IonList,
     IonIcon,
     IonItem,
-    IonItemGroup,
     IonInput,
     IonTextarea,
     ReactiveFormsModule,
     DatetimeInputComponent,
-    SearchableSelectComponent,
-    FoodsSelectDirective,
+    ConsumptionInputComponent,
   ],
   template: `
     <form [formGroup]="form" (ngSubmit)="submit()">
-      <ion-list>
+      <ion-list class="ion-margin-bottom">
         <ion-item>
           <ion-input
             label="Meal name *"
@@ -73,30 +65,9 @@ import { Food } from 'src/app/features/foods/data-access';
             formControlName="notes"
           />
         </ion-item>
-
-        <ion-item-group>
-          <ion-item>
-            <app-searchable-select
-              appFoodsSelect
-              label="Consumptions"
-              labelPlacement="stacked"
-              placeholder="Choose a food"
-              formControlName="food"
-              searchKey="name"
-              multiple="false"
-              required="true"
-            />
-          </ion-item>
-          <ion-item>
-            <ion-input
-              label="Quantity"
-              labelPlacement="stacked"
-              placeholder="Choose the quantity of the food"
-              formControlName="quantity"
-            />
-          </ion-item>
-        </ion-item-group>
       </ion-list>
+
+      <app-consumption-input formControlName="consumptions" />
 
       <ion-button
         type="submit"
@@ -122,17 +93,6 @@ export class MealFormComponent {
       at: item.at,
       notes: item.notes,
     });
-
-    const consuptionArray = this.form.get('consumptions') as FormArray;
-    consuptionArray.clear();
-
-    item.consumptions.forEach(({ food, quantity }) => {
-      const group = new FormGroup({
-        food: new FormControl<Food | null>(food, Validators.required),
-        quantity: new FormControl<number>(quantity, Validators.required),
-      });
-      consuptionArray.insert(0, group);
-    });
   }
 
   protected data?: Meal;
@@ -143,21 +103,8 @@ export class MealFormComponent {
     name: new FormControl<string>('', Validators.required),
     at: new FormControl<Date>(new Date(), Validators.required),
     notes: new FormControl<string>(''),
-    consumptions: new FormArray(
-      [
-        new FormGroup({
-          food: new FormControl<Food | null>(null, Validators.required),
-          quantity: new FormControl<number>(0, Validators.required),
-        }),
-      ],
-      Validators.minLength(1),
-    ),
+    consumptions: new FormControl([], Validators.minLength(1)),
   });
-
-  protected get consumptions(): FormGroup[] {
-    const formArray = this.form.get('consumptions') as FormArray;
-    return formArray.controls as FormGroup[];
-  }
 
   protected submit(): void {
     if (this.form.invalid) return;
@@ -167,6 +114,7 @@ export class MealFormComponent {
       notes: this.form.value.notes || '',
       consumptions: this.form.value.consumptions || [],
     };
-    this.save.emit(formData);
+    console.log(formData);
+    // this.save.emit(formData);
   }
 }

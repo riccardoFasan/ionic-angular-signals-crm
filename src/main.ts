@@ -35,6 +35,8 @@ import {
   pizzaOutline,
   calendarClearSharp,
   calendarClearOutline,
+  trashBinOutline,
+  trashBinSharp,
 } from 'ionicons/icons';
 
 if (environment.production) {
@@ -68,4 +70,6 @@ addIcons({
   pizzaOutline,
   calendarClearSharp,
   calendarClearOutline,
+  trashBinOutline,
+  trashBinSharp,
 });

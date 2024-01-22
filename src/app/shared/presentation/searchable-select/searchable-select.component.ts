@@ -5,7 +5,6 @@ import {
   OnInit,
   booleanAttribute,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -63,7 +62,7 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
       <ion-icon aria-hidden="true" name="caret-down-sharp" slot="end" />
     </ion-input>
 
-    <ion-modal [isOpen]="open()" (willDismiss)="open.set(false)">
+    <ion-modal [isOpen]="open()" backdropDismiss="false">
       <ng-template>
         <ion-header [translucent]="true">
           <ion-toolbar>
@@ -152,21 +151,10 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
     return labels.join(', ');
   });
 
-  private values = computed<unknown[]>(() =>
-    this.selected().map((option) => option.value),
-  );
-
   protected trackFn = (option: Option): number => option.ref;
 
   private onChange!: (value: unknown | unknown[]) => void;
   private onTouched!: () => void;
-
-  constructor() {
-    effect(() => {
-      const values = this.values();
-      this.onChange?.(this.multiple ? values : values[0]);
-    });
-  }
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
@@ -216,6 +204,9 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
       : [...selectedOptions, option];
 
     this.selected.set(selected);
+
+    const values = selected.map((option) => option.value);
+    this.onChange?.(this.multiple ? values : values[0]);
   }
 
   private toOption(value: unknown): Option {
