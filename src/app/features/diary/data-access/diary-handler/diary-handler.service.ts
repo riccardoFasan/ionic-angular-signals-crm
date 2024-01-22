@@ -1,5 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { StoreHandler } from 'src/app/shared/data-access';
+import {
+  Operation,
+  OperationType,
+  StoreHandler,
+} from 'src/app/shared/data-access';
 import { Observable, defer } from 'rxjs';
 import { SearchCriteria, List } from 'src/app/shared/utility';
 import { DiaryEvent } from '../diary-event.model';
@@ -27,15 +31,19 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     return defer(() => this.diaryFacade.getList(searchCriteria));
   }
 
-  operate(): Observable<DiaryEvent> {
-    throw new Error('Method not implemented.');
+  operate({ type }: Operation, item?: DiaryEvent): Observable<DiaryEvent> {
+    switch (type) {
+      case OperationType.Delete:
+        if (!item) {
+          throw new Error('Item is required for delete effects');
+        }
+        return defer(() => this.diaryFacade.delete(item.id, item.type));
+      default:
+        throw new Error(`Operation not implemented for: ${type}`);
+    }
   }
 
   onOperation(): Observable<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  interpretError?(): string | undefined {
     throw new Error('Method not implemented.');
   }
 }

@@ -97,10 +97,10 @@ export class ActivitiesFacadeService {
 
   async delete(id: number): Promise<Activity> {
     const activity = await this.get(id);
-    await Promise.all([
-      this.activityApi.delete(id),
-      ...activity.tags.map((tag) => this.activityTagApi.delete(id, tag.id)),
-    ]);
+    await Promise.all(
+      activity.tags.map((tag) => this.activityTagApi.delete(id, tag.id)),
+    );
+    await this.activityApi.delete(id);
     return activity;
   }
 

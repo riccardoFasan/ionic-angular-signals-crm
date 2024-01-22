@@ -26,7 +26,11 @@ import { MealModalsService } from '../../meals/utility';
 import { ActivityModalsService } from '../../activities/utility';
 import { Meal } from '../../meals/data-access';
 import { Activity } from '../../activities/data-access';
-import { DiaryHandlerService } from '../data-access';
+import {
+  DiaryEvent,
+  DiaryEventType,
+  DiaryHandlerService,
+} from '../data-access';
 
 @Component({
   selector: 'app-diary',
@@ -81,11 +85,9 @@ import { DiaryHandlerService } from '../data-access';
             </ion-item>
 
             <ion-item-options>
-              <!-- <ion-item-option
-                (click)="[openModal(item.id), itemSliding.close()]"
-              >
+              <ion-item-option (click)="[openModal(item), itemSliding.close()]">
                 Edit
-              </ion-item-option> -->
+              </ion-item-option>
               <ion-item-option
                 (click)="[remove(item), itemSliding.close()]"
                 color="danger"
@@ -139,6 +141,14 @@ export class DiaryPage implements OnInit {
       operation: { type: OperationType.Delete },
       item,
     });
+  }
+
+  protected async openModal({ id, type }: DiaryEvent): Promise<void> {
+    if (type === DiaryEventType.Meal) {
+      await this.openMealModal(id);
+      return;
+    }
+    await this.openActivityModal(id);
   }
 
   protected async openActivityModal(id?: number): Promise<void> {

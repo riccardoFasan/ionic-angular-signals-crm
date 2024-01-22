@@ -70,12 +70,12 @@ export class MealsFacadeService {
 
   async delete(id: number): Promise<Meal> {
     const meal = await this.get(id);
-    await Promise.all([
-      this.mealApi.delete(id),
-      ...meal.consumptions.map((consumption) =>
+    await Promise.all(
+      meal.consumptions.map((consumption) =>
         this.mealFoodApi.delete(id, consumption.food.id),
       ),
-    ]);
+    );
+    await this.mealApi.delete(id);
     return meal;
   }
 

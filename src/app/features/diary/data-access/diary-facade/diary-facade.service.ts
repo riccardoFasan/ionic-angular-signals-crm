@@ -3,12 +3,16 @@ import { DiaryApiService, DiaryEventDTO } from '../database';
 import { List, SearchCriteria } from 'src/app/shared/utility';
 import { DiaryEvent } from '../diary-event.model';
 import { DiaryEventType } from '../diary-event-type.enum';
+import { MealsFacadeService } from 'src/app/features/meals/data-access';
+import { ActivitiesFacadeService } from 'src/app/features/activities/data-access';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DiaryFacadeService {
   private diaryApi = inject(DiaryApiService);
+  private mealsFacade = inject(MealsFacadeService);
+  private activitiesFacade = inject(ActivitiesFacadeService);
 
   async getList(searchCriteria: SearchCriteria): Promise<List<DiaryEvent>> {
     const filters = this.mapToApiFilters(searchCriteria.filters);
@@ -17,6 +21,19 @@ export class DiaryFacadeService {
       filters,
     });
     return { ...list, items: list.items.map(this.mapFromDTO) };
+  }
+
+  async delete(id: number, type: DiaryEventType): Promise<DiaryEvent> {
+    const facade =
+      type === DiaryEventType.Meal ? this.mealsFacade : this.activitiesFacade;
+    const diaryEvent = await this.get(id, type);
+    await facade.delete(id);
+    return diaryEvent;
+  }
+
+  private async get(id: number, type: DiaryEventType): Promise<DiaryEvent> {
+    const dto = await this.diaryApi.get(id, type);
+    return this.mapFromDTO(dto);
   }
 
   private mapToApiFilters(

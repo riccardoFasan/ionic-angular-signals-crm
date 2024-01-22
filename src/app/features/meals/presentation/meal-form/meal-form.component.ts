@@ -17,6 +17,7 @@ import {
   IonIcon,
   IonInput,
   IonItem,
+  IonItemGroup,
   IonList,
   IonTextarea,
 } from '@ionic/angular/standalone';
@@ -24,7 +25,7 @@ import {
   DatetimeInputComponent,
   SearchableSelectComponent,
 } from 'src/app/shared/presentation';
-import { Consumption, Meal } from '../../data-access';
+import { Meal } from '../../data-access';
 import { FoodsSelectDirective } from 'src/app/features/foods/utility';
 import { Food } from 'src/app/features/foods/data-access';
 
@@ -36,6 +37,7 @@ import { Food } from 'src/app/features/foods/data-access';
     IonList,
     IonIcon,
     IonItem,
+    IonItemGroup,
     IonInput,
     IonTextarea,
     ReactiveFormsModule,
@@ -72,26 +74,28 @@ import { Food } from 'src/app/features/foods/data-access';
           />
         </ion-item>
 
-        <ion-item>
-          <app-searchable-select
-            appFoodsSelect
-            label="Consumptions"
-            labelPlacement="stacked"
-            placeholder="Choose a food"
-            formControlName="food"
-            searchKey="name"
-            multiple="false"
-            required="true"
-          />
-        </ion-item>
-        <ion-item>
-          <ion-input
-            label="Quantity"
-            labelPlacement="stacked"
-            placeholder="Choose the daquantity of the food"
-            formControlName="quantity"
-          />
-        </ion-item>
+        <ion-item-group>
+          <ion-item>
+            <app-searchable-select
+              appFoodsSelect
+              label="Consumptions"
+              labelPlacement="stacked"
+              placeholder="Choose a food"
+              formControlName="food"
+              searchKey="name"
+              multiple="false"
+              required="true"
+            />
+          </ion-item>
+          <ion-item>
+            <ion-input
+              label="Quantity"
+              labelPlacement="stacked"
+              placeholder="Choose the quantity of the food"
+              formControlName="quantity"
+            />
+          </ion-item>
+        </ion-item-group>
       </ion-list>
 
       <ion-button
