@@ -8,10 +8,9 @@ describe('TagFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TagFormComponent]
-    })
-    .compileComponents();
-    
+      imports: [TagFormComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(TagFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

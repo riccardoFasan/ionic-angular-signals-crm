@@ -17,7 +17,6 @@ import {
 } from '@ionic/angular/standalone';
 import {
   ListStoreService,
-  Operation,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
@@ -67,7 +66,8 @@ import { TagModalsService } from '../utility';
         [canLoadNextPage]="listStore.canLoadNextPage()"
         [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
-        (scrollEnd)="loadNextPage()"
+        (scrollEnd)="listStore.loadNextPage$.next()"
+        (refresh)="listStore.refresh$.next()"
       >
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
@@ -113,23 +113,17 @@ export class TagsPage implements OnInit {
   protected storeHandler = inject(STORE_HANDLER);
   protected tagModals = inject(TagModalsService);
 
-  protected trackFn = (tag: Tag): number => this.storeHandler.extractId(tag);
+  protected trackFn = (item: Tag): number => this.storeHandler.extractId(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
   }
 
-  protected loadNextPage(): void {
-    if (!this.listStore.canLoadNextPage()) return;
-    this.listStore.loadNextPage$.next();
-  }
-
-  protected remove(tag: Tag): void {
-    const operation: Operation = {
-      type: OperationType.Delete,
-      payload: tag,
-    };
-    this.listStore.operation$.next({ operation, item: tag });
+  protected remove(item: Tag): void {
+    this.listStore.operation$.next({
+      operation: { type: OperationType.Delete },
+      item,
+    });
   }
 
   protected async openModal(id?: number): Promise<void> {

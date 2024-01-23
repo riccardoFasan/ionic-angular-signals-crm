@@ -9,3 +9,6 @@ export type Meal = {
   consumptions: Consumption[];
   notes?: string;
 };
+
+export type CreateMealFormData = Omit<Meal, 'id' | 'createdAt' | 'updatedAt'>;
+export type UpdateMealFormData = Omit<Meal, 'id' | 'createdAt' | 'updatedAt'>;

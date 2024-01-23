@@ -67,7 +67,8 @@ import { ActivityTypesModalsService } from '../utility';
         [canLoadNextPage]="listStore.canLoadNextPage()"
         [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
-        (scrollEnd)="loadNextPage()"
+        (scrollEnd)="listStore.loadNextPage$.next()"
+        (refresh)="listStore.refresh$.next()"
       >
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
@@ -113,24 +114,18 @@ export class ActivityTypesPage implements OnInit {
   protected storeHandler = inject(STORE_HANDLER);
   protected activityTypeModals = inject(ActivityTypesModalsService);
 
-  protected trackFn = (activityType: ActivityType): number =>
-    this.storeHandler.extractId(activityType);
+  protected trackFn = (item: ActivityType): number =>
+    this.storeHandler.extractId(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
   }
 
-  protected loadNextPage(): void {
-    if (!this.listStore.canLoadNextPage()) return;
-    this.listStore.loadNextPage$.next();
-  }
-
-  protected remove(activityType: ActivityType): void {
-    const operation: Operation = {
-      type: OperationType.Delete,
-      payload: activityType,
-    };
-    this.listStore.operation$.next({ operation, item: activityType });
+  protected remove(item: ActivityType): void {
+    this.listStore.operation$.next({
+      operation: { type: OperationType.Delete },
+      item,
+    });
   }
 
   protected async openModal(id?: number): Promise<void> {

@@ -67,13 +67,13 @@ import { Ingredient } from '../../data-access';
 export class IngredientFormComponent {
   @Input() loading: boolean = false;
 
-  @Input() set ingredient(ingredient: Ingredient | undefined) {
-    if (!ingredient) return;
-    this.data = ingredient;
+  @Input() set item(item: Ingredient | undefined) {
+    if (!item) return;
+    this.data = item;
 
     this.form.patchValue({
-      name: ingredient.name,
-      notes: ingredient.notes,
+      name: item.name,
+      notes: item.notes,
     });
   }
 

@@ -35,7 +35,7 @@ import { CreateTagFormData, UpdateTagFormData } from '../../data-access';
       <app-tag-form
         [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [tag]="detailStore.item()"
+        [item]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,
@@ -77,11 +77,7 @@ export class TagModalComponent implements OnInit {
 
   protected remove(): void {
     if (!this.detailStore.item()) return;
-    const operation: Operation = {
-      type: OperationType.Delete,
-      payload: this.detailStore.item(),
-    };
-    this.detailStore.operation$.next(operation);
+    this.detailStore.operation$.next({ type: OperationType.Delete });
     this.modalCtrl.dismiss();
   }
 }

@@ -22,7 +22,7 @@ import {
 import { Food } from '../../data-access';
 import { Ingredient } from 'src/app/features/ingredients/data-access';
 import { SearchableSelectComponent } from 'src/app/shared/presentation';
-import { IngredientsSelectDirective } from 'src/app/features/ingredients/presentation';
+import { IngredientsSelectDirective } from 'src/app/features/ingredients/utility';
 
 @Component({
   selector: 'app-food-form',
@@ -95,15 +95,15 @@ import { IngredientsSelectDirective } from 'src/app/features/ingredients/present
 export class FoodFormComponent {
   @Input() loading: boolean = false;
 
-  @Input() set food(food: Food | undefined) {
-    if (!food) return;
-    this.data = food;
+  @Input() set item(item: Food | undefined) {
+    if (!item) return;
+    this.data = item;
 
     this.form.patchValue({
-      name: food.name,
-      ingredients: food.ingredients,
-      calories: food.calories,
-      notes: food.notes,
+      name: item.name,
+      ingredients: item.ingredients,
+      calories: item.calories,
+      notes: item.notes,
     });
   }
 

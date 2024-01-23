@@ -3,13 +3,17 @@ import {
   ActivityApiService,
   ActivityDTO,
   ActivityTagApiService,
-} from '../database';
+} from '../../../meals/data-access/database';
 import {
   ActivityType,
   ActivityTypesFacadeService,
 } from 'src/app/features/activity-types/data-access';
 import { Tag, TagsFacadeService } from 'src/app/features/tags/data-access';
-import { Activity } from '../activity.model';
+import {
+  Activity,
+  CreateActivityFormData,
+  UpdateActivityFormData,
+} from '../activity.model';
 import { List, SearchCriteria } from 'src/app/shared/utility';
 
 @Injectable({
@@ -46,72 +50,62 @@ export class ActivitiesFacadeService {
     return { ...list, items };
   }
 
-  async get(activityId: number): Promise<Activity> {
-    const [activityDTO, activityType, tags] = await Promise.all([
-      this.activityApi.get(activityId),
-      this.getActivityType(activityId),
-      this.getTags(activityId),
+  async get(id: number): Promise<Activity> {
+    const [activityDTO, tags] = await Promise.all([
+      this.activityApi.get(id),
+      this.getTags(id),
     ]);
+    const activityType = await this.getActivityType(
+      activityDTO.activity_type_id,
+    );
     return this.mapFromDTO(activityDTO, activityType, tags);
   }
 
-  async create(
-    name: string,
-    at: Date,
-    activityType: ActivityType,
-    tags?: Tag[],
-    notes?: string,
-  ): Promise<Activity> {
-    const activityId = await this.activityApi.create(
+  async create({
+    name,
+    at,
+    type,
+    tags,
+    notes,
+  }: CreateActivityFormData): Promise<Activity> {
+    const id = await this.activityApi.create(
       name,
       at.toISOString(),
-      activityType.id,
+      type.id,
       notes,
     );
 
     if (tags) {
       await Promise.all(
-        tags.map((tag) => this.activityTagApi.create(activityId, tag.id)),
+        tags.map((tag) => this.activityTagApi.create(id, tag.id)),
       );
     }
-    return await this.get(activityId);
+    return await this.get(id);
   }
 
   async update(
-    activityId: number,
-    name: string,
-    at: Date,
-    activityType: ActivityType,
-    tags?: Tag[],
-    notes?: string,
+    id: number,
+    { name, at, type, tags, notes }: UpdateActivityFormData,
   ): Promise<Activity> {
     await Promise.all([
-      this.activityApi.update(
-        activityId,
-        name,
-        at.toISOString(),
-        activityType.id,
-        notes,
-      ),
-      this.updateTags(activityId, tags),
+      this.activityApi.update(id, name, at.toISOString(), type.id, notes),
+      this.updateTags(id, tags),
     ]);
 
-    return await this.get(activityId);
+    return await this.get(id);
   }
 
-  async delete(activityId: number): Promise<Activity> {
-    const activity = await this.get(activityId);
-    await Promise.all([
-      this.activityApi.delete(activityId),
-      ...activity.tags.map((tag) =>
-        this.activityTagApi.delete(activityId, tag.id),
-      ),
-    ]);
+  async delete(id: number): Promise<Activity> {
+    const activity = await this.get(id);
+    await Promise.all(
+      activity.tags.map((tag) => this.activityTagApi.delete(id, tag.id)),
+    );
+    await this.activityApi.delete(id);
     return activity;
   }
 
-  private async getTags(activityId: number): Promise<Tag[]> {
-    const activityTagDTOs = await this.activityTagApi.getByActivity(activityId);
+  private async getTags(id: number): Promise<Tag[]> {
+    const activityTagDTOs = await this.activityTagApi.getByActivity(id);
     return await Promise.all(
       activityTagDTOs.map((activityTagDTO) =>
         this.tagsFacade.get(activityTagDTO.tag_id),
@@ -123,11 +117,10 @@ export class ActivitiesFacadeService {
     return await this.activityTypesFacade.get(activityTypeId);
   }
 
-  private async updateTags(activityId: number, tags?: Tag[]): Promise<void> {
+  private async updateTags(id: number, tags?: Tag[]): Promise<void> {
     if (!tags || tags.length === 0) return;
 
-    const currentActivityTagDTOs =
-      await this.activityTagApi.getByActivity(activityId);
+    const currentActivityTagDTOs = await this.activityTagApi.getByActivity(id);
 
     const tagIdsToAdd: number[] = tags.reduce((tagIdsToAdd: number[], tag) => {
       const toAdd = !currentActivityTagDTOs.some(
@@ -150,10 +143,8 @@ export class ActivitiesFacadeService {
     );
 
     await Promise.all([
-      tagIdsToAdd.map((tagId) => this.activityTagApi.create(activityId, tagId)),
-      tagIdsToRemove.map((tagId) =>
-        this.activityTagApi.delete(activityId, tagId),
-      ),
+      tagIdsToAdd.map((tagId) => this.activityTagApi.create(id, tagId)),
+      tagIdsToRemove.map((tagId) => this.activityTagApi.delete(id, tagId)),
     ]);
   }
 

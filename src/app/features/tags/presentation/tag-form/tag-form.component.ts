@@ -82,13 +82,13 @@ import {
 export class TagFormComponent {
   @Input() loading: boolean = false;
 
-  @Input() set tag(tag: Tag | undefined) {
-    if (!tag) return;
-    this.data = tag;
+  @Input() set item(item: Tag | undefined) {
+    if (!item) return;
+    this.data = item;
 
     this.form.patchValue({
-      name: tag.name,
-      color: tag.color,
+      name: item.name,
+      color: item.color,
     });
   }
 
