@@ -15,6 +15,7 @@ import {
   IonItemOption,
   IonItemOptions,
   IonFabList,
+  IonText,
 } from '@ionic/angular/standalone';
 import {
   ListStoreService,
@@ -31,11 +32,14 @@ import {
   DiaryEventType,
   DiaryHandlerService,
 } from '../data-access';
+import { DiaryEventIconPipe } from '../presentation';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-diary',
   standalone: true,
   imports: [
+    DatePipe,
     IonHeader,
     IonToolbar,
     IonButtons,
@@ -47,11 +51,13 @@ import {
     IonFabList,
     IonIcon,
     IonItem,
+    IonLabel,
+    IonText,
     IonItemSliding,
     IonItemOptions,
     IonItemOption,
-    IonLabel,
     ScrollableListComponent,
+    DiaryEventIconPipe,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -81,9 +87,17 @@ import {
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
             <ion-item>
+              <ion-icon
+                aria-hidden="true"
+                [md]="(item | diaryEventIcon) + '-sharp'"
+                [ios]="(item | diaryEventIcon) + '-outline'"
+                slot="start"
+              />
               <ion-label>{{ item.name }}</ion-label>
+              <ion-text color="medium" slot="end">
+                {{ item.at | date: 'dd/MM/YYYY HH:mm' }}
+              </ion-text>
             </ion-item>
-
             <ion-item-options>
               <ion-item-option (click)="[openModal(item), itemSliding.close()]">
                 Edit
@@ -114,7 +128,11 @@ import {
       </ion-fab>
     </ion-content>
   `,
-  styles: [``],
+  styles: `
+    ion-text {
+      font-size: 0.8rem;
+    }
+  `,
   providers: [
     ListStoreService,
     {
@@ -129,14 +147,14 @@ export class DiaryPage implements OnInit {
   protected mealModals = inject(MealModalsService);
   protected activityModals = inject(ActivityModalsService);
 
-  protected trackFn = (item: Meal | Activity): number =>
+  protected trackFn = (item: DiaryEvent): number =>
     this.storeHandler.extractId(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
   }
 
-  protected remove(item: Meal | Activity): void {
+  protected remove(item: DiaryEvent): void {
     this.listStore.operation$.next({
       operation: { type: OperationType.Delete },
       item,

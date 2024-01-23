@@ -57,7 +57,7 @@ import {
             placeholder="Choose an icon"
             interface="action-sheet"
           >
-            <ion-select-option value="bycicle"> Bycicle </ion-select-option>
+            <ion-select-option value="bicycle"> Bycicle </ion-select-option>
             <ion-select-option value="sunny"> Sunny </ion-select-option>
             <ion-select-option value="train"> Train </ion-select-option>
             <ion-select-option value="rocket"> Rocket </ion-select-option>

@@ -24,7 +24,6 @@ import {
   IonItem,
   IonCheckbox,
   IonSearchbar,
-  IonRadio,
 } from '@ionic/angular/standalone';
 import { ScrollableListComponent } from '../scrollable-list/scrollable-list.component';
 import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
@@ -44,7 +43,6 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
     IonButton,
     IonItem,
     IonCheckbox,
-    IonRadio,
     IonSearchbar,
     ScrollableListComponent,
     OptionSelectedPipe,
@@ -92,16 +90,13 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
           >
             <ng-template #itemTemplate let-item>
               <ion-item>
-                @if (multiple) {
-                  <ion-checkbox
-                    [attr.aria-label]="item.label"
-                    slot="start"
-                    [checked]="item | optionSelected: selected()"
-                    (ionChange)="toggleOption(item)"
-                  />
-                } @else {
-                  <ion-radio slot="start" (click)="toggleOption(item)" />
-                }
+                <ion-checkbox
+                  [attr.aria-label]="item.label"
+                  slot="start"
+                  [checked]="item | optionSelected: selected()"
+                  (ionChange)="toggleOption(item)"
+                />
+
                 {{ item.label }}
               </ion-item>
             </ng-template>
@@ -195,14 +190,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
   }
 
   protected toggleOption(option: Option): void {
-    const selectedOptions = this.selected();
-
-    const isSelected = selectedOptions.some((o) => o.ref === option.ref);
-
-    const selected = isSelected
-      ? selectedOptions.filter((o) => o.ref !== option.ref)
-      : [...selectedOptions, option];
-
+    const selected = this.getNextSelectedOptions(option);
     this.selected.set(selected);
 
     const values = selected.map((option) => option.value);
@@ -213,5 +201,18 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
     const ref = this.storeHandler.extractId(value);
     const label = this.storeHandler.extractName(value);
     return { ref, label, value };
+  }
+
+  private getNextSelectedOptions(option: Option): Option[] {
+    const selectedOptions = this.selected();
+    const isSelected = selectedOptions.some((o) => o.ref === option.ref);
+
+    if (this.multiple) {
+      return isSelected
+        ? selectedOptions.filter((o) => o.ref !== option.ref)
+        : [...selectedOptions, option];
+    }
+
+    return isSelected ? [] : [option];
   }
 }
