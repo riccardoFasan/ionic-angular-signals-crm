@@ -5,7 +5,6 @@ import {
   OnInit,
   booleanAttribute,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -22,7 +21,6 @@ import {
   IonButton,
   IonToolbar,
   IonTitle,
-  IonLabel,
   IonItem,
   IonCheckbox,
   IonSearchbar,
@@ -44,7 +42,6 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
     IonButtons,
     IonButton,
     IonItem,
-    IonLabel,
     IonCheckbox,
     IonSearchbar,
     ScrollableListComponent,
@@ -63,7 +60,7 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
       <ion-icon aria-hidden="true" name="caret-down-sharp" slot="end" />
     </ion-input>
 
-    <ion-modal [isOpen]="open()" (willDismiss)="open.set(false)">
+    <ion-modal [isOpen]="open()" backdropDismiss="false">
       <ng-template>
         <ion-header [translucent]="true">
           <ion-toolbar>
@@ -88,16 +85,19 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
             [canLoadNextPage]="listStore.canLoadNextPage()"
             [loading]="listStore.mode() === 'FETCHING'"
             [trackFn]="trackFn"
-            (scrollEnd)="loadNextPage()"
+            (scrollEnd)="listStore.loadNextPage$.next()"
+            (refresh)="listStore.refresh$.next()"
           >
             <ng-template #itemTemplate let-item>
               <ion-item>
                 <ion-checkbox
+                  [attr.aria-label]="item.label"
                   slot="start"
                   [checked]="item | optionSelected: selected()"
                   (ionChange)="toggleOption(item)"
                 />
-                <ion-label>{{ item.label }}</ion-label>
+
+                {{ item.label }}
               </ion-item>
             </ng-template>
           </app-scrollable-list>
@@ -146,21 +146,10 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
     return labels.join(', ');
   });
 
-  private values = computed<unknown[]>(() =>
-    this.selected().map((option) => option.value),
-  );
-
   protected trackFn = (option: Option): number => option.ref;
 
   private onChange!: (value: unknown | unknown[]) => void;
   private onTouched!: () => void;
-
-  constructor() {
-    effect(() => {
-      const values = this.values();
-      this.onChange(this.multiple ? values : values[0]);
-    });
-  }
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
@@ -171,6 +160,8 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
       this.selected.set([]);
       return;
     }
+
+    this.onTouched?.();
 
     if (this.multiple) {
       const values = value as unknown[];
@@ -194,30 +185,34 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
   protected onSearchInput(event: CustomEvent): void {
     const query = event.detail.value;
     if (query.length > 0 && query.length < 3) return;
-    if (query) this.onTouched();
+    if (query) this.onTouched?.();
     this.listStore.filters$.next({ [this.searchKey]: query });
   }
 
   protected toggleOption(option: Option): void {
-    const selectedOptions = this.selected();
-
-    const isSelected = selectedOptions.some((o) => o.ref === option.ref);
-
-    const selected = isSelected
-      ? selectedOptions.filter((o) => o.ref !== option.ref)
-      : [...selectedOptions, option];
-
+    const selected = this.getNextSelectedOptions(option);
     this.selected.set(selected);
-  }
 
-  protected loadNextPage(): void {
-    if (!this.listStore.canLoadNextPage()) return;
-    this.listStore.loadNextPage$.next();
+    const values = selected.map((option) => option.value);
+    this.onChange?.(this.multiple ? values : values[0]);
   }
 
   private toOption(value: unknown): Option {
     const ref = this.storeHandler.extractId(value);
     const label = this.storeHandler.extractName(value);
     return { ref, label, value };
+  }
+
+  private getNextSelectedOptions(option: Option): Option[] {
+    const selectedOptions = this.selected();
+    const isSelected = selectedOptions.some((o) => o.ref === option.ref);
+
+    if (this.multiple) {
+      return isSelected
+        ? selectedOptions.filter((o) => o.ref !== option.ref)
+        : [...selectedOptions, option];
+    }
+
+    return isSelected ? [] : [option];
   }
 }

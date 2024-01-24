@@ -38,7 +38,7 @@ import { FoodFormComponent } from '../food-form/food-form.component';
       <app-food-form
         [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [food]="detailStore.item()"
+        [item]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,
@@ -80,11 +80,7 @@ export class FoodModalComponent implements OnInit {
 
   protected remove(): void {
     if (!this.detailStore.item()) return;
-    const operation: Operation = {
-      type: OperationType.Delete,
-      payload: this.detailStore.item(),
-    };
-    this.detailStore.operation$.next(operation);
+    this.detailStore.operation$.next({ type: OperationType.Delete });
     this.modalCtrl.dismiss();
   }
 }

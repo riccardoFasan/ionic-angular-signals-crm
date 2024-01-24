@@ -18,7 +18,6 @@ import {
 import { FoodModalsService } from '../utility';
 import {
   ListStoreService,
-  Operation,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
@@ -67,7 +66,8 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
         [canLoadNextPage]="listStore.canLoadNextPage()"
         [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
-        (scrollEnd)="loadNextPage()"
+        (scrollEnd)="listStore.loadNextPage$.next()"
+        (refresh)="listStore.refresh$.next()"
       >
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
@@ -113,23 +113,17 @@ export class FoodsPage implements OnInit {
   protected storeHandler = inject(STORE_HANDLER);
   protected foodModals = inject(FoodModalsService);
 
-  protected trackFn = (food: Food): number => this.storeHandler.extractId(food);
+  protected trackFn = (item: Food): number => this.storeHandler.extractId(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
   }
 
-  protected loadNextPage(): void {
-    if (!this.listStore.canLoadNextPage()) return;
-    this.listStore.loadNextPage$.next();
-  }
-
-  protected remove(food: Food): void {
-    const operation: Operation = {
-      type: OperationType.Delete,
-      payload: food,
-    };
-    this.listStore.operation$.next({ operation, item: food });
+  protected remove(item: Food): void {
+    this.listStore.operation$.next({
+      operation: { type: OperationType.Delete },
+      item,
+    });
   }
 
   protected async openModal(id?: number): Promise<void> {

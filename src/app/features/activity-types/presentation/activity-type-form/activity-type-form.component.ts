@@ -5,11 +5,7 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import {
-  ActivityType,
-  CreateActivityTypeFormData,
-  UpdateActivityTypeFormData,
-} from '../../data-access';
+import { ActivityType } from '../../data-access';
 import {
   FormControl,
   FormGroup,
@@ -61,7 +57,7 @@ import {
             placeholder="Choose an icon"
             interface="action-sheet"
           >
-            <ion-select-option value="bycicle"> Bycicle </ion-select-option>
+            <ion-select-option value="bicycle"> Bycicle </ion-select-option>
             <ion-select-option value="sunny"> Sunny </ion-select-option>
             <ion-select-option value="train"> Train </ion-select-option>
             <ion-select-option value="rocket"> Rocket </ion-select-option>
@@ -108,14 +104,14 @@ import {
 export class ActivityTypeFormComponent {
   @Input() loading: boolean = false;
 
-  @Input() set activityType(activityType: ActivityType | undefined) {
-    if (!activityType) return;
-    this.data = activityType;
+  @Input() set item(item: ActivityType | undefined) {
+    if (!item) return;
+    this.data = item;
 
     this.form.patchValue({
-      name: activityType.name,
-      icon: activityType.icon,
-      color: activityType.color,
+      name: item.name,
+      icon: item.icon,
+      color: item.color,
     });
   }
 

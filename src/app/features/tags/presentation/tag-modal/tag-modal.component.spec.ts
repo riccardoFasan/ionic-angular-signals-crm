@@ -8,10 +8,9 @@ describe('TagModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TagModalComponent]
-    })
-    .compileComponents();
-    
+      imports: [TagModalComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(TagModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
