@@ -11,13 +11,18 @@ import {
   tap,
 } from 'rxjs';
 import { STORE_HANDLER } from '../store-handler.token';
-import { ToastsService, onHandlerError } from '../../utility';
+import {
+  ErrorInterpreterService,
+  ToastsService,
+  onHandlerError,
+} from '../../utility';
 import { Operation } from '../operation.type';
 import { MachineState } from '../machine-state.enum';
 
 @Injectable()
 export class DetailStoreService<T> {
   private handler = inject(STORE_HANDLER);
+  private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
   private state = signal<DetailState<T>>(INITIAL_DETAIL_STATE);
@@ -120,7 +125,10 @@ export class DetailStoreService<T> {
       const error = this.error();
       if (!error) return;
 
-      const message = this.handler.interpretError?.(error, this.item());
+      const message =
+        this.handler.interpretError?.(error) ||
+        this.errorInterpreter.interpretError(error);
+
       console.error({ error, message });
       this.toasts.error(message);
     });

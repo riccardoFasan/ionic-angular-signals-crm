@@ -1,6 +1,11 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { STORE_HANDLER } from '../store-handler.token';
-import { SearchCriteria, ToastsService, onHandlerError } from '../../utility';
+import {
+  ErrorInterpreterService,
+  SearchCriteria,
+  ToastsService,
+  onHandlerError,
+} from '../../utility';
 import {
   INITIAL_LIST_STATE,
   INITIAL_SEARCH_CRITERIA,
@@ -10,16 +15,18 @@ import { Subject, catchError, filter, map, merge, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MachineState } from '../machine-state.enum';
 import { Operation } from '../operation.type';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class ListStoreService<T> {
   private handler = inject(STORE_HANDLER);
+  private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
   private state = signal<ListState<T>>(INITIAL_LIST_STATE);
 
   items = computed<T[]>(() => this.state().items);
-  searchCriteria = computed(() => this.state().searchCriteria);
+  searchCriteria = computed<SearchCriteria>(() => this.state().searchCriteria);
   total = computed<number>(() => this.state().total);
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
@@ -137,8 +144,11 @@ export class ListStoreService<T> {
       const error = this.error();
       if (!error) return;
 
-      const message = this.handler.interpretError?.(error);
-      console.error({ error, message });
+      const message =
+        this.handler.interpretError?.(error) ||
+        this.errorInterpreter.interpretError(error);
+
+      if (!environment.production) console.error({ error, message });
       this.toasts.error(message);
     });
   }
