@@ -42,8 +42,9 @@ export class FoodsFacadeService {
     name,
     ingredients,
     notes,
+    calories,
   }: CreateFoodFormData): Promise<Food> {
-    const foodId = await this.foodApi.create(name, notes);
+    const foodId = await this.foodApi.create(name, notes, calories);
     if (ingredients) {
       await Promise.all(
         ingredients.map((ingredient) =>
@@ -56,10 +57,10 @@ export class FoodsFacadeService {
 
   async update(
     foodId: number,
-    { name, ingredients, notes }: UpdateFoodFormData,
+    { name, ingredients, notes, calories }: UpdateFoodFormData,
   ): Promise<Food> {
     await Promise.all([
-      this.foodApi.update(foodId, name, notes),
+      this.foodApi.update(foodId, name, notes, calories),
       this.updateIngredients(foodId, ingredients),
     ]);
 

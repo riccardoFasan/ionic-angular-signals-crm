@@ -91,7 +91,6 @@ export class ActivitiesFacadeService {
       this.activityApi.update(id, name, at.toISOString(), type.id, notes),
       this.updateTags(id, tags),
     ]);
-
     return await this.get(id);
   }
 
