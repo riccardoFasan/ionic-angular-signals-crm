@@ -66,22 +66,22 @@ export class InitializerService {
 
     await this.database.createDatabaseConnection();
 
-    const activityAndRelated = Promise.all([
+    const activityAndRelated = [
       this.tagApi.createTable(),
       this.activityTypeApi.createTable(),
       this.activityApi.createTable(),
       this.activityTagApi.createTable(),
-    ]);
+    ];
 
-    const foodAndRelated = Promise.all([
+    const foodAndRelated = [
       this.ingredientApi.createTable(),
       this.foodApi.createTable(),
       this.foodIngredientApi.createTable(),
       this.mealApi.createTable(),
       this.mealFoodApi.createTable(),
-    ]);
+    ];
 
-    await Promise.all([activityAndRelated, foodAndRelated]);
+    await Promise.all([...activityAndRelated, ...foodAndRelated]);
   }
 
   private async showSplashScreen(): Promise<void> {
