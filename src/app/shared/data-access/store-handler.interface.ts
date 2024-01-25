@@ -8,6 +8,13 @@ export interface StoreHandler<T> {
   get(id: number): Observable<T>;
   getList(searchCriteria: SearchCriteria): Observable<List<T>>;
   operate(operation: Operation, item?: T): Observable<T>;
+  mutateItems?(
+    operation: Operation,
+    item: T,
+    items: T[],
+    count: number,
+    searchCriteria: SearchCriteria,
+  ): { items: T[]; count: number };
   onOperation(operation: Operation, item: T): Observable<void>;
   interpretError?(error: Error, item?: T): string | undefined;
 }

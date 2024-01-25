@@ -54,11 +54,18 @@ export class ListStoreService<T> {
   // TODO: sort
 
   constructor() {
+    // refresh will reset paginations and filters because we're in an app
+    // with infinite scroll,
+    // if we were in a desktop crud app it would kept the current search criteria,
+    // so it would be a different reducer
+
     merge(this.refresh$, this.loadFirstPage$, this.filters$)
       .pipe(
         takeUntilDestroyed(),
-        map((filters) => (filters ? filters : INITIAL_SEARCH_CRITERIA.filters)),
-        map((filters) => ({ ...INITIAL_SEARCH_CRITERIA, filters })),
+        map((filters) => ({
+          ...INITIAL_SEARCH_CRITERIA,
+          filters: filters || INITIAL_SEARCH_CRITERIA.filters,
+        })),
         tap((searchCriteria) =>
           this.state.update((state) => ({
             ...state,
@@ -122,8 +129,14 @@ export class ListStoreService<T> {
         switchMap(({ operation, item }) =>
           this.handler.operate(operation, item).pipe(
             catchError((error) => onHandlerError(error, this.state)),
-            map((item) => [operation, item]),
+            map((item) => ({ operation, item })),
           ),
+        ),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Fetching,
+          })),
         ),
         tap(() =>
           this.state.update((state) => ({
