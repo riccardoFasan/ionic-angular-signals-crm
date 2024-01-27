@@ -1,4 +1,5 @@
 import { Pagination } from './pagination.type';
+import { SearchFilters } from './search-filters.type';
 import { Sorting } from './sorting.type';
 
 export type SearchCriteria = {
@@ -6,5 +7,3 @@ export type SearchCriteria = {
   sorting?: Sorting;
   filters: SearchFilters;
 };
-
-export type SearchFilters = Record<string, string | number | boolean | Date>;

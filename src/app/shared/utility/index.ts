@@ -7,6 +7,7 @@ export * from './list.type';
 export * from './now-iso-string';
 export * from './pagination.type';
 export * from './search-criteria.type';
+export * from './search-filters.type';
 export * from './sorting.type';
 export * from './sort-order.enum';
 export * from './on-handler-error';
