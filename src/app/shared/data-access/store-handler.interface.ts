@@ -9,11 +9,11 @@ export interface StoreHandler<T> {
   getList(searchCriteria: SearchCriteria): Observable<List<T>>;
   operate(operation: Operation, item?: T): Observable<T>;
 
-  // mutateItems is intended to for optimistic updates.
-  // pushSorted utility is meant to be used with create operations and
-  // can lead to some complex code if you have to handle tricky filters
-  // or sortings. So think carefully before using and consider
-  // a simple refresh by returnin undefined or void in this case.
+  // mutateItems is intended for optimistic updates.
+  // pushSorted utility is meant to be used with create operations
+  // and can lead to some complex code if you have to handle tricky
+  // filters or sortings. So think carefully before using and consider
+  // a simple refresh by returning undefined or void.
   mutateItems?(
     operation: Operation,
     item: T,
