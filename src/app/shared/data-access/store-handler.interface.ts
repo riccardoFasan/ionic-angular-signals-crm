@@ -12,9 +12,14 @@ export interface StoreHandler<T> {
     operation: Operation,
     item: T,
     items: T[],
-    count: number,
+    total: number,
     searchCriteria: SearchCriteria,
-  ): { items: T[]; count: number };
+  ): ItemsMutation<T> | Observable<ItemsMutation<T>> | void;
   onOperation(operation: Operation, item: T): Observable<void>;
   interpretError?(error: Error, item?: T): string | undefined;
 }
+
+export type ItemsMutation<T> = {
+  items: T[];
+  total: number;
+};

@@ -3,7 +3,7 @@ import { MealApiService, MealDTO, MealFoodApiService } from '../database';
 import { FoodsFacadeService } from 'src/app/features/foods/data-access';
 import { CreateMealFormData, Meal, UpdateMealFormData } from '../meal.model';
 import { Consumption } from '../consumption.model';
-import { List, SearchCriteria } from 'src/app/shared/utility';
+import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -172,9 +172,7 @@ export class MealsFacadeService {
     };
   }
 
-  private mapToApiFilters(
-    filters: SearchCriteria['filters'],
-  ): Record<string, string> {
+  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { List, SearchCriteria } from 'src/app/shared/utility';
+import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
 import {
   CreateIngredientFormData,
   Ingredient,
@@ -56,9 +56,7 @@ export class IngredientsFacadeService {
     };
   }
 
-  private mapToApiFilters(
-    filters: SearchCriteria['filters'],
-  ): Record<string, string> {
+  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TagApiService, TagDTO } from '../database';
 import { CreateTagFormData, Tag, UpdateTagFormData } from '../tag.model';
-import { List, SearchCriteria } from 'src/app/shared/utility';
+import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -49,9 +49,7 @@ export class TagsFacadeService {
     };
   }
 
-  private mapToApiFilters(
-    filters: SearchCriteria['filters'],
-  ): Record<string, string> {
+  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),

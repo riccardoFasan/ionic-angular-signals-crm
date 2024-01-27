@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ActivityTypeApiService, ActivityTypeDTO } from '../database';
-import { List, SearchCriteria } from 'src/app/shared/utility';
+import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
 import {
   ActivityType,
   CreateActivityTypeFormData,
@@ -62,9 +62,7 @@ export class ActivityTypesFacadeService {
     };
   }
 
-  private mapToApiFilters(
-    filters: SearchCriteria['filters'],
-  ): Record<string, string> {
+  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),
