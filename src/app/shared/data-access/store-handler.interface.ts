@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
 import { List, SearchCriteria } from '../utility';
 import { Operation } from './operation.type';
+import { ItemsMutation } from './items-mutation.type';
 
 export interface StoreHandler<T> {
   extractId(item: T): number;
@@ -20,13 +21,8 @@ export interface StoreHandler<T> {
     items: T[],
     total: number,
     searchCriteria: SearchCriteria,
-  ): ItemsMutation<T> | Observable<ItemsMutation<T>> | void;
+  ): ItemsMutation<T> | void;
 
   onOperation(operation: Operation, item: T): Observable<void>;
   interpretError?(error: Error, item?: T): string | undefined;
 }
-
-export type ItemsMutation<T> = {
-  items: T[];
-  total: number;
-};

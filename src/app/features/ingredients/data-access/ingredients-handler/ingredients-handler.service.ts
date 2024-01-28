@@ -76,7 +76,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
     items: Ingredient[],
     total: number,
     searchCriteria: SearchCriteria,
-  ): void | ItemsMutation<Ingredient> | Observable<ItemsMutation<Ingredient>> {
+  ): void | ItemsMutation<Ingredient> {
     switch (operation.type) {
       case OperationType.Create:
         return {
@@ -95,9 +95,6 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
           items: items.filter((i) => i.id !== item.id),
           total: total - 1,
         };
-
-      default:
-        throw new Error(`mutateItems not implemented for: ${operation.type}`);
     }
   }
 
