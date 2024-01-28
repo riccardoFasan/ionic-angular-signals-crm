@@ -8,6 +8,9 @@ export interface StoreHandler<T> {
   extractName(item: T): string;
   get(id: number): Observable<T>;
   getList(searchCriteria: SearchCriteria): Observable<List<T>>;
+
+  canOperate?(operation: Operation): Observable<boolean> | boolean;
+
   operate(operation: Operation, item?: T): Observable<T>;
 
   // mutateItems is intended for optimistic updates.

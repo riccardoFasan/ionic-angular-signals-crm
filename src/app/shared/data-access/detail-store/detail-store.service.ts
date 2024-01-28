@@ -6,9 +6,7 @@ import {
   catchError,
   distinctUntilChanged,
   filter,
-  isObservable,
   map,
-  of,
   switchMap,
   tap,
 } from 'rxjs';
@@ -16,6 +14,7 @@ import { STORE_HANDLER } from '../store-handler.token';
 import {
   ErrorInterpreterService,
   ToastsService,
+  forceObservable,
   onHandlerError,
 } from '../../utility';
 import { Operation } from '../operation.type';
@@ -101,12 +100,20 @@ export class DetailStoreService<T> {
             mode: MachineState.Processing,
           })),
         ),
-        switchMap((operation) =>
-          this.handler.operate(operation, this.item()).pipe(
-            catchError((error) => onHandlerError(error, this.state)),
-            map((item) => ({ operation, item })),
-          ),
-        ),
+        switchMap((operation) => {
+          const canOperate$ = forceObservable(
+            this.handler.canOperate?.(operation) || true,
+          );
+          return canOperate$.pipe(
+            filter((canOperate) => canOperate),
+            switchMap(() =>
+              this.handler.operate(operation, this.item()).pipe(
+                catchError((error) => onHandlerError(error, this.state)),
+                map((item) => ({ operation, item })),
+              ),
+            ),
+          );
+        }),
         tap(({ item }) =>
           this.state.update((state) => ({
             ...state,
@@ -115,11 +122,9 @@ export class DetailStoreService<T> {
             error: undefined,
           })),
         ),
-        switchMap(({ operation, item }) => {
-          const onOperation = this.handler.onOperation?.(operation, item);
-          if (!onOperation) return of(null);
-          return isObservable(onOperation) ? onOperation : of(onOperation);
-        }),
+        switchMap(({ operation, item }) =>
+          forceObservable(this.handler.onOperation?.(operation, item)),
+        ),
       )
       .subscribe();
 

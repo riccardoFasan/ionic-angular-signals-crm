@@ -5,6 +5,7 @@ import {
   SearchCriteria,
   SearchFilters,
   ToastsService,
+  forceObservable,
   onHandlerError,
 } from '../../utility';
 import {
@@ -12,17 +13,7 @@ import {
   INITIAL_SEARCH_CRITERIA,
   ListState,
 } from '../list.state';
-import {
-  Subject,
-  catchError,
-  filter,
-  isObservable,
-  map,
-  merge,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { Subject, catchError, filter, map, merge, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MachineState } from '../machine-state.enum';
 import { Operation } from '../operation.type';
@@ -137,12 +128,20 @@ export class ListStoreService<T> {
             mode: MachineState.Processing,
           })),
         ),
-        switchMap(({ operation, item }) =>
-          this.handler.operate(operation, item).pipe(
-            catchError((error) => onHandlerError(error, this.state)),
-            map((item) => ({ operation, item })),
-          ),
-        ),
+        switchMap(({ operation, item }) => {
+          const canOperate$ = forceObservable(
+            this.handler.canOperate?.(operation) || true,
+          );
+          return canOperate$.pipe(
+            filter((canOperate) => canOperate),
+            switchMap(() =>
+              this.handler.operate(operation, item).pipe(
+                catchError((error) => onHandlerError(error, this.state)),
+                map((item) => ({ operation, item })),
+              ),
+            ),
+          );
+        }),
         switchMap(({ operation, item }) => {
           const mutateItems = this.handler.mutateItems?.(
             operation,
@@ -165,11 +164,7 @@ export class ListStoreService<T> {
             );
           }
 
-          const mutation$ = isObservable(mutateItems)
-            ? mutateItems
-            : of(mutateItems);
-
-          return mutation$.pipe(
+          return forceObservable(mutateItems).pipe(
             map(({ items, total }) => ({ items, total, operation, item })),
             catchError((error) => onHandlerError(error, this.state)),
           );
@@ -183,11 +178,9 @@ export class ListStoreService<T> {
             error: undefined,
           })),
         ),
-        switchMap(({ operation, item }) => {
-          const onOperation = this.handler.onOperation?.(operation, item);
-          if (!onOperation) return of(null);
-          return isObservable(onOperation) ? onOperation : of(onOperation);
-        }),
+        switchMap(({ operation, item }) =>
+          forceObservable(this.handler.onOperation?.(operation, item)),
+        ),
       )
       .subscribe();
 
