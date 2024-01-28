@@ -13,7 +13,12 @@ import {
   UpdateIngredientFormData,
 } from '../ingredient.model';
 import { IngredientsFacadeService } from '../ingredients-facade/ingredients-facade.service';
-import { List, SearchCriteria, ToastsService } from 'src/app/shared/utility';
+import {
+  AlertsService,
+  List,
+  SearchCriteria,
+  ToastsService,
+} from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +26,7 @@ import { List, SearchCriteria, ToastsService } from 'src/app/shared/utility';
 export class IngredientsHandlerService implements StoreHandler<Ingredient> {
   private ingredientsFacade = inject(IngredientsFacadeService);
   private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   extractId(item: Ingredient): number {
     return item.id;
@@ -36,6 +42,21 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
 
   getList(searchCriteria: SearchCriteria): Observable<List<Ingredient>> {
     return defer(() => this.ingredientsFacade.getList(searchCriteria));
+  }
+
+  canOperate(
+    { type }: Operation,
+    item?: Ingredient,
+  ): boolean | Observable<boolean> {
+    switch (type) {
+      case OperationType.Delete:
+        return defer(() =>
+          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+        );
+
+      default:
+        return true;
+    }
   }
 
   operate(
