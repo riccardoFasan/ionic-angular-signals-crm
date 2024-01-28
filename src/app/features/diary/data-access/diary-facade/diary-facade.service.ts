@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { DiaryApiService, DiaryEventDTO } from '../database';
-import { List, SearchCriteria } from 'src/app/shared/utility';
+import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
 import { DiaryEvent } from '../diary-event.model';
 import { DiaryEventType } from '../diary-event-type.enum';
 import { MealsFacadeService } from 'src/app/features/meals/data-access';
@@ -36,9 +36,7 @@ export class DiaryFacadeService {
     return this.mapFromDTO(dto);
   }
 
-  private mapToApiFilters(
-    filters: SearchCriteria['filters'],
-  ): Record<string, string> {
+  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),

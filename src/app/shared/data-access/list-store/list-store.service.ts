@@ -3,6 +3,7 @@ import { STORE_HANDLER } from '../store-handler.token';
 import {
   ErrorInterpreterService,
   SearchCriteria,
+  SearchFilters,
   ToastsService,
   onHandlerError,
 } from '../../utility';
@@ -11,7 +12,17 @@ import {
   INITIAL_SEARCH_CRITERIA,
   ListState,
 } from '../list.state';
-import { Subject, catchError, filter, map, merge, switchMap, tap } from 'rxjs';
+import {
+  Subject,
+  catchError,
+  filter,
+  isObservable,
+  map,
+  merge,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MachineState } from '../machine-state.enum';
 import { Operation } from '../operation.type';
@@ -49,16 +60,23 @@ export class ListStoreService<T> {
   refresh$ = new Subject<void>();
   loadFirstPage$ = new Subject<void>();
   loadNextPage$ = new Subject<void>();
-  filters$ = new Subject<SearchCriteria['filters']>();
+  filters$ = new Subject<SearchFilters>();
   operation$ = new Subject<{ operation: Operation; item?: T }>();
   // TODO: sort
 
   constructor() {
+    // refresh will reset paginations and filters because we're in an app
+    // with infinite scroll,
+    // if we were in a desktop crud app it would kept the current search criteria,
+    // so it would be a different reducer
+
     merge(this.refresh$, this.loadFirstPage$, this.filters$)
       .pipe(
         takeUntilDestroyed(),
-        map((filters) => (filters ? filters : INITIAL_SEARCH_CRITERIA.filters)),
-        map((filters) => ({ ...INITIAL_SEARCH_CRITERIA, filters })),
+        map((filters) => ({
+          ...INITIAL_SEARCH_CRITERIA,
+          filters: filters || INITIAL_SEARCH_CRITERIA.filters,
+        })),
         tap((searchCriteria) =>
           this.state.update((state) => ({
             ...state,
@@ -122,17 +140,50 @@ export class ListStoreService<T> {
         switchMap(({ operation, item }) =>
           this.handler.operate(operation, item).pipe(
             catchError((error) => onHandlerError(error, this.state)),
-            map((item) => [operation, item]),
+            map((item) => ({ operation, item })),
           ),
         ),
-        tap(() =>
+        switchMap(({ operation, item }) => {
+          const mutateItems = this.handler.mutateItems?.(
+            operation,
+            item,
+            this.items(),
+            this.total(),
+            this.searchCriteria(),
+          );
+
+          if (!mutateItems) {
+            return this.handler.getList(INITIAL_SEARCH_CRITERIA).pipe(
+              catchError((error) => onHandlerError(error, this.state)),
+              map(({ items, total }) => ({ items, total, operation, item })),
+              tap(() =>
+                this.state.update((state) => ({
+                  ...state,
+                  searchCriteria: INITIAL_SEARCH_CRITERIA,
+                })),
+              ),
+            );
+          }
+
+          const mutation$ = isObservable(mutateItems)
+            ? mutateItems
+            : of(mutateItems);
+
+          return mutation$.pipe(
+            map(({ items, total }) => ({ items, total, operation, item })),
+            catchError((error) => onHandlerError(error, this.state)),
+          );
+        }),
+        tap(({ items, total }) =>
           this.state.update((state) => ({
             ...state,
+            items,
+            total,
             mode: MachineState.Idle,
             error: undefined,
           })),
         ),
-        switchMap(([operation, item]) =>
+        switchMap(({ operation, item }) =>
           this.handler
             .onOperation(operation, item)
             .pipe(catchError((error) => onHandlerError(error, this.state))),

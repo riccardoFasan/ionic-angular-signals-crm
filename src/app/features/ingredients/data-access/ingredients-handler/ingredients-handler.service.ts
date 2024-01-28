@@ -1,9 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, defer } from 'rxjs';
 import {
+  ItemsMutation,
   Operation,
   OperationType,
   StoreHandler,
+  pushSorted,
 } from 'src/app/shared/data-access';
 import {
   CreateIngredientFormData,
@@ -65,6 +67,34 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
 
       default:
         throw new Error(`Operation not implemented for: ${type}`);
+    }
+  }
+
+  mutateItems(
+    operation: Operation,
+    item: Ingredient,
+    items: Ingredient[],
+    total: number,
+    searchCriteria: SearchCriteria,
+  ): void | ItemsMutation<Ingredient> {
+    switch (operation.type) {
+      case OperationType.Create:
+        return {
+          items: pushSorted(item, items, searchCriteria),
+          total: total + 1,
+        };
+
+      case OperationType.Update:
+        return {
+          items: items.map((i) => (i.id === item.id ? item : i)),
+          total,
+        };
+
+      case OperationType.Delete:
+        return {
+          items: items.filter((i) => i.id !== item.id),
+          total: total - 1,
+        };
     }
   }
 

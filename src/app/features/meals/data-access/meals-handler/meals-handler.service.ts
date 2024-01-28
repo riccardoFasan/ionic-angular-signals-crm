@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import {
+  ItemsMutation,
   Operation,
   OperationType,
   StoreHandler,
+  pushSorted,
 } from 'src/app/shared/data-access';
 import { CreateMealFormData, Meal, UpdateMealFormData } from '../meal.model';
 import { MealsFacadeService } from '../meals-facade/meals-facade.service';
@@ -58,6 +60,34 @@ export class MealsHandlerService implements StoreHandler<Meal> {
 
       default:
         throw new Error(`Unknown operation type: ${type}`);
+    }
+  }
+
+  mutateItems(
+    operation: Operation,
+    item: Meal,
+    items: Meal[],
+    total: number,
+    searchCriteria: SearchCriteria,
+  ): void | ItemsMutation<Meal> {
+    switch (operation.type) {
+      case OperationType.Create:
+        return {
+          items: pushSorted(item, items, searchCriteria),
+          total: total + 1,
+        };
+
+      case OperationType.Update:
+        return {
+          items: items.map((i) => (i.id === item.id ? item : i)),
+          total,
+        };
+
+      case OperationType.Delete:
+        return {
+          items: items.filter((i) => i.id !== item.id),
+          total: total - 1,
+        };
     }
   }
 
