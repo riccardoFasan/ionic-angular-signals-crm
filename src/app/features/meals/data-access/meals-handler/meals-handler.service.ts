@@ -91,9 +91,9 @@ export class MealsHandlerService implements StoreHandler<Meal> {
     }
   }
 
-  onOperation({ type }: Operation, item: Meal): Observable<void> {
+  onOperation({ type }: Operation, item: Meal): Observable<void> | void {
     const message = this.getMessage(type, item);
-    return defer(() => this.toasts.success(message));
+    this.toasts.success(message);
   }
 
   private getMessage(

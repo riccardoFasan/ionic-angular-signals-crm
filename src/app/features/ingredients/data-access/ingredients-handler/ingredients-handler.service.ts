@@ -98,9 +98,9 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
     }
   }
 
-  onOperation({ type }: Operation, item: Ingredient): Observable<void> {
+  onOperation({ type }: Operation, item: Ingredient): Observable<void> | void {
     const message = this.getMessage(type, item);
-    return defer(() => this.toasts.success(message));
+    this.toasts.success(message);
   }
 
   private getMessage(

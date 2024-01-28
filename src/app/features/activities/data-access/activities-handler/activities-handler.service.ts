@@ -95,9 +95,9 @@ export class ActivitiesHandlerService implements StoreHandler<Activity> {
     }
   }
 
-  onOperation({ type }: Operation, item: Activity): Observable<void> {
+  onOperation({ type }: Operation, item: Activity): Observable<void> | void {
     const message = this.getMessage(type, item);
-    return defer(() => this.toasts.success(message));
+    this.toasts.success(message);
   }
 
   private getMessage(

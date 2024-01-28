@@ -183,11 +183,11 @@ export class ListStoreService<T> {
             error: undefined,
           })),
         ),
-        switchMap(({ operation, item }) =>
-          this.handler
-            .onOperation(operation, item)
-            .pipe(catchError((error) => onHandlerError(error, this.state))),
-        ),
+        switchMap(({ operation, item }) => {
+          const onOperation = this.handler.onOperation?.(operation, item);
+          if (!onOperation) return of(null);
+          return isObservable(onOperation) ? onOperation : of(onOperation);
+        }),
       )
       .subscribe();
 

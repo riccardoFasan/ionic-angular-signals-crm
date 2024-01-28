@@ -23,6 +23,8 @@ export interface StoreHandler<T> {
     searchCriteria: SearchCriteria,
   ): ItemsMutation<T> | void;
 
-  onOperation(operation: Operation, item: T): Observable<void>;
+  // intended for side effects like toasts or redirections. Use operate for data management
+  onOperation?(operation: Operation, item: T): Observable<void> | void;
+
   interpretError?(error: Error, item?: T): string | undefined;
 }
