@@ -60,9 +60,9 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     }
   }
 
-  onOperation({ type }: Operation, item: DiaryEvent): Observable<void> {
+  onOperation({ type }: Operation, item: DiaryEvent): Observable<void> | void {
     const message = this.getMessage(type, item);
-    return defer(() => this.toasts.success(message));
+    this.toasts.success(message);
   }
 
   private getMessage(

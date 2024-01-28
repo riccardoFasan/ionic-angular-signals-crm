@@ -6,7 +6,9 @@ import {
   catchError,
   distinctUntilChanged,
   filter,
+  isObservable,
   map,
+  of,
   switchMap,
   tap,
 } from 'rxjs';
@@ -102,10 +104,10 @@ export class DetailStoreService<T> {
         switchMap((operation) =>
           this.handler.operate(operation, this.item()).pipe(
             catchError((error) => onHandlerError(error, this.state)),
-            map((item) => [operation, item]),
+            map((item) => ({ operation, item })),
           ),
         ),
-        tap(([_, item]) =>
+        tap(({ item }) =>
           this.state.update((state) => ({
             ...state,
             item,
@@ -113,11 +115,11 @@ export class DetailStoreService<T> {
             error: undefined,
           })),
         ),
-        switchMap(([operation, item]) =>
-          this.handler
-            .onOperation(operation, item)
-            .pipe(catchError((error) => onHandlerError(error, this.state))),
-        ),
+        switchMap(({ operation, item }) => {
+          const onOperation = this.handler.onOperation?.(operation, item);
+          if (!onOperation) return of(null);
+          return isObservable(onOperation) ? onOperation : of(onOperation);
+        }),
       )
       .subscribe();
 

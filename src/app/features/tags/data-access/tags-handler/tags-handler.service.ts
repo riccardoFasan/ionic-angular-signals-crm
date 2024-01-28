@@ -88,9 +88,9 @@ export class TagsHandlerService implements StoreHandler<Tag> {
     }
   }
 
-  onOperation({ type }: Operation, item: Tag): Observable<void> {
+  onOperation({ type }: Operation, item: Tag): Observable<void> | void {
     const message = this.getMessage(type, item);
-    return defer(() => this.toasts.success(message));
+    this.toasts.success(message);
   }
 
   private getMessage(
