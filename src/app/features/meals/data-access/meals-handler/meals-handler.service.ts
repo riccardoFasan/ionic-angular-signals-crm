@@ -8,7 +8,12 @@ import {
 } from 'src/app/shared/data-access';
 import { CreateMealFormData, Meal, UpdateMealFormData } from '../meal.model';
 import { MealsFacadeService } from '../meals-facade/meals-facade.service';
-import { List, SearchCriteria, ToastsService } from 'src/app/shared/utility';
+import {
+  AlertsService,
+  List,
+  SearchCriteria,
+  ToastsService,
+} from 'src/app/shared/utility';
 import { Observable, defer } from 'rxjs';
 
 @Injectable({
@@ -17,6 +22,7 @@ import { Observable, defer } from 'rxjs';
 export class MealsHandlerService implements StoreHandler<Meal> {
   private mealsFacade = inject(MealsFacadeService);
   private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   extractId(item: Meal): number {
     return item.id;
@@ -32,6 +38,18 @@ export class MealsHandlerService implements StoreHandler<Meal> {
 
   getList(searchCriteria: SearchCriteria): Observable<List<Meal>> {
     return defer(() => this.mealsFacade.getList(searchCriteria));
+  }
+
+  canOperate({ type }: Operation, item?: Meal): boolean | Observable<boolean> {
+    switch (type) {
+      case OperationType.Delete:
+        return defer(() =>
+          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+        );
+
+      default:
+        return true;
+    }
   }
 
   operate(

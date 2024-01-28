@@ -102,7 +102,7 @@ export class DetailStoreService<T> {
         ),
         switchMap((operation) => {
           const canOperate$ = forceObservable(
-            this.handler.canOperate?.(operation) || true,
+            this.handler.canOperate?.(operation, this.item()) || true,
           );
           return canOperate$.pipe(
             filter((canOperate) => canOperate),

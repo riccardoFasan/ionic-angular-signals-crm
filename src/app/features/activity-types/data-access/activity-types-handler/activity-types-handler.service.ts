@@ -12,7 +12,12 @@ import {
   UpdateActivityTypeFormData,
 } from '../activity-type.model';
 import { ActivityTypesFacadeService } from '../activity-types-facade/activity-types-facade.service';
-import { List, SearchCriteria, ToastsService } from 'src/app/shared/utility';
+import {
+  AlertsService,
+  List,
+  SearchCriteria,
+  ToastsService,
+} from 'src/app/shared/utility';
 import { Observable, defer } from 'rxjs';
 
 @Injectable({
@@ -21,6 +26,7 @@ import { Observable, defer } from 'rxjs';
 export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
   private activityTypesFacade = inject(ActivityTypesFacadeService);
   private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   extractId(item: ActivityType): number {
     return item.id;
@@ -36,6 +42,21 @@ export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
 
   getList(searchCriteria: SearchCriteria): Observable<List<ActivityType>> {
     return defer(() => this.activityTypesFacade.getList(searchCriteria));
+  }
+
+  canOperate(
+    { type }: Operation,
+    item?: ActivityType,
+  ): boolean | Observable<boolean> {
+    switch (type) {
+      case OperationType.Delete:
+        return defer(() =>
+          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+        );
+
+      default:
+        return true;
+    }
   }
 
   operate(

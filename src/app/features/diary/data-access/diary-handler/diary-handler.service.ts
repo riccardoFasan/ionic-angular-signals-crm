@@ -6,7 +6,12 @@ import {
   StoreHandler,
 } from 'src/app/shared/data-access';
 import { Observable, defer } from 'rxjs';
-import { SearchCriteria, List, ToastsService } from 'src/app/shared/utility';
+import {
+  SearchCriteria,
+  List,
+  ToastsService,
+  AlertsService,
+} from 'src/app/shared/utility';
 import { DiaryEvent } from '../diary-event.model';
 import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
 
@@ -16,6 +21,7 @@ import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
 export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
   private diaryFacade = inject(DiaryFacadeService);
   private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   extractId(item: DiaryEvent): number {
     return item.id;
@@ -31,6 +37,21 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
 
   getList(searchCriteria: SearchCriteria): Observable<List<DiaryEvent>> {
     return defer(() => this.diaryFacade.getList(searchCriteria));
+  }
+
+  canOperate(
+    { type }: Operation,
+    item?: DiaryEvent,
+  ): boolean | Observable<boolean> {
+    switch (type) {
+      case OperationType.Delete:
+        return defer(() =>
+          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+        );
+
+      default:
+        return true;
+    }
   }
 
   operate({ type }: Operation, item?: DiaryEvent): Observable<DiaryEvent> {

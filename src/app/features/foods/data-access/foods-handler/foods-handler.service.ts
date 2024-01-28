@@ -8,7 +8,12 @@ import {
 } from 'src/app/shared/data-access';
 import { Food, CreateFoodFormData, UpdateFoodFormData } from '../food.model';
 import { Observable, defer } from 'rxjs';
-import { SearchCriteria, List, ToastsService } from 'src/app/shared/utility';
+import {
+  SearchCriteria,
+  List,
+  ToastsService,
+  AlertsService,
+} from 'src/app/shared/utility';
 import { FoodsFacadeService } from '../foods-facade/foods-facade.service';
 
 @Injectable({
@@ -17,6 +22,7 @@ import { FoodsFacadeService } from '../foods-facade/foods-facade.service';
 export class FoodsHandlerService implements StoreHandler<Food> {
   private foodsFacade = inject(FoodsFacadeService);
   private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   extractId(item: Food): number {
     return item.id;
@@ -32,6 +38,18 @@ export class FoodsHandlerService implements StoreHandler<Food> {
 
   getList(searchCriteria: SearchCriteria): Observable<List<Food>> {
     return defer(() => this.foodsFacade.getList(searchCriteria));
+  }
+
+  canOperate({ type }: Operation, item?: Food): boolean | Observable<boolean> {
+    switch (type) {
+      case OperationType.Delete:
+        return defer(() =>
+          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+        );
+
+      default:
+        return true;
+    }
   }
 
   operate(

@@ -130,7 +130,7 @@ export class ListStoreService<T> {
         ),
         switchMap(({ operation, item }) => {
           const canOperate$ = forceObservable(
-            this.handler.canOperate?.(operation) || true,
+            this.handler.canOperate?.(operation, item) || true,
           );
           return canOperate$.pipe(
             filter((canOperate) => canOperate),

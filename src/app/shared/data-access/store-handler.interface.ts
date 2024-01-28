@@ -9,7 +9,7 @@ export interface StoreHandler<T> {
   get(id: number): Observable<T>;
   getList(searchCriteria: SearchCriteria): Observable<List<T>>;
 
-  canOperate?(operation: Operation): Observable<boolean> | boolean;
+  canOperate?(operation: Operation, item?: T): Observable<boolean> | boolean;
 
   operate(operation: Operation, item?: T): Observable<T>;
 
