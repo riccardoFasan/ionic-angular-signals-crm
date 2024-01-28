@@ -8,7 +8,12 @@ import {
 } from 'src/app/shared/data-access';
 import { CreateTagFormData, Tag, UpdateTagFormData } from '../tag.model';
 import { Observable, defer } from 'rxjs';
-import { SearchCriteria, List, ToastsService } from 'src/app/shared/utility';
+import {
+  SearchCriteria,
+  List,
+  ToastsService,
+  AlertsService,
+} from 'src/app/shared/utility';
 import { TagsFacadeService } from '../tags-facade/tags-facade.service';
 
 @Injectable({
@@ -17,6 +22,7 @@ import { TagsFacadeService } from '../tags-facade/tags-facade.service';
 export class TagsHandlerService implements StoreHandler<Tag> {
   private tagsFacade = inject(TagsFacadeService);
   private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   extractId(item: Tag): number {
     return item.id;
@@ -32,6 +38,18 @@ export class TagsHandlerService implements StoreHandler<Tag> {
 
   getList(searchCriteria: SearchCriteria): Observable<List<Tag>> {
     return defer(() => this.tagsFacade.getList(searchCriteria));
+  }
+
+  canOperate({ type }: Operation, item?: Tag): boolean | Observable<boolean> {
+    switch (type) {
+      case OperationType.Delete:
+        return defer(() =>
+          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+        );
+
+      default:
+        return true;
+    }
   }
 
   operate({ type, payload }: Operation, item?: Tag): Observable<Tag> {
