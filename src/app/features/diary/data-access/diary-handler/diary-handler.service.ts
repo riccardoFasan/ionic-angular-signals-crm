@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import {
+  ItemsMutation,
   Operation,
   OperationType,
   StoreHandler,
@@ -41,6 +42,21 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
         return defer(() => this.diaryFacade.delete(item.id, item.type));
       default:
         throw new Error(`Operation not implemented for: ${type}`);
+    }
+  }
+
+  mutateItems(
+    operation: Operation,
+    item: DiaryEvent,
+    items: DiaryEvent[],
+    total: number,
+  ): void | ItemsMutation<DiaryEvent> {
+    switch (operation.type) {
+      case OperationType.Delete:
+        return {
+          items: items.filter((i) => i.id !== item.id),
+          total: total - 1,
+        };
     }
   }
 

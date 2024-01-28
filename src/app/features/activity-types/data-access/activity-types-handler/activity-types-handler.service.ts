@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import {
+  ItemsMutation,
   Operation,
   OperationType,
   StoreHandler,
+  pushSorted,
 } from 'src/app/shared/data-access';
 import {
   ActivityType,
@@ -67,6 +69,34 @@ export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
 
       default:
         throw new Error(`Operation ${type} not supported.`);
+    }
+  }
+
+  mutateItems(
+    operation: Operation,
+    item: ActivityType,
+    items: ActivityType[],
+    total: number,
+    searchCriteria: SearchCriteria,
+  ): void | ItemsMutation<ActivityType> {
+    switch (operation.type) {
+      case OperationType.Create:
+        return {
+          items: pushSorted(item, items, searchCriteria),
+          total: total + 1,
+        };
+
+      case OperationType.Update:
+        return {
+          items: items.map((i) => (i.id === item.id ? item : i)),
+          total,
+        };
+
+      case OperationType.Delete:
+        return {
+          items: items.filter((i) => i.id !== item.id),
+          total: total - 1,
+        };
     }
   }
 
