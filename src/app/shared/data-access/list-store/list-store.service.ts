@@ -13,7 +13,16 @@ import {
   INITIAL_SEARCH_CRITERIA,
   ListState,
 } from '../list.state';
-import { Subject, catchError, filter, map, merge, switchMap, tap } from 'rxjs';
+import {
+  Subject,
+  catchError,
+  combineLatest,
+  filter,
+  map,
+  merge,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MachineState } from '../machine-state.enum';
 import { Operation } from '../operation.type';
@@ -134,50 +143,70 @@ export class ListStoreService<T> {
           );
           return canOperate$.pipe(
             filter((canOperate) => canOperate),
-            switchMap(() =>
-              this.handler.operate(operation, item).pipe(
-                catchError((error) => onHandlerError(error, this.state)),
-                map((item) => ({ operation, item })),
-              ),
-            ),
-          );
-        }),
-        switchMap(({ operation, item }) => {
-          const mutateItems = this.handler.mutateItems?.(
-            operation,
-            item,
-            this.items(),
-            this.total(),
-            this.searchCriteria(),
-          );
+            switchMap(() => {
+              const mutateItems = this.handler.mutateItems?.(
+                operation,
+                item,
+                this.items(),
+                this.total(),
+                this.searchCriteria(),
+              );
 
-          if (!mutateItems) {
-            return this.handler.getList(INITIAL_SEARCH_CRITERIA).pipe(
-              catchError((error) => onHandlerError(error, this.state)),
-              map(({ items, total }) => ({ items, total, operation, item })),
-              tap(() =>
-                this.state.update((state) => ({
-                  ...state,
-                  searchCriteria: INITIAL_SEARCH_CRITERIA,
+              if (!mutateItems) {
+                return this.handler.operate(operation, item).pipe(
+                  catchError((error) => onHandlerError(error, this.state)),
+                  switchMap((item) =>
+                    this.handler.getList(INITIAL_SEARCH_CRITERIA).pipe(
+                      catchError((error) => onHandlerError(error, this.state)),
+                      tap(({ items, total }) =>
+                        this.state.update((state) => ({
+                          ...state,
+                          items,
+                          total,
+                          mode: MachineState.Idle,
+                          searchCriteria: INITIAL_SEARCH_CRITERIA,
+                        })),
+                      ),
+                      map(() => ({ operation, item })),
+                    ),
+                  ),
+                );
+              }
+
+              const { items: currentItems, total: currentTotal } = this.state();
+
+              const mutate$ = forceObservable(mutateItems).pipe(
+                tap(({ items, total }) =>
+                  this.state.update((state) => ({
+                    ...state,
+                    items,
+                    total,
+                    mode: MachineState.Idle,
+                  })),
+                ),
+                map(({ items, total }) => ({
+                  items,
+                  total,
+                  operation,
+                  item,
                 })),
-              ),
-            );
-          }
+              );
 
-          return forceObservable(mutateItems).pipe(
-            map(({ items, total }) => ({ items, total, operation, item })),
-            catchError((error) => onHandlerError(error, this.state)),
+              return combineLatest([
+                this.handler.operate(operation, item),
+                mutate$,
+              ]).pipe(
+                map(([item]) => ({ item, operation })),
+                catchError((error) =>
+                  onHandlerError(error, this.state, {
+                    items: currentItems,
+                    total: currentTotal,
+                  }),
+                ),
+              );
+            }),
           );
         }),
-        tap(({ items, total }) =>
-          this.state.update((state) => ({
-            ...state,
-            items,
-            total,
-            mode: MachineState.Idle,
-            error: undefined,
-          })),
-        ),
         switchMap(({ operation, item }) =>
           forceObservable(this.handler.onOperation?.(operation, item)),
         ),
