@@ -67,12 +67,12 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
   }
 
   mutateItems(
-    operation: Operation,
+    { type }: Operation,
     item: DiaryEvent,
     items: DiaryEvent[],
     total: number,
   ): void | ItemsMutation<DiaryEvent> {
-    switch (operation.type) {
+    switch (type) {
       case OperationType.Delete:
         return {
           items: items.filter((i) => i.id !== item.id),

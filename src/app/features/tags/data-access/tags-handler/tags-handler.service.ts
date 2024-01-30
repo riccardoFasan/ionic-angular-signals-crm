@@ -79,13 +79,13 @@ export class TagsHandlerService implements StoreHandler<Tag> {
   }
 
   mutateItems(
-    operation: Operation,
+    { type }: Operation,
     item: Tag,
     items: Tag[],
     total: number,
     searchCriteria: SearchCriteria,
   ): void | ItemsMutation<Tag> {
-    switch (operation.type) {
+    switch (type) {
       case OperationType.Create:
         return {
           items: pushSorted(item, items, searchCriteria),
