@@ -8,10 +8,9 @@ describe('ConsumptionInputComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConsumptionInputComponent]
-    })
-    .compileComponents();
-    
+      imports: [ConsumptionInputComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(ConsumptionInputComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -92,13 +92,13 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
   }
 
   mutateItems(
-    operation: Operation,
+    { type }: Operation,
     item: Ingredient,
     items: Ingredient[],
     total: number,
     searchCriteria: SearchCriteria,
   ): void | ItemsMutation<Ingredient> {
-    switch (operation.type) {
+    switch (type) {
       case OperationType.Create:
         return {
           items: pushSorted(item, items, searchCriteria),

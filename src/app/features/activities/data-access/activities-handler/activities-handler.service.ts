@@ -89,13 +89,13 @@ export class ActivitiesHandlerService implements StoreHandler<Activity> {
   }
 
   mutateItems(
-    operation: Operation,
+    { type }: Operation,
     item: Activity,
     items: Activity[],
     total: number,
     searchCriteria: SearchCriteria,
   ): void | ItemsMutation<Activity> {
-    switch (operation.type) {
+    switch (type) {
       case OperationType.Create:
         return {
           items: pushSorted(item, items, searchCriteria),
