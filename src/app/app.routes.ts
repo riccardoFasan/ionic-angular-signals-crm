@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { isInitializedGuard } from './shared/utility';
+import { initializationResolver } from './shared/utility';
 
 export const APP_ROUTES: Routes = [
   {
     path: '',
-    canActivateChild: [isInitializedGuard],
+    resolve: [initializationResolver],
     children: [
       {
         path: '',
