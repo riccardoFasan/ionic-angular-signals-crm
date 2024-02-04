@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import {
   DatabaseService,
   List,
+  NotFoundError,
   SearchCriteria,
   nowIsoString,
 } from 'src/app/shared/utility';
@@ -67,7 +68,7 @@ export class MealApiService {
     );
     const item = result?.values?.[0];
 
-    if (!item) throw new Error(`Not found meal with id ${id}.`);
+    if (!item) throw new NotFoundError(`Not found meal with id ${id}.`);
 
     return item;
   }
