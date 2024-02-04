@@ -1,4 +1,4 @@
-import { Injectable, effect, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Subject, defer, filter, switchMap, tap } from 'rxjs';
@@ -33,7 +33,8 @@ export class InitializerService {
   private mealApi = inject(MealApiService);
   private mealFoodApi = inject(MealFoodApiService);
 
-  private initialized = signal<boolean>(false);
+  private state = signal<{ initialized: boolean }>({ initialized: false });
+  initialized = computed<boolean>(() => this.state().initialized);
 
   readonly initialize$ = new Subject<void>();
 
@@ -42,9 +43,8 @@ export class InitializerService {
       .pipe(
         takeUntilDestroyed(),
         filter(() => !this.initialized()),
-        tap(() => this.initialized.set(false)),
         switchMap(() => defer(() => this.initDatabase())),
-        tap(() => this.initialized.set(true)),
+        tap(() => this.state.set({ initialized: true })),
       )
       .subscribe();
 

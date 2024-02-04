@@ -118,7 +118,7 @@ import { InitializerService } from './shared/utility';
             </ion-list>
           </ion-content>
         </ion-menu>
-        <ion-router-outlet id="main-content"></ion-router-outlet>
+        <ion-router-outlet id="main-content" />
       </ion-split-pane>
     </ion-app>
   `,
@@ -227,7 +227,7 @@ import { InitializerService } from './shared/utility';
   ],
 })
 export class AppComponent {
-  private initializer = inject(InitializerService);
+  protected initializer = inject(InitializerService);
 
   constructor() {
     this.initializer.initialize$.next();

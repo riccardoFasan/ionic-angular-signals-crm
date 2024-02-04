@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import {
   DatabaseService,
   List,
+  NotFoundError,
   SearchCriteria,
   nowIsoString,
 } from 'src/app/shared/utility';
@@ -70,7 +71,7 @@ export class ActivityApiService {
     );
     const item = result?.values?.[0];
 
-    if (!item) throw new Error(`Not found activity with id ${id}.`);
+    if (!item) throw new NotFoundError(`Not found activity with id ${id}.`);
 
     return item;
   }

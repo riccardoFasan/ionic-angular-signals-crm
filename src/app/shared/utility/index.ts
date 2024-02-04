@@ -1,6 +1,7 @@
 export * from './database/database.service';
 export * from './database/not-found.error';
 export * from './initializer/initializer.service';
+export * from './initializer/is-initialized.guard';
 export * from './alerts/alerts.service';
 export * from './toasts/toasts.service';
 export * from './list.type';
