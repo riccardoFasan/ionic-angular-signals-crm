@@ -11,9 +11,9 @@ export class DiaryApiService {
 
   async getList(searchCriteria: SearchCriteria): Promise<List<DiaryEventDTO>> {
     let selectQuery = `SELECT * FROM (
-      SELECT meal.id, meal.created_at, meal.updated_at, meal.name, meal.at, NULL as icon, NULL as color, 'MEAL' as type FROM meal
+      SELECT meal.id, meal.created_at, meal.updated_at, meal.name, meal.at, NULL as end, NULL as icon, NULL as color, 'MEAL' as type FROM meal
       UNION ALL
-      SELECT activity.id, activity.created_at, activity.updated_at, activity.name, activity.at, activity_type.icon, activity_type.color, 'ACTIVITY' as type
+      SELECT activity.id, activity.created_at, activity.updated_at, activity.name, activity.at, activity.end, activity_type.icon, activity_type.color, 'ACTIVITY' as type
       FROM activity JOIN activity_type ON activity.activity_type_id = activity_type.id
     ) AS diary_events`;
 
@@ -58,8 +58,8 @@ export class DiaryApiService {
   async get(id: number, type: DiaryEventType): Promise<DiaryEventDTO> {
     const query =
       type === DiaryEventType.Meal
-        ? `SELECT meal.id, meal.created_at, meal.updated_at, meal.name, meal.at, NULL as icon, NULL as color, 'MEAL' as type FROM meal WHERE meal.id = ${id}`
-        : `SELECT activity.id, activity.created_at, activity.updated_at, activity.name, activity.at, activity_type.icon, activity_type.color, 'ACTIVITY' as type
+        ? `SELECT meal.id, meal.created_at, meal.updated_at, meal.name, meal.at, NULL as end, NULL as icon, NULL as color, 'MEAL' as type FROM meal WHERE meal.id = ${id}`
+        : `SELECT activity.id, activity.created_at, activity.updated_at, activity.name, activity.at, activity.end, activity_type.icon, activity_type.color, 'ACTIVITY' as type
     FROM activity JOIN activity_type ON activity.activity_type_id = activity_type.id WHERE activity.id = ${id}`;
 
     const result = await this.database.query(query);

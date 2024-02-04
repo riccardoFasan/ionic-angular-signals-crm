@@ -25,8 +25,6 @@ import {
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 import { MealModalsService } from '../../meals/utility';
 import { ActivityModalsService } from '../../activities/utility';
-import { Meal } from '../../meals/data-access';
-import { Activity } from '../../activities/data-access';
 import {
   DiaryEvent,
   DiaryEventType,
@@ -93,10 +91,16 @@ import { DatePipe } from '@angular/common';
                 [ios]="(item | diaryEventIcon) + '-outline'"
                 slot="start"
               />
-              <ion-label>{{ item.name }}</ion-label>
-              <ion-text color="medium" slot="end">
-                {{ item.at | date: 'dd/MM/YYYY HH:mm' }}
-              </ion-text>
+              <div>
+                <ion-label>{{ item.name }}</ion-label>
+                <ion-text color="medium">
+                  {{ item.at | date: 'dd/MM/YYYY HH:mm' }}
+                  @if (item.end && item.end !== item.at) {
+                    -
+                    {{ item.end | date: 'dd/MM/YYYY HH:mm' }}
+                  }
+                </ion-text>
+              </div>
             </ion-item>
             <ion-item-options>
               <ion-item-option (click)="[openModal(item), itemSliding.close()]">
