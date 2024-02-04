@@ -5,6 +5,7 @@ export type DiaryEventDTO = {
   created_at: string;
   updated_at: string;
   at: string;
+  end?: string;
   color?: string;
   icon?: string;
 };

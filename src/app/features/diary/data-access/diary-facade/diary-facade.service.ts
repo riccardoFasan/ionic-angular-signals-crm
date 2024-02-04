@@ -51,6 +51,7 @@ export class DiaryFacadeService {
       updatedAt: new Date(dto.updated_at),
       name: dto.name,
       at: new Date(dto.at),
+      end: dto.end ? new Date(dto.end) : undefined,
       type: dto.type as DiaryEventType,
       icon: dto.icon,
       color: dto.color,

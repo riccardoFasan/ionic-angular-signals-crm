@@ -9,6 +9,7 @@ export type Activity = {
   at: Date;
   type: ActivityType;
   tags: Tag[];
+  end?: Date;
   notes?: string;
 };
 

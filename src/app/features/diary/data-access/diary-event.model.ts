@@ -7,6 +7,7 @@ export type DiaryEvent = {
   createdAt: Date;
   updatedAt: Date;
   at: Date;
+  end?: Date;
   color?: string;
   icon?: string;
 };

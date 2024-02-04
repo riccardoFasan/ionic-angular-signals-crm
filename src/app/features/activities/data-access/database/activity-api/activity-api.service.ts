@@ -21,6 +21,7 @@ export class ActivityApiService {
         updated_at TEXT NOT NULL,
         name TEXT NOT NULL,
         at TEXT NOT NULL,
+        end TEXT,
         notes TEXT,
         activity_type_id INTEGER NOT NULL,
         FOREIGN KEY (activity_type_id) REFERENCES activity_type (id)
@@ -79,10 +80,11 @@ export class ActivityApiService {
     at: string,
     activityTypeId: number,
     notes?: string,
+    end?: string,
   ): Promise<number> {
     const result = await this.database.query(
-      `INSERT INTO activity (created_at, updated_at, name, at, notes, activity_type_id)
-      VALUES ("${nowIsoString()}", "${nowIsoString()}", "${name}", "${at}", "${notes}", ${activityTypeId}) RETURNING *;`,
+      `INSERT INTO activity (created_at, updated_at, name, at, end, notes, activity_type_id)
+      VALUES ("${nowIsoString()}", "${nowIsoString()}", "${name}", "${at}", "${end}", "${notes}", ${activityTypeId}) RETURNING *;`,
     );
     return result.values?.[0].id;
   }
@@ -93,10 +95,11 @@ export class ActivityApiService {
     at: string,
     activityTypeId: number,
     notes?: string,
+    end?: string,
   ): Promise<void> {
     await this.database.query(
       `UPDATE activity
-      SET updated_at = "${nowIsoString()}", name = "${name}", at = "${at}", notes = "${notes}", activity_type_id = ${activityTypeId}
+      SET updated_at = "${nowIsoString()}", name = "${name}", at = "${at}", end = "${end}" notes = "${notes}", activity_type_id = ${activityTypeId}
       WHERE id = ${id};`,
     );
   }
