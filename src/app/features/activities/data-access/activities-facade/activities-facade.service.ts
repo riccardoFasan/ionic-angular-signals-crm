@@ -67,12 +67,14 @@ export class ActivitiesFacadeService {
     type,
     tags,
     notes,
+    end,
   }: CreateActivityFormData): Promise<Activity> {
     const id = await this.activityApi.create(
       name,
       at.toISOString(),
       type.id,
       notes,
+      end && end.toISOString(),
     );
 
     if (tags) {
@@ -85,10 +87,17 @@ export class ActivitiesFacadeService {
 
   async update(
     id: number,
-    { name, at, type, tags, notes }: UpdateActivityFormData,
+    { name, at, type, tags, notes, end }: UpdateActivityFormData,
   ): Promise<Activity> {
     await Promise.all([
-      this.activityApi.update(id, name, at.toISOString(), type.id, notes),
+      this.activityApi.update(
+        id,
+        name,
+        at.toISOString(),
+        type.id,
+        notes,
+        end && end.toISOString(),
+      ),
       this.updateTags(id, tags),
     ]);
     return await this.get(id);
@@ -158,6 +167,7 @@ export class ActivitiesFacadeService {
       updatedAt: new Date(activityDTO.updated_at),
       name: activityDTO.name,
       at: new Date(activityDTO.at),
+      end: activityDTO.end ? new Date(activityDTO.end) : undefined,
       notes: activityDTO.notes,
       type,
       tags,

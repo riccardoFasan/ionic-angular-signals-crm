@@ -56,7 +56,7 @@ type ConsumptionWithRef = Partial<Consumption> & WithRef;
         <ion-item>
           <app-searchable-select
             appFoodsSelect
-            label="Consumptions"
+            label="Consumptions *"
             labelPlacement="stacked"
             placeholder="Choose a food"
             searchKey="name"

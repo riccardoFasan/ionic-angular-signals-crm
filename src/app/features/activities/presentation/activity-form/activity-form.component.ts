@@ -59,16 +59,24 @@ import { TagsSelectDirective } from 'src/app/features/tags/utility';
         </ion-item>
         <ion-item>
           <app-datetime-input
-            label="At"
+            label="At *"
             labelPlacement="stacked"
-            placeholder="Choose the date of the activity"
+            placeholder="Start date of the activity"
             formControlName="at"
+          />
+        </ion-item>
+        <ion-item>
+          <app-datetime-input
+            label="End"
+            labelPlacement="stacked"
+            placeholder="End date of the activity (optional)"
+            formControlName="end"
           />
         </ion-item>
         <ion-item>
           <app-searchable-select
             appActivityTypesSelect
-            label="Activity type"
+            label="Activity type *"
             labelPlacement="stacked"
             placeholder="Choose an activity type"
             formControlName="type"
@@ -86,7 +94,6 @@ import { TagsSelectDirective } from 'src/app/features/tags/utility';
             formControlName="tags"
             searchKey="name"
             multiple="true"
-            required="true"
           />
         </ion-item>
         <ion-item>
@@ -120,6 +127,7 @@ export class ActivityFormComponent {
     this.form.patchValue({
       name: item.name,
       at: item.at,
+      end: item.end,
       type: item.type,
       notes: item.notes,
       tags: item.tags,
@@ -133,6 +141,7 @@ export class ActivityFormComponent {
   protected form = new FormGroup({
     name: new FormControl<string>('', Validators.required),
     at: new FormControl<Date>(new Date(), Validators.required),
+    end: new FormControl<Date | null>(null),
     type: new FormControl<ActivityType | null>(null, Validators.required),
     tags: new FormControl<Tag[]>([]),
     notes: new FormControl<string>(''),
@@ -143,6 +152,7 @@ export class ActivityFormComponent {
     const formData = {
       name: this.form.value.name || '',
       at: this.form.value.at || new Date(),
+      end: this.form.value.end || '',
       type: this.form.value.type || '',
       tags: this.form.value.tags || [],
       notes: this.form.value.notes || '',

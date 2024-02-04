@@ -59,7 +59,6 @@ import { IngredientsSelectDirective } from 'src/app/features/ingredients/utility
             formControlName="ingredients"
             searchKey="name"
             multiple="true"
-            required="true"
           />
         </ion-item>
         <ion-item>

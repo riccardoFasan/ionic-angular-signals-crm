@@ -5,5 +5,6 @@ export type ActivityDTO = {
   name: string;
   at: string;
   activity_type_id: number;
+  end?: Date;
   notes?: string;
 };
