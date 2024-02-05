@@ -46,6 +46,7 @@ export class TagsFacadeService {
       createdAt: new Date(dto.created_at),
       updatedAt: new Date(dto.updated_at),
       name: dto.name,
+      color: dto.color,
     };
   }
 
