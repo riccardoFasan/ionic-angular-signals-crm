@@ -187,8 +187,6 @@ export class ConsumptionInputComponent implements ControlValueAccessor {
         typeof consumption.quantity === 'number',
     ) as Consumption[];
 
-    this.onChange?.(
-      values.map((value) => ({ food: value.food, quantity: value.quantity })),
-    );
+    this.onChange?.(values.map(({ food, quantity }) => ({ food, quantity })));
   }
 }
