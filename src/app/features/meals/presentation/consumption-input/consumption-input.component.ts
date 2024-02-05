@@ -132,7 +132,7 @@ type ConsumptionWithRef = Partial<Consumption> & WithRef;
 export class ConsumptionInputComponent implements ControlValueAccessor {
   // TODO: make impossible to select the same food twice or show an error
 
-  private readonly newConsumption: ConsumptionWithRef = { ref: 0 };
+  private readonly newConsumption: ConsumptionWithRef = { ref: 0, quantity: 1 };
   protected consumptions = signal<ConsumptionWithRef[]>([]);
 
   private onChange!: (values: Consumption[]) => void;
