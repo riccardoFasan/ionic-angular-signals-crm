@@ -17,7 +17,6 @@ import {
 } from '@ionic/angular/standalone';
 import {
   ListStoreService,
-  Operation,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
@@ -76,17 +75,17 @@ import { ActivityTypesModalsService } from '../utility';
               <ion-label>{{ item.name }}</ion-label>
             </ion-item>
 
-            <ion-item-options>
-              <ion-item-option
-                (click)="[openModal(item.id), itemSliding.close()]"
-              >
-                Edit
-              </ion-item-option>
+            <ion-item-options side="start">
               <ion-item-option
                 (click)="[remove(item), itemSliding.close()]"
                 color="danger"
               >
                 Delete
+              </ion-item-option>
+            </ion-item-options>
+            <ion-item-options side="end">
+              <ion-item-option (click)="[openModal(item), itemSliding.close()]">
+                Edit
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
