@@ -1,4 +1,4 @@
-import { Pagination, SearchCriteria } from '../utility';
+import { Pagination, SearchCriteria, SortOrder } from '../utility';
 import { MachineState } from './machine-state.enum';
 
 export type ListState<T> = {
@@ -17,6 +17,7 @@ export const INITIAL_LIST_PAGINATION: Pagination = {
 export const INITIAL_SEARCH_CRITERIA: SearchCriteria = {
   filters: {},
   pagination: INITIAL_LIST_PAGINATION,
+  sorting: { property: 'name', order: SortOrder.Ascending },
 };
 
 export const INITIAL_LIST_STATE: ListState<any> = {

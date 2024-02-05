@@ -26,7 +26,7 @@ export class DetailStoreService<T> {
   private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
-  private state = signal<DetailState<T>>(INITIAL_DETAIL_STATE);
+  private state = signal<DetailState<T>>(this.initialState);
 
   item = computed<T | undefined>(() => this.state().item);
   mode = computed<MachineState>(() => this.state().mode);
@@ -139,5 +139,12 @@ export class DetailStoreService<T> {
       console.error({ error, message });
       this.toasts.error(message);
     });
+  }
+
+  private get initialState(): DetailState<T> {
+    return {
+      ...INITIAL_DETAIL_STATE,
+      ...this.handler.initialState?.detail,
+    };
   }
 }

@@ -2,8 +2,15 @@ import { Observable } from 'rxjs';
 import { List, SearchCriteria } from '../utility';
 import { Operation } from './operation.type';
 import { ItemsMutation } from './items-mutation.type';
+import { ListState } from './list.state';
+import { DetailState } from './detail.state';
 
 export interface StoreHandler<T> {
+  initialState?: {
+    list?: Partial<ListState<T>>;
+    detail?: Partial<DetailState<T>>;
+  };
+
   extractId(item: T): number;
   extractName(item: T): string;
   get(id: number): Observable<T>;
