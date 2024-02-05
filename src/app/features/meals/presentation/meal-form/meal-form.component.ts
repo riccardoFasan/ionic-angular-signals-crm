@@ -20,7 +20,7 @@ import {
   IonTextarea,
 } from '@ionic/angular/standalone';
 import { DatetimeInputComponent } from 'src/app/shared/presentation';
-import { Meal } from '../../data-access';
+import { Consumption, Meal } from '../../data-access';
 import { ConsumptionInputComponent } from '../consumption-input/consumption-input.component';
 
 @Component({
@@ -92,6 +92,7 @@ export class MealFormComponent {
       name: item.name,
       at: item.at,
       notes: item.notes,
+      consumptions: item.consumptions,
     });
   }
 
@@ -103,7 +104,7 @@ export class MealFormComponent {
     name: new FormControl<string>('', Validators.required),
     at: new FormControl<Date>(new Date(), Validators.required),
     notes: new FormControl<string>(''),
-    consumptions: new FormControl([], Validators.minLength(1)),
+    consumptions: new FormControl<Consumption[]>([], Validators.minLength(1)),
   });
 
   protected submit(): void {
@@ -114,6 +115,7 @@ export class MealFormComponent {
       notes: this.form.value.notes || '',
       consumptions: this.form.value.consumptions || [],
     };
+
     this.save.emit(formData);
   }
 }
