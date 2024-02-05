@@ -122,7 +122,7 @@ export class FoodFormComponent {
     const formData = {
       name: this.form.value.name || '',
       ingredients: this.form.value.ingredients || [],
-      calories: this.form.value.calories || 0,
+      calories: this.form.value.calories || null,
       notes: this.form.value.notes || '',
     };
     this.save.emit(formData);
