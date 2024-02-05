@@ -83,7 +83,9 @@ import { TagModalsService } from '../utility';
               </ion-item-option>
             </ion-item-options>
             <ion-item-options side="end">
-              <ion-item-option (click)="[openModal(item), itemSliding.close()]">
+              <ion-item-option
+                (click)="[openModal(item.id), itemSliding.close()]"
+              >
                 Edit
               </ion-item-option>
             </ion-item-options>
