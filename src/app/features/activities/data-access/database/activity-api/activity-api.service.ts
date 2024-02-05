@@ -100,7 +100,7 @@ export class ActivityApiService {
   ): Promise<void> {
     await this.database.query(
       `UPDATE activity
-      SET updated_at = "${nowIsoString()}", name = "${name}", at = "${at}", end = "${end}" notes = "${notes}", activity_type_id = ${activityTypeId}
+      SET updated_at = "${nowIsoString()}", name = "${name}", at = "${at}", end = "${end}", notes = "${notes}", activity_type_id = ${activityTypeId}
       WHERE id = ${id};`,
     );
   }
