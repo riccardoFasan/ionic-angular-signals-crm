@@ -11,9 +11,11 @@ import {
   List,
   ToastsService,
   AlertsService,
+  SortOrder,
 } from 'src/app/shared/utility';
 import { DiaryEvent } from '../diary-event.model';
 import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
+import { INITIAL_SEARCH_CRITERIA } from '../../../../shared/data-access/list.state';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +24,15 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
   private diaryFacade = inject(DiaryFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
+
+  initialState = {
+    list: {
+      searchCriteria: {
+        ...INITIAL_SEARCH_CRITERIA,
+        sorting: { property: 'at', order: SortOrder.Descending },
+      },
+    },
+  };
 
   extractId(item: DiaryEvent): number {
     return item.id;

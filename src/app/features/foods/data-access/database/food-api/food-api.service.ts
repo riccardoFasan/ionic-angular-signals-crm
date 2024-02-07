@@ -75,8 +75,8 @@ export class FoodApiService {
 
   async create(
     name: string,
-    notes: string = '',
-    calories: number = 0,
+    notes?: string,
+    calories?: number,
   ): Promise<number> {
     const result = await this.database.query(
       `INSERT INTO food (created_at, updated_at, name, notes, calories)
@@ -88,8 +88,8 @@ export class FoodApiService {
   async update(
     id: number,
     name: string,
-    notes: string = '',
-    calories: number = 0,
+    notes?: string,
+    calories?: number,
   ): Promise<void> {
     await this.database.query(
       `UPDATE food
