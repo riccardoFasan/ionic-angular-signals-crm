@@ -14,11 +14,8 @@ import {
 import { IonButton, ModalController } from '@ionic/angular/standalone';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
 import { MealFormComponent } from '../meal-form/meal-form.component';
-import {
-  CreateMealFormData,
-  MealsHandlerService,
-  UpdateMealFormData,
-} from '../../data-access';
+import { CreateMealFormData, UpdateMealFormData } from '../../data-access';
+import { MealsHandlerDirective } from '../../utility';
 
 @Component({
   selector: 'app-meal-modal',
@@ -44,13 +41,8 @@ import {
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    DetailStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: MealsHandlerService,
-    },
-  ],
+  hostDirectives: [MealsHandlerDirective],
+  providers: [DetailStoreService],
 })
 export class MealModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);

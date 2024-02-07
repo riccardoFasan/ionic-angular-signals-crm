@@ -5,7 +5,7 @@ import {
   NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { Consumption } from '../../data-access';
-import { FoodsSelectDirective } from 'src/app/features/foods/utility';
+import { FoodsHandlerDirective } from 'src/app/features/foods/utility';
 import {
   IonButton,
   IonFab,
@@ -34,7 +34,7 @@ type ConsumptionWithRef = Partial<Consumption> & WithRef;
     IonInput,
     IonList,
     SearchableSelectComponent,
-    FoodsSelectDirective,
+    FoodsHandlerDirective,
     FormsModule,
   ],
   template: `
@@ -55,7 +55,7 @@ type ConsumptionWithRef = Partial<Consumption> & WithRef;
 
         <ion-item>
           <app-searchable-select
-            appFoodsSelect
+            appFoodsHandler
             label="Consumptions *"
             labelPlacement="stacked"
             placeholder="Choose a food"

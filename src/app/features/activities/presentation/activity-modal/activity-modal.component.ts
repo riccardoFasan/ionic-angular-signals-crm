@@ -9,16 +9,15 @@ import {
   DetailStoreService,
   Operation,
   OperationType,
-  STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import {
-  ActivitiesHandlerService,
   CreateActivityFormData,
   UpdateActivityFormData,
 } from '../../data-access';
 import { IonButton, ModalController } from '@ionic/angular/standalone';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
 import { ActivityFormComponent } from '../activity-form/activity-form.component';
+import { ActivitiesHandlerDirective } from '../../utility';
 
 @Component({
   selector: 'app-activity-modal',
@@ -37,20 +36,15 @@ import { ActivityFormComponent } from '../activity-form/activity-form.component'
       </ng-container>
       <app-activity-form
         [loading]="detailStore.mode() === 'PROCESSING'"
-        (save)="save($event)"
         [item]="detailStore.item()"
+        (save)="save($event)"
       />
     </app-detail-modal-wrapper>
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    DetailStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: ActivitiesHandlerService,
-    },
-  ],
+  hostDirectives: [ActivitiesHandlerDirective],
+  providers: [DetailStoreService],
 })
 export class ActivityModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);

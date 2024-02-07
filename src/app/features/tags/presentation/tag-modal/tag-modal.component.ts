@@ -10,12 +10,11 @@ import {
   DetailStoreService,
   Operation,
   OperationType,
-  STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { TagsHandlerService } from '../../data-access';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
 import { TagFormComponent } from '../tag-form/tag-form.component';
 import { CreateTagFormData, UpdateTagFormData } from '../../data-access';
+import { TagsHandlerDirective } from '../../utility';
 
 @Component({
   selector: 'app-tag-modal',
@@ -41,13 +40,8 @@ import { CreateTagFormData, UpdateTagFormData } from '../../data-access';
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    DetailStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: TagsHandlerService,
-    },
-  ],
+  hostDirectives: [TagsHandlerDirective],
+  providers: [DetailStoreService],
 })
 export class TagModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);

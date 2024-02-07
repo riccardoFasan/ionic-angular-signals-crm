@@ -10,15 +10,11 @@ import {
   DetailStoreService,
   Operation,
   OperationType,
-  STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import {
-  FoodsHandlerService,
-  CreateFoodFormData,
-  UpdateFoodFormData,
-} from '../../data-access';
+import { CreateFoodFormData, UpdateFoodFormData } from '../../data-access';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
 import { FoodFormComponent } from '../food-form/food-form.component';
+import { FoodsHandlerDirective } from '../../utility';
 
 @Component({
   selector: 'app-food-modal',
@@ -44,13 +40,8 @@ import { FoodFormComponent } from '../food-form/food-form.component';
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    DetailStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: FoodsHandlerService,
-    },
-  ],
+  hostDirectives: [FoodsHandlerDirective],
+  providers: [DetailStoreService],
 })
 export class FoodModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);

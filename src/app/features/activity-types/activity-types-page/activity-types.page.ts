@@ -20,9 +20,12 @@ import {
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { ActivityType, ActivityTypesHandlerService } from '../data-access';
+import { ActivityType } from '../data-access';
 import { ScrollableListComponent } from 'src/app/shared/presentation';
-import { ActivityTypesModalsService } from '../utility';
+import {
+  ActivityTypesHandlerDirective,
+  ActivityTypesModalsService,
+} from '../utility';
 
 @Component({
   selector: 'app-activity-types',
@@ -101,13 +104,8 @@ import { ActivityTypesModalsService } from '../utility';
       </ion-fab>
     </ion-content>
   `,
-  providers: [
-    ListStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: ActivityTypesHandlerService,
-    },
-  ],
+  hostDirectives: [ActivityTypesHandlerDirective],
+  providers: [ListStoreService],
   styles: [``],
 })
 export class ActivityTypesPage implements OnInit {

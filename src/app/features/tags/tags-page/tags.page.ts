@@ -20,9 +20,10 @@ import {
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { Tag, TagsHandlerService } from '../data-access';
+import { Tag } from '../data-access';
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 import { TagModalsService } from '../utility';
+import { TagsHandlerDirective } from '../utility/tags-handler/tags-handler.directive';
 
 @Component({
   selector: 'app-tags',
@@ -101,13 +102,8 @@ import { TagModalsService } from '../utility';
     </ion-content>
   `,
   styles: [``],
-  providers: [
-    ListStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: TagsHandlerService,
-    },
-  ],
+  hostDirectives: [TagsHandlerDirective],
+  providers: [ListStoreService],
 })
 export class TagsPage implements OnInit {
   protected listStore = inject(ListStoreService);

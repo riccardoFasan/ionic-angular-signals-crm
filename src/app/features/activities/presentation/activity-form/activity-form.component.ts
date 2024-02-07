@@ -22,12 +22,12 @@ import {
   IonList,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import { ActivityTypesSelectDirective } from 'src/app/features/activity-types/utility';
+import { ActivityTypesHandlerDirective } from 'src/app/features/activity-types/utility';
 import {
   DatetimeInputComponent,
   SearchableSelectComponent,
 } from 'src/app/shared/presentation';
-import { TagsSelectDirective } from 'src/app/features/tags/utility';
+import { TagsHandlerDirective } from 'src/app/features/tags/utility';
 
 @Component({
   selector: 'app-activity-form',
@@ -40,8 +40,8 @@ import { TagsSelectDirective } from 'src/app/features/tags/utility';
     IonInput,
     IonTextarea,
     ReactiveFormsModule,
-    ActivityTypesSelectDirective,
-    TagsSelectDirective,
+    ActivityTypesHandlerDirective,
+    TagsHandlerDirective,
     SearchableSelectComponent,
     DatetimeInputComponent,
   ],
@@ -75,7 +75,7 @@ import { TagsSelectDirective } from 'src/app/features/tags/utility';
         </ion-item>
         <ion-item>
           <app-searchable-select
-            appActivityTypesSelect
+            appActivityTypesHandler
             label="Activity type *"
             labelPlacement="stacked"
             placeholder="Choose an activity type"
@@ -87,7 +87,7 @@ import { TagsSelectDirective } from 'src/app/features/tags/utility';
         </ion-item>
         <ion-item>
           <app-searchable-select
-            appTagsSelect
+            appTagsHandler
             label="Tags"
             labelPlacement="stacked"
             placeholder="Choose some tag"
