@@ -10,15 +10,14 @@ import {
   DetailStoreService,
   OperationType,
   Operation,
-  STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import {
   CreateIngredientFormData,
-  IngredientsHandlerService,
   UpdateIngredientFormData,
 } from '../../data-access';
 import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
+import { IngredientsHandlerDirective } from '../../utility';
 
 @Component({
   selector: 'app-ingredient-modal',
@@ -44,13 +43,8 @@ import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    DetailStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: IngredientsHandlerService,
-    },
-  ],
+  hostDirectives: [IngredientsHandlerDirective],
+  providers: [DetailStoreService],
 })
 export class IngredientModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);

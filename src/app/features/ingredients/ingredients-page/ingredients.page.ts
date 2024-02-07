@@ -15,13 +15,16 @@ import {
   IonItemOption,
   IonItemOptions,
 } from '@ionic/angular/standalone';
-import { IngredientModalsService } from '../utility';
+import {
+  IngredientModalsService,
+  IngredientsHandlerDirective,
+} from '../utility';
 import {
   ListStoreService,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { Ingredient, IngredientsHandlerService } from '../data-access';
+import { Ingredient } from '../data-access';
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 
 @Component({
@@ -102,13 +105,8 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
     </ion-content>
   `,
   styles: [``],
-  providers: [
-    ListStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: IngredientsHandlerService,
-    },
-  ],
+  hostDirectives: [IngredientsHandlerDirective],
+  providers: [ListStoreService],
 })
 export class IngredientsPage implements OnInit {
   protected listStore = inject(ListStoreService);
