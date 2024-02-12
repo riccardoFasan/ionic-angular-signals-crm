@@ -9,7 +9,6 @@ import {
   DetailStoreService,
   Operation,
   OperationType,
-  STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import { IonButton, ModalController } from '@ionic/angular/standalone';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
