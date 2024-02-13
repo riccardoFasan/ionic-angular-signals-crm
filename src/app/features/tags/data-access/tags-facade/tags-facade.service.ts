@@ -10,10 +10,12 @@ export class TagsFacadeService {
   private tagApi = inject(TagApiService);
 
   async getList(searchCriteria: SearchCriteria): Promise<List<Tag>> {
-    const filters = this.mapToApiFilters(searchCriteria.filters);
     const list = await this.tagApi.getList({
       ...searchCriteria,
-      filters,
+      filters: {
+        ...searchCriteria.filters,
+        query: this.mapToApiFilters(searchCriteria.filters.query),
+      },
     });
     const items = list.items.map((dto) => this.mapFromDTO(dto));
     return { ...list, items };
@@ -50,7 +52,9 @@ export class TagsFacadeService {
     };
   }
 
-  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
+  private mapToApiFilters(
+    filters: SearchFilters['query'],
+  ): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),

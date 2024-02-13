@@ -15,10 +15,12 @@ export class DiaryFacadeService {
   private activitiesFacade = inject(ActivitiesFacadeService);
 
   async getList(searchCriteria: SearchCriteria): Promise<List<DiaryEvent>> {
-    const filters = this.mapToApiFilters(searchCriteria.filters);
     const list = await this.diaryApi.getList({
       ...searchCriteria,
-      filters,
+      filters: {
+        ...searchCriteria.filters,
+        query: this.mapToApiFilters(searchCriteria.filters.query),
+      },
     });
     return { ...list, items: list.items.map(this.mapFromDTO) };
   }
@@ -36,7 +38,9 @@ export class DiaryFacadeService {
     return this.mapFromDTO(dto);
   }
 
-  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
+  private mapToApiFilters(
+    filters: SearchFilters['query'],
+  ): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),

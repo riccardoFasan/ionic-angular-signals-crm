@@ -186,7 +186,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
     const query = event.detail.value;
     if (query.length > 0 && query.length < 3) return;
     if (query) this.onTouched?.();
-    this.listStore.filters$.next({ [this.searchKey]: query });
+    this.listStore.query$.next({ [this.searchKey]: query });
   }
 
   protected toggleOption(option: Option): void {

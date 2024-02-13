@@ -36,13 +36,12 @@ export class ActivityTypeApiService {
     const { filters, sortings } = searchCriteria;
 
     if (filters) {
-      const filterClauses = Object.entries(filters)
+      const filterClauses = Object.entries(filters.query)
         .reduce((clauses: string[], [field, value]) => {
-          if (value !== undefined)
-            return [...clauses, `${field} LIKE '%${value}%'`];
-          return clauses;
+          if (value === undefined) return clauses;
+          return [...clauses, `${field} LIKE '%${value}%'`];
         }, [])
-        .join(' AND ');
+        .join(filters.clause);
       if (filterClauses) selectQuery += ` WHERE ${filterClauses}`;
     }
 

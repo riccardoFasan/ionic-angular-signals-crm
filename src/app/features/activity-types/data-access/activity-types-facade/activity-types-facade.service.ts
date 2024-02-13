@@ -14,10 +14,12 @@ export class ActivityTypesFacadeService {
   private activityTypeApi = inject(ActivityTypeApiService);
 
   async getList(searchCriteria: SearchCriteria): Promise<List<ActivityType>> {
-    const filters = this.mapToApiFilters(searchCriteria.filters);
     const list = await this.activityTypeApi.getList({
       ...searchCriteria,
-      filters,
+      filters: {
+        ...searchCriteria.filters,
+        query: this.mapToApiFilters(searchCriteria.filters.query),
+      },
     });
     const items = list.items.map((dto) => this.mapFromDTO(dto));
     return { ...list, items };
@@ -62,7 +64,9 @@ export class ActivityTypesFacadeService {
     };
   }
 
-  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
+  private mapToApiFilters(
+    filters: SearchFilters['query'],
+  ): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),
