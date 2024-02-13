@@ -4,6 +4,6 @@ import { Sorting } from './sorting.type';
 
 export type SearchCriteria = {
   pagination: Pagination;
-  sorting?: Sorting;
+  sortings?: Sorting[];
   filters: SearchFilters;
 };

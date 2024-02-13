@@ -33,7 +33,7 @@ export class ActivityTypeApiService {
     let selectQuery = `SELECT * FROM activity_type`;
     const countQuery = `SELECT COUNT(*) FROM activity_type;`;
 
-    const { filters, sorting } = searchCriteria;
+    const { filters, sortings } = searchCriteria;
 
     if (filters) {
       const filterClauses = Object.entries(filters)
@@ -46,8 +46,13 @@ export class ActivityTypeApiService {
       if (filterClauses) selectQuery += ` WHERE ${filterClauses}`;
     }
 
-    if (sorting) {
-      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    if (sortings && sortings.length > 0) {
+      selectQuery += ' ORDER BY ';
+
+      sortings.forEach(({ property, order }, i) => {
+        selectQuery += `${property} ${order}`;
+        if (i < sortings.length - 1) selectQuery += ', ';
+      });
     }
 
     const { pageIndex, pageSize } = searchCriteria.pagination;

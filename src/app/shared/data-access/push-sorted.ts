@@ -3,9 +3,9 @@ import { SearchCriteria, SearchFilters, SortOrder, Sorting } from '../utility';
 export function pushSorted<T>(
   item: T,
   items: T[],
-  { filters, sorting }: SearchCriteria,
+  { filters, sortings }: SearchCriteria,
   inCustomFilters?: (item: T, filters: SearchFilters) => boolean,
-  getCustomSortedIndex?: (item: T, items: T[], sorting?: Sorting) => number,
+  getCustomSortedIndex?: (item: T, items: T[], sortings?: Sorting[]) => number,
 ): T[] {
   if (filters) {
     const matchFilters = inCustomFilters
@@ -15,8 +15,8 @@ export function pushSorted<T>(
   }
 
   const sortedIndex =
-    getCustomSortedIndex?.(item, items, sorting) ??
-    getSortedIndex(item, items, sorting);
+    getCustomSortedIndex?.(item, items, sortings) ??
+    getSortedIndex(item, items, sortings);
 
   // add item and remove last so pagination is respected
   return items.splice(sortedIndex, items.length, item);
@@ -29,10 +29,13 @@ function inFilters<T>(item: T, filters: SearchFilters): boolean {
   });
 }
 
-function getSortedIndex<T>(item: T, items: T[], sorting?: Sorting): number {
-  if (!sorting) return items.length;
+function getSortedIndex<T>(
+  item: T,
+  items: T[],
+  sortings: Sorting[] = [],
+): number {
+  if (!sortings) return items.length;
 
-  const { property, order } = sorting;
   const record = item as Record<string, string | number | boolean | Date>;
 
   for (let i = 0; i < items.length; i++) {
@@ -42,15 +45,11 @@ function getSortedIndex<T>(item: T, items: T[], sorting?: Sorting): number {
     >;
 
     if (
-      order === SortOrder.Ascending &&
-      record[property] < listRecord[property]
-    ) {
-      return i;
-    }
-
-    if (
-      order === SortOrder.Descending &&
-      record[property] > listRecord[property]
+      sortings.every(({ property, order }) =>
+        order === SortOrder.Ascending
+          ? record[property] < listRecord[property]
+          : record[property] > listRecord[property],
+      )
     ) {
       return i;
     }

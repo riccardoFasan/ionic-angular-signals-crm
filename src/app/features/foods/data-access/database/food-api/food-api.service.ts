@@ -30,7 +30,7 @@ export class FoodApiService {
     let selectQuery = `SELECT * FROM food`;
     const countQuery = `SELECT COUNT(*) FROM food;`;
 
-    const { filters, sorting } = searchCriteria;
+    const { filters, sortings } = searchCriteria;
 
     if (filters) {
       const filterClauses = Object.entries(filters)
@@ -43,8 +43,13 @@ export class FoodApiService {
       if (filterClauses) selectQuery += ` WHERE ${filterClauses}`;
     }
 
-    if (sorting) {
-      selectQuery += ` ORDER BY ${sorting.property} ${sorting.order}`;
+    if (sortings && sortings.length > 0) {
+      selectQuery += ' ORDER BY ';
+
+      sortings.forEach(({ property, order }, i) => {
+        selectQuery += `${property} ${order}`;
+        if (i < sortings.length - 1) selectQuery += ', ';
+      });
     }
 
     const { pageIndex, pageSize } = searchCriteria.pagination;
@@ -75,8 +80,8 @@ export class FoodApiService {
 
   async create(
     name: string,
-    notes: string = '',
-    calories: number = 0,
+    notes?: string,
+    calories?: number,
   ): Promise<number> {
     const result = await this.database.query(
       `INSERT INTO food (created_at, updated_at, name, notes, calories)
@@ -88,8 +93,8 @@ export class FoodApiService {
   async update(
     id: number,
     name: string,
-    notes: string = '',
-    calories: number = 0,
+    notes?: string,
+    calories?: number,
   ): Promise<void> {
     await this.database.query(
       `UPDATE food

@@ -22,7 +22,7 @@ import {
 import { Food } from '../../data-access';
 import { Ingredient } from 'src/app/features/ingredients/data-access';
 import { SearchableSelectComponent } from 'src/app/shared/presentation';
-import { IngredientsSelectDirective } from 'src/app/features/ingredients/utility';
+import { IngredientsHandlerDirective } from 'src/app/features/ingredients/utility';
 
 @Component({
   selector: 'app-food-form',
@@ -35,7 +35,7 @@ import { IngredientsSelectDirective } from 'src/app/features/ingredients/utility
     IonInput,
     IonTextarea,
     ReactiveFormsModule,
-    IngredientsSelectDirective,
+    IngredientsHandlerDirective,
     SearchableSelectComponent,
   ],
   template: `
@@ -52,7 +52,7 @@ import { IngredientsSelectDirective } from 'src/app/features/ingredients/utility
         </ion-item>
         <ion-item>
           <app-searchable-select
-            appIngredientsSelect
+            appIngredientsHandler
             label="Ingredients"
             labelPlacement="stacked"
             placeholder="Choose some ingredient"
@@ -122,7 +122,7 @@ export class FoodFormComponent {
     const formData = {
       name: this.form.value.name || '',
       ingredients: this.form.value.ingredients || [],
-      calories: this.form.value.calories || 0,
+      calories: this.form.value.calories || null,
       notes: this.form.value.notes || '',
     };
     this.save.emit(formData);

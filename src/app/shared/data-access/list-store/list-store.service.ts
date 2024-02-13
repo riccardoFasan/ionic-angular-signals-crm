@@ -4,15 +4,12 @@ import {
   ErrorInterpreterService,
   SearchCriteria,
   SearchFilters,
+  Sorting,
   ToastsService,
   forceObservable,
   onHandlerError,
 } from '../../utility';
-import {
-  INITIAL_LIST_STATE,
-  INITIAL_SEARCH_CRITERIA,
-  ListState,
-} from '../list.state';
+import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import {
   Subject,
   catchError,
@@ -34,7 +31,7 @@ export class ListStoreService<T> {
   private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
-  private state = signal<ListState<T>>(INITIAL_LIST_STATE);
+  private state = signal<ListState<T>>(this.initialState);
 
   items = computed<T[]>(() => this.state().items);
   searchCriteria = computed<SearchCriteria>(() => this.state().searchCriteria);
@@ -62,7 +59,7 @@ export class ListStoreService<T> {
   loadNextPage$ = new Subject<void>();
   filters$ = new Subject<SearchFilters>();
   operation$ = new Subject<{ operation: Operation; item?: T }>();
-  // TODO: sort
+  sortings$ = new Subject<Sorting[]>();
 
   constructor() {
     // refresh will reset paginations and filters because we're in an app
@@ -70,12 +67,22 @@ export class ListStoreService<T> {
     // if we were in a desktop crud app it would kept the current search criteria,
     // so it would be a different reducer
 
-    merge(this.refresh$, this.loadFirstPage$, this.filters$)
+    merge(
+      this.refresh$,
+      this.loadFirstPage$,
+      combineLatest([this.sortings$, this.filters$]).pipe(
+        map(([sortings, filters]) => ({ sortings, filters })),
+      ),
+    )
       .pipe(
         takeUntilDestroyed(),
-        map((filters) => ({
-          ...INITIAL_SEARCH_CRITERIA,
-          filters: filters || INITIAL_SEARCH_CRITERIA.filters,
+        map((searchCriteria) => ({
+          ...this.initialState.searchCriteria,
+          filters:
+            searchCriteria?.filters || this.initialState.searchCriteria.filters,
+          sortings:
+            searchCriteria?.sortings ||
+            this.initialState.searchCriteria.sortings,
         })),
         tap((searchCriteria) =>
           this.state.update((state) => ({
@@ -156,7 +163,7 @@ export class ListStoreService<T> {
                 return this.handler.operate(operation, item).pipe(
                   catchError((error) => onHandlerError(error, this.state)),
                   switchMap((item) =>
-                    this.handler.getList(INITIAL_SEARCH_CRITERIA).pipe(
+                    this.handler.getList(this.initialState.searchCriteria).pipe(
                       catchError((error) => onHandlerError(error, this.state)),
                       tap(({ items, total }) =>
                         this.state.update((state) => ({
@@ -164,7 +171,7 @@ export class ListStoreService<T> {
                           items,
                           total,
                           mode: MachineState.Idle,
-                          searchCriteria: INITIAL_SEARCH_CRITERIA,
+                          searchCriteria: this.initialState.searchCriteria,
                         })),
                       ),
                       map(() => ({ operation, item })),
@@ -224,5 +231,12 @@ export class ListStoreService<T> {
       if (!environment.production) console.error({ error, message });
       this.toasts.error(message);
     });
+  }
+
+  private get initialState(): ListState<T> {
+    return {
+      ...INITIAL_LIST_STATE,
+      ...this.handler.initialState?.list,
+    };
   }
 }

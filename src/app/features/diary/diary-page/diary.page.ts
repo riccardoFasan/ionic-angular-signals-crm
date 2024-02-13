@@ -25,13 +25,10 @@ import {
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 import { MealModalsService } from '../../meals/utility';
 import { ActivityModalsService } from '../../activities/utility';
-import {
-  DiaryEvent,
-  DiaryEventType,
-  DiaryHandlerService,
-} from '../data-access';
+import { DiaryEvent, DiaryEventType } from '../data-access';
 import { DiaryEventIconPipe } from '../presentation';
 import { DatePipe } from '@angular/common';
+import { DiaryHandlerDirective } from '../utility/diary-handler/diary-handler.directive';
 
 @Component({
   selector: 'app-diary',
@@ -102,15 +99,17 @@ import { DatePipe } from '@angular/common';
                 </ion-text>
               </div>
             </ion-item>
-            <ion-item-options>
-              <ion-item-option (click)="[openModal(item), itemSliding.close()]">
-                Edit
-              </ion-item-option>
+            <ion-item-options side="start">
               <ion-item-option
                 (click)="[remove(item), itemSliding.close()]"
                 color="danger"
               >
                 Delete
+              </ion-item-option>
+            </ion-item-options>
+            <ion-item-options side="end">
+              <ion-item-option (click)="[openModal(item), itemSliding.close()]">
+                Edit
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
@@ -137,13 +136,8 @@ import { DatePipe } from '@angular/common';
       font-size: 0.8rem;
     }
   `,
-  providers: [
-    ListStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: DiaryHandlerService,
-    },
-  ],
+  hostDirectives: [DiaryHandlerDirective],
+  providers: [ListStoreService],
 })
 export class DiaryPage implements OnInit {
   protected listStore = inject(ListStoreService);

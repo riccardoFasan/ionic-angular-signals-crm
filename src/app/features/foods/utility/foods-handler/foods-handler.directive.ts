@@ -3,8 +3,8 @@ import { STORE_HANDLER } from 'src/app/shared/data-access';
 import { FoodsHandlerService } from '../../data-access';
 
 @Directive({
-  selector: '[appFoodsSelect]',
+  selector: '[appFoodsHandler]',
   standalone: true,
   providers: [{ provide: STORE_HANDLER, useClass: FoodsHandlerService }],
 })
-export class FoodsSelectDirective {}
+export class FoodsHandlerDirective {}

@@ -10,15 +10,14 @@ import {
   DetailStoreService,
   Operation,
   OperationType,
-  STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import {
-  ActivityTypesHandlerService,
   CreateActivityTypeFormData,
   UpdateActivityTypeFormData,
 } from '../../data-access';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
 import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-form.component';
+import { ActivityTypesHandlerDirective } from '../../utility';
 
 @Component({
   selector: 'app-activity-type-modal',
@@ -44,13 +43,8 @@ import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-f
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    DetailStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: ActivityTypesHandlerService,
-    },
-  ],
+  hostDirectives: [ActivityTypesHandlerDirective],
+  providers: [DetailStoreService],
 })
 export class ActivityTypeModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);

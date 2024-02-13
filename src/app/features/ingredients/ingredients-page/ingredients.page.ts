@@ -15,13 +15,16 @@ import {
   IonItemOption,
   IonItemOptions,
 } from '@ionic/angular/standalone';
-import { IngredientModalsService } from '../utility';
+import {
+  IngredientModalsService,
+  IngredientsHandlerDirective,
+} from '../utility';
 import {
   ListStoreService,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { Ingredient, IngredientsHandlerService } from '../data-access';
+import { Ingredient } from '../data-access';
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 
 @Component({
@@ -75,17 +78,19 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
               <ion-label>{{ item.name }}</ion-label>
             </ion-item>
 
-            <ion-item-options>
-              <ion-item-option
-                (click)="[openModal(item.id), itemSliding.close()]"
-              >
-                Edit
-              </ion-item-option>
+            <ion-item-options side="start">
               <ion-item-option
                 (click)="[remove(item), itemSliding.close()]"
                 color="danger"
               >
                 Delete
+              </ion-item-option>
+            </ion-item-options>
+            <ion-item-options side="end">
+              <ion-item-option
+                (click)="[openModal(item.id), itemSliding.close()]"
+              >
+                Edit
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
@@ -100,13 +105,8 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
     </ion-content>
   `,
   styles: [``],
-  providers: [
-    ListStoreService,
-    {
-      provide: STORE_HANDLER,
-      useClass: IngredientsHandlerService,
-    },
-  ],
+  hostDirectives: [IngredientsHandlerDirective],
+  providers: [ListStoreService],
 })
 export class IngredientsPage implements OnInit {
   protected listStore = inject(ListStoreService);
