@@ -4,6 +4,7 @@ import {
   ErrorInterpreterService,
   SearchCriteria,
   SearchFilters,
+  Sorting,
   ToastsService,
   forceObservable,
   onHandlerError,
@@ -58,7 +59,7 @@ export class ListStoreService<T> {
   loadNextPage$ = new Subject<void>();
   filters$ = new Subject<SearchFilters>();
   operation$ = new Subject<{ operation: Operation; item?: T }>();
-  // TODO: sort
+  sortings$ = new Subject<Sorting[]>();
 
   constructor() {
     // refresh will reset paginations and filters because we're in an app
@@ -66,12 +67,22 @@ export class ListStoreService<T> {
     // if we were in a desktop crud app it would kept the current search criteria,
     // so it would be a different reducer
 
-    merge(this.refresh$, this.loadFirstPage$, this.filters$)
+    merge(
+      this.refresh$,
+      this.loadFirstPage$,
+      combineLatest([this.sortings$, this.filters$]).pipe(
+        map(([sortings, filters]) => ({ sortings, filters })),
+      ),
+    )
       .pipe(
         takeUntilDestroyed(),
-        map((filters) => ({
+        map((searchCriteria) => ({
           ...this.initialState.searchCriteria,
-          filters: filters || this.initialState.searchCriteria.filters,
+          filters:
+            searchCriteria?.filters || this.initialState.searchCriteria.filters,
+          sortings:
+            searchCriteria?.sortings ||
+            this.initialState.searchCriteria.sortings,
         })),
         tap((searchCriteria) =>
           this.state.update((state) => ({
