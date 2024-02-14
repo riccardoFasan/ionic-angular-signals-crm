@@ -75,11 +75,6 @@ export class ListStoreService<T> {
   );
 
   constructor() {
-    // refresh will reset paginations and filters because we're in an app
-    // with infinite scroll,
-    // if we were in a desktop crud app it would kept the current search criteria,
-    // so it would be a different reducer
-
     merge(this.refresh$, this.loadFirstPage$, this.searchCriteria$)
       .pipe(
         takeUntilDestroyed(),
