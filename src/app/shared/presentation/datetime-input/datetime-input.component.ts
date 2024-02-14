@@ -66,20 +66,20 @@ import {
       width: 100%;
 
       ion-input {
-        user-select: none
+        user-select: none;
       }
     }
-      
+
     ion-modal {
       &::part(content) {
         background: transparent;
       }
-      
+
       &::part(backdrop) {
         --backdrop-opacity: 0.75;
       }
     }
-    
+
     div:has(ion-datetime) {
       position: absolute;
       top: 50%;
@@ -87,7 +87,7 @@ import {
       transform: translateY(-50%) translateX(-50%);
       width: 100%;
       background: transparent;
-      
+
       ion-datetime {
         max-width: unset;
       }

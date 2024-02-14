@@ -108,7 +108,7 @@ type ConsumptionWithRef = Partial<Consumption> & WithRef;
         right: 1.25rem;
 
         ion-fab-button {
-          height: 1.5rem; 
+          height: 1.5rem;
           width: 1.5rem;
           --background: transparent;
 

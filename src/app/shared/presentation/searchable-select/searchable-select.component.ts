@@ -108,7 +108,7 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
   styles: `
     :host {
       display: block;
-      width: 100%
+      width: 100%;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
