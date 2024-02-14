@@ -58,6 +58,7 @@ export class ListStoreService<T> {
   refresh$ = new Subject<void>();
   loadFirstPage$ = new Subject<void>();
   loadNextPage$ = new Subject<void>();
+  params$ = new Subject<SearchCriteria['params']>();
   query$ = new Subject<SearchFilters['query']>();
   filterClause$ = new Subject<FilterClause>();
   operation$ = new Subject<{ operation: Operation; item?: T }>();
@@ -65,10 +66,13 @@ export class ListStoreService<T> {
 
   private searchCriteria$ = combineLatest([
     this.sortings$,
+    this.params$,
     combineLatest([this.query$, this.filterClause$]).pipe(
       map(([query, clause]) => ({ query, clause })),
     ),
-  ]).pipe(map(([sortings, filters]) => ({ sortings, filters })));
+  ]).pipe(
+    map(([sortings, params, filters]) => ({ sortings, params, filters })),
+  );
 
   constructor() {
     // refresh will reset paginations and filters because we're in an app
@@ -81,11 +85,8 @@ export class ListStoreService<T> {
         takeUntilDestroyed(),
         map((searchCriteria) => ({
           ...this.initialState.searchCriteria,
-          filters:
-            searchCriteria?.filters || this.initialState.searchCriteria.filters,
-          sortings:
-            searchCriteria?.sortings ||
-            this.initialState.searchCriteria.sortings,
+          ...(searchCriteria || {}),
+          pagination: this.initialState.searchCriteria.pagination,
         })),
         tap((searchCriteria) =>
           this.state.update((state) => ({
