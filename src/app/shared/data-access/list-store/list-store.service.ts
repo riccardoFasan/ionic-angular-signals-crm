@@ -7,7 +7,9 @@ import {
   SearchFilters,
   Sorting,
   ToastsService,
+  isPageIndexInRange,
   forceObservable,
+  getSearchCriteriaWithPage,
   onHandlerError,
 } from '../../utility';
 import { INITIAL_LIST_STATE, ListState } from '../list.state';
@@ -40,24 +42,23 @@ export class ListStoreService<T> {
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
-  private nextPageSearchCriteria = computed<SearchCriteria>(() => {
+  pageItems = computed<T[]>(() => {
     const { pagination } = this.searchCriteria();
-    const nextPageIndex = pagination.pageIndex + 1;
-    return {
-      ...this.searchCriteria(),
-      pagination: { ...pagination, pageIndex: nextPageIndex },
-    };
+    const { pageIndex, pageSize } = pagination;
+    return this.items().slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
   });
 
   canLoadNextPage = computed<boolean>(() => {
-    const { pagination } = this.nextPageSearchCriteria();
+    const { total, searchCriteria } = this.state();
+    const { pagination } = searchCriteria;
     const { pageIndex, pageSize } = pagination;
-    return pageIndex * pageSize < this.total();
+    return isPageIndexInRange(pageIndex + 1, pageSize, total);
   });
 
   refresh$ = new Subject<void>();
   loadFirstPage$ = new Subject<void>();
   loadNextPage$ = new Subject<void>();
+  loadPage$ = new Subject<number>();
   params$ = new Subject<SearchCriteria['params']>();
   query$ = new Subject<SearchFilters['query']>();
   filterClause$ = new Subject<FilterClause>();
@@ -107,29 +108,53 @@ export class ListStoreService<T> {
       )
       .subscribe();
 
+    this.loadPage$
+      .pipe(
+        takeUntilDestroyed(),
+        filter((pageIndex) =>
+          isPageIndexInRange(
+            pageIndex,
+            this.searchCriteria().pagination.pageSize,
+            this.total(),
+          ),
+        ),
+        // update state definition in order to save the order of item batches, so items and pageItems will be computed from this
+        // if it's not in collection, fetch and update the state with searchCriteria and items
+        // if it's in collection, just update the state with searchCriteria
+
+        map((pageIndex) =>
+          getSearchCriteriaWithPage(pageIndex, this.searchCriteria()),
+        ),
+      )
+      .subscribe();
+
     this.loadNextPage$
       .pipe(
         takeUntilDestroyed(),
         filter(() => this.canLoadNextPage()),
+        map(() => {
+          const nextPage = this.searchCriteria().pagination.pageIndex + 1;
+          return getSearchCriteriaWithPage(nextPage, this.searchCriteria());
+        }),
         tap(() =>
           this.state.update((state) => ({
             ...state,
             mode: MachineState.Fetching,
           })),
         ),
-        switchMap(() =>
-          this.handler
-            .getList(this.nextPageSearchCriteria())
-            .pipe(catchError((error) => onHandlerError(error, this.state))),
-        ),
-        tap(({ items }) =>
-          this.state.update((state) => ({
-            ...state,
-            searchCriteria: this.nextPageSearchCriteria(),
-            items: [...state.items, ...items],
-            mode: MachineState.Idle,
-            error: undefined,
-          })),
+        switchMap((nextPageSearchCriteria) =>
+          this.handler.getList(nextPageSearchCriteria).pipe(
+            catchError((error) => onHandlerError(error, this.state)),
+            tap(({ items }) =>
+              this.state.update((state) => ({
+                ...state,
+                searchCriteria: nextPageSearchCriteria,
+                items: [...state.items, ...items],
+                mode: MachineState.Idle,
+                error: undefined,
+              })),
+            ),
+          ),
         ),
       )
       .subscribe();

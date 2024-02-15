@@ -17,3 +17,5 @@ export * from './with-ref.model';
 export * from './error-interpreter/error-interpreter.service';
 export * from './force-observable';
 export * from './filter-clause.enum';
+export * from './get-search-criteria-with-page';
+export * from './is-page-index-in-range';

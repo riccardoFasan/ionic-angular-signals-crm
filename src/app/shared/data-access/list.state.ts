@@ -33,7 +33,7 @@ export const INITIAL_SEARCH_CRITERIA: SearchCriteria = {
   sortings: INITIAL_LIST_SORTINGS,
 };
 
-export const INITIAL_LIST_STATE: ListState<any> = {
+export const INITIAL_LIST_STATE: ListState<never> = {
   items: [],
   total: 0,
   searchCriteria: INITIAL_SEARCH_CRITERIA,

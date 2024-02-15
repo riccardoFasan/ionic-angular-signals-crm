@@ -6,7 +6,7 @@ export type DetailState<T> = {
   error?: Error;
 };
 
-export const INITIAL_DETAIL_STATE: DetailState<any> = {
+export const INITIAL_DETAIL_STATE: DetailState<never> = {
   item: undefined,
   mode: MachineState.Idle,
 };
