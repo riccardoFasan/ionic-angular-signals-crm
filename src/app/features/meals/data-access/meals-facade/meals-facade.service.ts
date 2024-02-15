@@ -14,10 +14,12 @@ export class MealsFacadeService {
   private foodsFacade = inject(FoodsFacadeService);
 
   async getList(searchCriteria: SearchCriteria): Promise<List<Meal>> {
-    const filters = this.mapToApiFilters(searchCriteria.filters);
     const list = await this.mealApi.getList({
       ...searchCriteria,
-      filters,
+      filters: {
+        ...searchCriteria.filters,
+        query: this.mapToApiFilters(searchCriteria.filters.query),
+      },
     });
     const mealsConsumptions = await Promise.all(
       list.items.map((mealDTO) => this.getConsumptions(mealDTO.id)),
@@ -172,7 +174,9 @@ export class MealsFacadeService {
     };
   }
 
-  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
+  private mapToApiFilters(
+    filters: SearchFilters['query'],
+  ): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),

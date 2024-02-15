@@ -47,11 +47,11 @@ import {
     </ion-content>
   `,
   styles: `
-     :host {
-       height: 100%;
-     }
-   
-     ion-title ion-skeleton-text {
+    :host {
+      height: 100%;
+    }
+
+    ion-title ion-skeleton-text {
       width: 66%;
       height: 1.25rem;
     }
@@ -61,23 +61,23 @@ import {
 
       ion-skeleton-text {
         height: 1.5rem;
-        
-        &:not(:last-child)  {
+
+        &:not(:last-child) {
           margin-bottom: 0.75rem;
         }
-        
-        &:nth-child(1){
-          width: 75%
+
+        &:nth-child(1) {
+          width: 75%;
         }
-        
-        &:nth-child(2){
-          width: 66%
+
+        &:nth-child(2) {
+          width: 66%;
         }
-        
-        &:nth-child(3){
-          width: 80%
+
+        &:nth-child(3) {
+          width: 80%;
         }
-      } 
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

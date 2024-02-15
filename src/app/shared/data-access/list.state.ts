@@ -1,4 +1,10 @@
-import { Pagination, SearchCriteria, SortOrder, Sorting } from '../utility';
+import {
+  FilterClause,
+  Pagination,
+  SearchCriteria,
+  SortOrder,
+  Sorting,
+} from '../utility';
 import { MachineState } from './machine-state.enum';
 
 export type ListState<T> = {
@@ -19,7 +25,10 @@ export const INITIAL_LIST_SORTINGS: Sorting[] = [
 ];
 
 export const INITIAL_SEARCH_CRITERIA: SearchCriteria = {
-  filters: {},
+  filters: {
+    query: {},
+    clause: FilterClause.And,
+  },
   pagination: INITIAL_LIST_PAGINATION,
   sortings: INITIAL_LIST_SORTINGS,
 };

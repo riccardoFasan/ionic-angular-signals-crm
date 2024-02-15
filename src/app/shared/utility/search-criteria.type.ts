@@ -4,6 +4,9 @@ import { Sorting } from './sorting.type';
 
 export type SearchCriteria = {
   pagination: Pagination;
-  sortings?: Sorting[];
   filters: SearchFilters;
+  sortings?: Sorting[];
+
+  // meant to support custom edge cases not covered by the other properties
+  params?: Record<string, string | number | boolean>;
 };

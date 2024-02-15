@@ -2,10 +2,6 @@ import { Directive } from '@angular/core';
 
 @Directive({
   selector: '[appMealHandler]',
-  standalone: true
+  standalone: true,
 })
-export class MealHandlerDirective {
-
-  constructor() { }
-
-}
+export class MealHandlerDirective {}

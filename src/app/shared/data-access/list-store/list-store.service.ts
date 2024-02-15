@@ -2,6 +2,7 @@ import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { STORE_HANDLER } from '../store-handler.token';
 import {
   ErrorInterpreterService,
+  FilterClause,
   SearchCriteria,
   SearchFilters,
   Sorting,
@@ -57,32 +58,30 @@ export class ListStoreService<T> {
   refresh$ = new Subject<void>();
   loadFirstPage$ = new Subject<void>();
   loadNextPage$ = new Subject<void>();
-  filters$ = new Subject<SearchFilters>();
+  params$ = new Subject<SearchCriteria['params']>();
+  query$ = new Subject<SearchFilters['query']>();
+  filterClause$ = new Subject<FilterClause>();
   operation$ = new Subject<{ operation: Operation; item?: T }>();
   sortings$ = new Subject<Sorting[]>();
 
-  constructor() {
-    // refresh will reset paginations and filters because we're in an app
-    // with infinite scroll,
-    // if we were in a desktop crud app it would kept the current search criteria,
-    // so it would be a different reducer
+  private searchCriteria$ = combineLatest([
+    this.sortings$,
+    this.params$,
+    combineLatest([this.query$, this.filterClause$]).pipe(
+      map(([query, clause]) => ({ query, clause })),
+    ),
+  ]).pipe(
+    map(([sortings, params, filters]) => ({ sortings, params, filters })),
+  );
 
-    merge(
-      this.refresh$,
-      this.loadFirstPage$,
-      combineLatest([this.sortings$, this.filters$]).pipe(
-        map(([sortings, filters]) => ({ sortings, filters })),
-      ),
-    )
+  constructor() {
+    merge(this.refresh$, this.loadFirstPage$, this.searchCriteria$)
       .pipe(
         takeUntilDestroyed(),
         map((searchCriteria) => ({
           ...this.initialState.searchCriteria,
-          filters:
-            searchCriteria?.filters || this.initialState.searchCriteria.filters,
-          sortings:
-            searchCriteria?.sortings ||
-            this.initialState.searchCriteria.sortings,
+          ...(searchCriteria || {}),
+          pagination: this.initialState.searchCriteria.pagination,
         })),
         tap((searchCriteria) =>
           this.state.update((state) => ({

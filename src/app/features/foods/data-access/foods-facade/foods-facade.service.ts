@@ -16,10 +16,12 @@ export class FoodsFacadeService {
   private ingredientsFacade = inject(IngredientsFacadeService);
 
   async getList(searchCriteria: SearchCriteria): Promise<List<Food>> {
-    const filters = this.mapToApiFilters(searchCriteria.filters);
     const list = await this.foodApi.getList({
       ...searchCriteria,
-      filters,
+      filters: {
+        ...searchCriteria.filters,
+        query: this.mapToApiFilters(searchCriteria.filters.query),
+      },
     });
     const foodsIngredients = await Promise.all(
       list.items.map((foodDTO) => this.getIngredients(foodDTO.id)),
@@ -147,7 +149,9 @@ export class FoodsFacadeService {
     };
   }
 
-  private mapToApiFilters(filters: SearchFilters): Record<string, string> {
+  private mapToApiFilters(
+    filters: SearchFilters['query'],
+  ): Record<string, string> {
     return {
       ...filters,
       created_at: (filters['createdAt'] as Date)?.toISOString(),
