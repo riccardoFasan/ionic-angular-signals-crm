@@ -2,8 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   Output,
+  effect,
+  input,
 } from '@angular/core';
 import { Activity } from '../../data-access';
 import {
@@ -108,9 +109,9 @@ import { TagsHandlerDirective } from 'src/app/features/tags/utility';
       <ion-button
         type="submit"
         expand="block"
-        [disabled]="loading || (form.invalid && form.touched)"
+        [disabled]="loading() || (form.invalid && form.touched)"
       >
-        {{ data ? 'Edit' : 'Create' }}
+        {{ activity() ? 'Edit' : 'Create' }}
       </ion-button>
     </form>
   `,
@@ -118,25 +119,28 @@ import { TagsHandlerDirective } from 'src/app/features/tags/utility';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActivityFormComponent {
-  @Input() loading: boolean = false;
-
-  @Input() set item(item: Activity | undefined) {
-    if (!item) return;
-    this.data = item;
-
-    this.form.patchValue({
-      name: item.name,
-      at: item.at,
-      end: item.end,
-      type: item.type,
-      notes: item.notes,
-      tags: item.tags,
-    });
-  }
-
-  protected data?: Activity;
+  loading = input<boolean>(false);
+  activity = input<Activity>();
 
   @Output() save = new EventEmitter();
+
+  constructor() {
+    effect(
+      () => {
+        const activity = this.activity();
+        if (!activity) return;
+        this.form.patchValue({
+          name: activity.name,
+          at: activity.at,
+          end: activity.end,
+          type: activity.type,
+          notes: activity.notes,
+          tags: activity.tags,
+        });
+      },
+      { allowSignalWrites: true },
+    );
+  }
 
   protected form = new FormGroup({
     name: new FormControl<string>('', Validators.required),

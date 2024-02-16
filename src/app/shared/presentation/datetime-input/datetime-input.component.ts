@@ -2,9 +2,9 @@ import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
   computed,
   effect,
+  input,
   signal,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -31,9 +31,9 @@ import {
   ],
   template: `
     <ion-input
-      [label]="label"
-      [labelPlacement]="labelPlacement"
-      [placeholder]="placeholder"
+      [label]="label()"
+      [labelPlacement]="labelPlacement()"
+      [placeholder]="placeholder()"
       [value]="selected() | date: 'dd/MM/YYYY HH:mm'"
       readonly="true"
       (click)="open.set(true)"
@@ -103,9 +103,9 @@ import {
   ],
 })
 export class DatetimeInputComponent implements ControlValueAccessor {
-  @Input() label?: string;
-  @Input() labelPlacement?: string;
-  @Input() placeholder?: string;
+  label = input<string>();
+  labelPlacement = input<string>();
+  placeholder = input<string>();
 
   protected selected = signal<string | null>(null);
 

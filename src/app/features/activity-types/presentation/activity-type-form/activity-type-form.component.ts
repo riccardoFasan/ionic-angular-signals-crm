@@ -2,8 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   Output,
+  effect,
+  input,
 } from '@angular/core';
 import { ActivityType } from '../../data-access';
 import {
@@ -92,9 +93,9 @@ import {
       <ion-button
         type="submit"
         expand="block"
-        [disabled]="loading || (form.invalid && form.touched)"
+        [disabled]="loading() || (form.invalid && form.touched)"
       >
-        {{ data ? 'Edit' : 'Create' }}
+        {{ activityType() ? 'Edit' : 'Create' }}
       </ion-button>
     </form>
   `,
@@ -102,20 +103,23 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActivityTypeFormComponent {
-  @Input() loading: boolean = false;
+  loading = input<boolean>(false);
+  activityType = input<ActivityType>();
 
-  @Input() set item(item: ActivityType | undefined) {
-    if (!item) return;
-    this.data = item;
-
-    this.form.patchValue({
-      name: item.name,
-      icon: item.icon,
-      color: item.color,
-    });
+  constructor() {
+    effect(
+      () => {
+        const activityType = this.activityType();
+        if (!activityType) return;
+        this.form.patchValue({
+          name: activityType.name,
+          icon: activityType.icon,
+          color: activityType.color,
+        });
+      },
+      { allowSignalWrites: true },
+    );
   }
-
-  protected data?: ActivityType;
 
   @Output() save = new EventEmitter();
 

@@ -4,9 +4,10 @@ import {
   Component,
   ContentChild,
   EventEmitter,
-  Input,
   Output,
   TemplateRef,
+  effect,
+  input,
 } from '@angular/core';
 import {
   IonList,
@@ -39,14 +40,14 @@ import {
     </ion-refresher>
 
     <ion-list>
-      @for (item of items; track trackFn(item)) {
+      @for (item of items(); track trackFn()(item)) {
         <ng-container
           *ngTemplateOutlet="itemTemplateRef; context: { $implicit: item }"
         />
       }
     </ion-list>
 
-    @if (canLoadNextPage) {
+    @if (canLoadNextPage()) {
       <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
         <ion-infinite-scroll-content />
       </ion-infinite-scroll>
@@ -60,21 +61,25 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScrollableListComponent {
-  @Input({ required: true }) items: unknown[] = [];
-  @Input({ required: true }) trackFn!: (item: any) => string | number;
-  @Input() canLoadNextPage: boolean = true;
+  items = input.required<unknown[]>();
+  trackFn = input.required<(item: any) => string | number>();
 
-  @Input({ required: true }) set loading(loading: boolean) {
-    if (loading) return;
-    this.ionScrollEvent?.target.complete();
-    this.ionRefreshEvent?.target.complete();
-  }
+  loading = input.required<boolean>();
+  canLoadNextPage = input<boolean>(false);
 
   @ContentChild('itemTemplate')
   protected itemTemplateRef!: TemplateRef<unknown>;
 
   @Output() scrollEnd = new EventEmitter<void>();
   @Output() refresh = new EventEmitter<void>();
+
+  constructor() {
+    effect(() => {
+      if (this.loading()) return;
+      this.ionScrollEvent?.target.complete();
+      this.ionRefreshEvent?.target.complete();
+    });
+  }
 
   private ionScrollEvent?: InfiniteScrollCustomEvent;
   private ionRefreshEvent?: RefresherCustomEvent;

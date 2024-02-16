@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -25,10 +25,10 @@ import {
     <ion-header>
       <ion-toolbar>
         <ion-title>
-          @if (loading) {
+          @if (loading()) {
             <ion-skeleton-text animated="true" />
           } @else {
-            {{ title }}
+            {{ title() }}
           }
         </ion-title>
         <ion-buttons slot="end">
@@ -37,7 +37,7 @@ import {
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      @if (loading) {
+      @if (loading()) {
         <ion-skeleton-text animated="true" />
         <ion-skeleton-text animated="true" />
         <ion-skeleton-text animated="true" />
@@ -83,6 +83,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetailModalWrapperComponent {
-  @Input({ required: true }) title!: string;
-  @Input() loading: boolean = false;
+  title = input.required<string>();
+  loading = input<boolean>(false);
 }

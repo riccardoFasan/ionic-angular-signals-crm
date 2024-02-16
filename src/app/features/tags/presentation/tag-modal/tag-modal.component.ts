@@ -34,7 +34,7 @@ import { TagsHandlerDirective } from '../../utility';
       <app-tag-form
         [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [item]="detailStore.item()"
+        [tag]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,

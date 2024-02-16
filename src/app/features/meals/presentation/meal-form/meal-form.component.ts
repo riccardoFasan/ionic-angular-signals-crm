@@ -2,8 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   Output,
+  effect,
+  input,
 } from '@angular/core';
 import {
   FormControl,
@@ -72,9 +73,9 @@ import { ConsumptionInputComponent } from '../consumption-input/consumption-inpu
       <ion-button
         type="submit"
         expand="block"
-        [disabled]="loading || (form.invalid && form.touched)"
+        [disabled]="loading() || (form.invalid && form.touched)"
       >
-        {{ data ? 'Edit' : 'Create' }}
+        {{ meal() ? 'Edit' : 'Create' }}
       </ion-button>
     </form>
   `,
@@ -82,21 +83,24 @@ import { ConsumptionInputComponent } from '../consumption-input/consumption-inpu
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MealFormComponent {
-  @Input() loading: boolean = false;
+  loading = input<boolean>(false);
+  meal = input<Meal>();
 
-  @Input() set item(item: Meal | undefined) {
-    if (!item) return;
-    this.data = item;
-
-    this.form.patchValue({
-      name: item.name,
-      at: item.at,
-      notes: item.notes,
-      consumptions: item.consumptions,
-    });
+  constructor() {
+    effect(
+      () => {
+        const meal = this.meal();
+        if (!meal) return;
+        this.form.patchValue({
+          name: meal.name,
+          at: meal.at,
+          notes: meal.notes,
+          consumptions: meal.consumptions,
+        });
+      },
+      { allowSignalWrites: true },
+    );
   }
-
-  protected data?: Meal;
 
   @Output() save = new EventEmitter();
 
@@ -115,7 +119,6 @@ export class MealFormComponent {
       notes: this.form.value.notes || '',
       consumptions: this.form.value.consumptions || [],
     };
-
     this.save.emit(formData);
   }
 }

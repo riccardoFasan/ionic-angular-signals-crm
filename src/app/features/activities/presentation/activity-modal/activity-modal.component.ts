@@ -36,7 +36,7 @@ import { ActivitiesHandlerDirective } from '../../utility';
       </ng-container>
       <app-activity-form
         [loading]="detailStore.mode() === 'PROCESSING'"
-        [item]="detailStore.item()"
+        [activity]="detailStore.item()"
         (save)="save($event)"
       />
     </app-detail-modal-wrapper>
