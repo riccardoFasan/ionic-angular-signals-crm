@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { List, SearchCriteria } from '../utility';
+import { ItemsPage, List, SearchCriteria } from '../utility';
 import { Operation } from './operation.type';
 import { ItemsMutation } from './items-mutation.type';
 import { ListState } from './list.state';
@@ -28,7 +28,7 @@ export interface StoreHandler<T> {
   mutateItems?(
     operation: Operation,
     item: T,
-    items: T[],
+    pages: ItemsPage<T>[],
     total: number,
     searchCriteria: SearchCriteria,
   ): ItemsMutation<T> | void;

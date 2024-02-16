@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -69,7 +69,7 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
         [canLoadNextPage]="listStore.canLoadNextPage()"
         [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
-        (scrollEnd)="listStore.loadNextPage$.next()"
+        (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
       >
         <ng-template #itemTemplate let-item>
@@ -112,6 +112,10 @@ export class IngredientsPage implements OnInit {
   protected listStore = inject(ListStoreService);
   protected storeHandler = inject(STORE_HANDLER);
   protected ingredientModals = inject(IngredientModalsService);
+
+  protected nextPage = computed<number>(
+    () => this.listStore.searchCriteria().pagination.pageIndex + 1,
+  );
 
   protected trackFn = (item: Ingredient): number =>
     this.storeHandler.extractId(item);

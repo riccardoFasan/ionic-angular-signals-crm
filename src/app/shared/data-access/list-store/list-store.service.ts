@@ -2,13 +2,16 @@ import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { STORE_HANDLER } from '../store-handler.token';
 import {
   ErrorInterpreterService,
-  FilterClause,
   SearchCriteria,
   SearchFilters,
   Sorting,
   ToastsService,
+  isPageIndexInRange,
   forceObservable,
+  getSearchCriteriaWithPage,
   onHandlerError,
+  pushOrReplace,
+  FilterClause,
 } from '../../utility';
 import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import {
@@ -34,30 +37,35 @@ export class ListStoreService<T> {
 
   private state = signal<ListState<T>>(this.initialState);
 
-  items = computed<T[]>(() => this.state().items);
   searchCriteria = computed<SearchCriteria>(() => this.state().searchCriteria);
   total = computed<number>(() => this.state().total);
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
-  private nextPageSearchCriteria = computed<SearchCriteria>(() => {
+  items = computed<T[]>(() =>
+    this.state()
+      .pages.sort((a, b) => a.pageIndex - b.pageIndex)
+      .map((page) => page.items)
+      .flat(),
+  );
+
+  pageItems = computed<T[]>(() => {
     const { pagination } = this.searchCriteria();
-    const nextPageIndex = pagination.pageIndex + 1;
-    return {
-      ...this.searchCriteria(),
-      pagination: { ...pagination, pageIndex: nextPageIndex },
-    };
+    const { pageIndex } = pagination;
+    const pages = this.state().pages;
+    return pages.find((page) => page.pageIndex === pageIndex)?.items || [];
   });
 
   canLoadNextPage = computed<boolean>(() => {
-    const { pagination } = this.nextPageSearchCriteria();
+    const { total, searchCriteria } = this.state();
+    const { pagination } = searchCriteria;
     const { pageIndex, pageSize } = pagination;
-    return pageIndex * pageSize < this.total();
+    return isPageIndexInRange(pageIndex + 1, pageSize, total);
   });
 
   refresh$ = new Subject<void>();
   loadFirstPage$ = new Subject<void>();
-  loadNextPage$ = new Subject<void>();
+  loadPage$ = new Subject<number>();
   params$ = new Subject<SearchCriteria['params']>();
   query$ = new Subject<SearchFilters['query']>();
   filterClause$ = new Subject<FilterClause>();
@@ -98,7 +106,9 @@ export class ListStoreService<T> {
         tap(({ items, total }) =>
           this.state.update((state) => ({
             ...state,
-            items,
+            pages: [
+              { pageIndex: state.searchCriteria.pagination.pageIndex, items },
+            ],
             total,
             mode: MachineState.Idle,
             error: undefined,
@@ -107,29 +117,52 @@ export class ListStoreService<T> {
       )
       .subscribe();
 
-    this.loadNextPage$
+    this.loadPage$
       .pipe(
         takeUntilDestroyed(),
-        filter(() => this.canLoadNextPage()),
+        filter((pageIndex) =>
+          isPageIndexInRange(
+            pageIndex,
+            this.searchCriteria().pagination.pageSize,
+            this.total(),
+          ),
+        ),
+        map((pageIndex) =>
+          getSearchCriteriaWithPage(pageIndex, this.searchCriteria()),
+        ),
+        filter((searchCriteria) => {
+          const inCollection = this.state().pages.some(
+            (page) => page.pageIndex === searchCriteria.pagination.pageIndex,
+          );
+          if (inCollection) {
+            this.state.update((state) => ({ ...state, searchCriteria }));
+          }
+          return !inCollection;
+        }),
         tap(() =>
           this.state.update((state) => ({
             ...state,
             mode: MachineState.Fetching,
           })),
         ),
-        switchMap(() =>
-          this.handler
-            .getList(this.nextPageSearchCriteria())
-            .pipe(catchError((error) => onHandlerError(error, this.state))),
-        ),
-        tap(({ items }) =>
-          this.state.update((state) => ({
-            ...state,
-            searchCriteria: this.nextPageSearchCriteria(),
-            items: [...state.items, ...items],
-            mode: MachineState.Idle,
-            error: undefined,
-          })),
+        switchMap((searchCriteria) =>
+          this.handler.getList(searchCriteria).pipe(
+            catchError((error) => onHandlerError(error, this.state)),
+            tap(({ items }) =>
+              this.state.update((state) => ({
+                ...state,
+                searchCriteria,
+                pages: pushOrReplace(
+                  state.pages,
+                  { pageIndex: searchCriteria.pagination.pageIndex, items },
+                  (page) =>
+                    page.pageIndex === searchCriteria.pagination.pageIndex,
+                ),
+                mode: MachineState.Idle,
+                error: undefined,
+              })),
+            ),
+          ),
         ),
       )
       .subscribe();
@@ -153,7 +186,7 @@ export class ListStoreService<T> {
               const mutateItems = this.handler.mutateItems?.(
                 operation,
                 item,
-                this.items(),
+                this.state().pages,
                 this.total(),
                 this.searchCriteria(),
               );
@@ -164,34 +197,42 @@ export class ListStoreService<T> {
                   switchMap((item) =>
                     this.handler.getList(this.initialState.searchCriteria).pipe(
                       catchError((error) => onHandlerError(error, this.state)),
-                      tap(({ items, total }) =>
+                      tap(({ items, total }) => {
+                        const initialSearchCriteria =
+                          this.initialState.searchCriteria;
                         this.state.update((state) => ({
                           ...state,
-                          items,
+                          pages: [
+                            {
+                              pageIndex:
+                                initialSearchCriteria.pagination.pageIndex,
+                              items,
+                            },
+                          ],
                           total,
                           mode: MachineState.Idle,
-                          searchCriteria: this.initialState.searchCriteria,
-                        })),
-                      ),
+                          searchCriteria: initialSearchCriteria,
+                        }));
+                      }),
                       map(() => ({ operation, item })),
                     ),
                   ),
                 );
               }
 
-              const { items: currentItems, total: currentTotal } = this.state();
+              const { pages: currentPages, total: currentTotal } = this.state();
 
               const mutate$ = forceObservable(mutateItems).pipe(
-                tap(({ items, total }) =>
+                tap(({ pages, total }) =>
                   this.state.update((state) => ({
                     ...state,
-                    items,
+                    pages,
                     total,
                     mode: MachineState.Idle,
                   })),
                 ),
-                map(({ items, total }) => ({
-                  items,
+                map(({ pages, total }) => ({
+                  pages,
                   total,
                   operation,
                   item,
@@ -205,7 +246,7 @@ export class ListStoreService<T> {
                 map(([item]) => ({ item, operation })),
                 catchError((error) =>
                   onHandlerError(error, this.state, {
-                    items: currentItems,
+                    pages: currentPages,
                     total: currentTotal,
                   }),
                 ),

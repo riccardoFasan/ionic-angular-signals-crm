@@ -1,11 +1,12 @@
 import { Observable } from 'rxjs';
+import { ItemsPage } from '../utility';
 
 export type ItemsMutation<T> =
   | {
-      items: T[];
+      pages: ItemsPage<T>[];
       total: number;
     }
   | Observable<{
-      items: T[];
+      pages: ItemsPage<T>[];
       total: number;
     }>;

@@ -17,6 +17,9 @@ import {
   List,
   SearchCriteria,
   ToastsService,
+  removeSorted,
+  ItemsPage,
+  replaceItemInPages,
 } from 'src/app/shared/utility';
 import { Observable, defer } from 'rxjs';
 
@@ -96,26 +99,36 @@ export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
   mutateItems(
     { type }: Operation,
     item: ActivityType,
-    items: ActivityType[],
+    pages: ItemsPage<ActivityType>[],
     total: number,
     searchCriteria: SearchCriteria,
   ): void | ItemsMutation<ActivityType> {
     switch (type) {
       case OperationType.Create:
         return {
-          items: pushSorted(item, items, searchCriteria),
+          pages: pushSorted(item, pages, searchCriteria),
           total: total + 1,
         };
 
       case OperationType.Update:
         return {
-          items: items.map((i) => (i.id === item.id ? item : i)),
+          pages: replaceItemInPages(
+            item,
+            pages,
+            searchCriteria.pagination.pageIndex,
+            (item) => item.id,
+          ),
           total,
         };
 
       case OperationType.Delete:
         return {
-          items: items.filter((i) => i.id !== item.id),
+          pages: removeSorted(
+            item,
+            pages,
+            searchCriteria.pagination,
+            (item) => item.id,
+          ),
           total: total - 1,
         };
     }
