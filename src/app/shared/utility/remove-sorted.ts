@@ -4,21 +4,26 @@ import { Pagination } from './pagination.type';
 export function removeSorted<T>(
   item: T,
   pages: ItemsPage<T>[],
-  { pageIndex, pageSize }: Pagination,
+  { pageSize }: Pagination,
   extractId: (item: T) => number,
 ): ItemsPage<T>[] {
-  const items = pages.find((page) => page.pageIndex === pageIndex)?.items;
+  let page = pages.find((page) =>
+    page.items.some((i) => extractId(i) === extractId(item)),
+  );
 
-  if (!items) return pages;
+  if (!page) return pages;
 
-  const page = {
+  const pageIndex = page.pageIndex;
+
+  page = {
     pageIndex,
-    items: items.filter((i) => extractId(i) !== extractId(item)),
+    items: page.items.filter((i) => extractId(i) !== extractId(item)),
   };
 
-  pages = pages.map((p) => (p.pageIndex === pageIndex ? page : p));
+  pages = pages.map((p) => (p.pageIndex === pageIndex ? page! : p));
 
   const hasMorePages = pages.some((p) => p.pageIndex > pageIndex);
+
   if (!hasMorePages) return pages;
 
   return recursiveFillLastItem(pages, pageIndex, pageSize);

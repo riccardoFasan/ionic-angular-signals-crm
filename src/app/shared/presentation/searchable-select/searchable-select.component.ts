@@ -85,7 +85,7 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
             [canLoadNextPage]="listStore.canLoadNextPage()"
             [loading]="listStore.mode() === 'FETCHING'"
             [trackFn]="trackFn"
-            (scrollEnd)="listStore.loadNextPage$.next()"
+            (scrollEnd)="listStore.loadPage$.next(nextPage())"
             (refresh)="listStore.refresh$.next()"
           >
             <ng-template #itemTemplate let-item>
@@ -134,6 +134,10 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
 
   protected selected = signal<Option[]>([]);
   protected open = signal<boolean>(false);
+
+  protected nextPage = computed<number>(
+    () => this.listStore.searchCriteria().pagination.pageIndex + 1,
+  );
 
   protected options = computed<Option[]>(() =>
     this.listStore.items().map((value) => this.toOption(value)),

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -67,7 +67,7 @@ import { TagsHandlerDirective } from '../utility/tags-handler/tags-handler.direc
         [canLoadNextPage]="listStore.canLoadNextPage()"
         [loading]="listStore.mode() === 'FETCHING'"
         [trackFn]="trackFn"
-        (scrollEnd)="listStore.loadNextPage$.next()"
+        (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
       >
         <ng-template #itemTemplate let-item>
@@ -109,6 +109,10 @@ export class TagsPage implements OnInit {
   protected listStore = inject(ListStoreService);
   protected storeHandler = inject(STORE_HANDLER);
   protected tagModals = inject(TagModalsService);
+
+  protected nextPage = computed<number>(
+    () => this.listStore.searchCriteria().pagination.pageIndex + 1,
+  );
 
   protected trackFn = (item: Tag): number => this.storeHandler.extractId(item);
 

@@ -65,7 +65,6 @@ export class ListStoreService<T> {
 
   refresh$ = new Subject<void>();
   loadFirstPage$ = new Subject<void>();
-  loadNextPage$ = new Subject<void>();
   loadPage$ = new Subject<number>();
   params$ = new Subject<SearchCriteria['params']>();
   query$ = new Subject<SearchFilters['query']>();
@@ -107,7 +106,9 @@ export class ListStoreService<T> {
         tap(({ items, total }) =>
           this.state.update((state) => ({
             ...state,
-            items,
+            pages: [
+              { pageIndex: state.searchCriteria.pagination.pageIndex, items },
+            ],
             total,
             mode: MachineState.Idle,
             error: undefined,
@@ -129,6 +130,15 @@ export class ListStoreService<T> {
         map((pageIndex) =>
           getSearchCriteriaWithPage(pageIndex, this.searchCriteria()),
         ),
+        filter((searchCriteria) => {
+          const inCollection = this.state().pages.some(
+            (page) => page.pageIndex === searchCriteria.pagination.pageIndex,
+          );
+          if (inCollection) {
+            this.state.update((state) => ({ ...state, searchCriteria }));
+          }
+          return !inCollection;
+        }),
         tap(() =>
           this.state.update((state) => ({
             ...state,
@@ -141,53 +151,13 @@ export class ListStoreService<T> {
             tap(({ items }) =>
               this.state.update((state) => ({
                 ...state,
-                searchCriteria: searchCriteria,
+                searchCriteria,
                 pages: pushOrReplace(
                   state.pages,
-                  { pageIndex: searchCriteria.pagination.pageSize, items },
+                  { pageIndex: searchCriteria.pagination.pageIndex, items },
                   (page) =>
-                    page.pageIndex === searchCriteria.pagination.pageSize,
+                    page.pageIndex === searchCriteria.pagination.pageIndex,
                 ),
-                mode: MachineState.Idle,
-                error: undefined,
-              })),
-            ),
-          ),
-        ),
-        // update state definition in order to save the order of item batches, so items and pageItems will be computed from this
-        // if it's not in collection, fetch and update the state with searchCriteria and items
-        // if it's in collection, just update the state with searchCriteria
-      )
-      .subscribe();
-
-    this.loadNextPage$
-      .pipe(
-        takeUntilDestroyed(),
-        filter(() => this.canLoadNextPage()),
-        map(() => {
-          const nextPage = this.searchCriteria().pagination.pageIndex + 1;
-          return getSearchCriteriaWithPage(nextPage, this.searchCriteria());
-        }),
-        tap(() =>
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Fetching,
-          })),
-        ),
-        switchMap((nextPageSearchCriteria) =>
-          this.handler.getList(nextPageSearchCriteria).pipe(
-            catchError((error) => onHandlerError(error, this.state)),
-            tap(({ items }) =>
-              this.state.update((state) => ({
-                ...state,
-                searchCriteria: nextPageSearchCriteria,
-                pages: [
-                  ...state.pages,
-                  {
-                    pageIndex: nextPageSearchCriteria.pagination.pageSize,
-                    items,
-                  },
-                ],
                 mode: MachineState.Idle,
                 error: undefined,
               })),
