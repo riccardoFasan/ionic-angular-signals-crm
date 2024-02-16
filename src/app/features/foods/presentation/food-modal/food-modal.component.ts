@@ -34,7 +34,7 @@ import { FoodsHandlerDirective } from '../../utility';
       <app-food-form
         [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [item]="detailStore.item()"
+        [food]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,

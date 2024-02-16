@@ -2,8 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   Output,
+  effect,
+  input,
 } from '@angular/core';
 import { Tag } from '../../data-access';
 import {
@@ -70,9 +71,9 @@ import {
       <ion-button
         type="submit"
         expand="block"
-        [disabled]="loading || (form.invalid && form.touched)"
+        [disabled]="loading() || (form.invalid && form.touched)"
       >
-        {{ data ? 'Edit' : 'Create' }}
+        {{ tag() ? 'Edit' : 'Create' }}
       </ion-button>
     </form>
   `,
@@ -80,19 +81,22 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TagFormComponent {
-  @Input() loading: boolean = false;
+  loading = input<boolean>(false);
+  tag = input<Tag>();
 
-  @Input() set item(item: Tag | undefined) {
-    if (!item) return;
-    this.data = item;
-
-    this.form.patchValue({
-      name: item.name,
-      color: item.color,
-    });
+  constructor() {
+    effect(
+      () => {
+        const tag = this.tag();
+        if (!tag) return;
+        this.form.patchValue({
+          name: tag.name,
+          color: tag.color,
+        });
+      },
+      { allowSignalWrites: true },
+    );
   }
-
-  protected data?: Tag;
 
   @Output() save = new EventEmitter();
 

@@ -37,7 +37,7 @@ import { IngredientsHandlerDirective } from '../../utility';
       <app-ingredient-form
         [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [item]="detailStore.item()"
+        [ingredient]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,

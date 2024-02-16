@@ -2,8 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   Output,
+  effect,
+  input,
 } from '@angular/core';
 import {
   FormControl,
@@ -82,9 +83,9 @@ import { IngredientsHandlerDirective } from 'src/app/features/ingredients/utilit
       <ion-button
         type="submit"
         expand="block"
-        [disabled]="loading || (form.invalid && form.touched)"
+        [disabled]="loading() || (form.invalid && form.touched)"
       >
-        {{ data ? 'Edit' : 'Create' }}
+        {{ food() ? 'Edit' : 'Create' }}
       </ion-button>
     </form>
   `,
@@ -92,23 +93,26 @@ import { IngredientsHandlerDirective } from 'src/app/features/ingredients/utilit
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FoodFormComponent {
-  @Input() loading: boolean = false;
-
-  @Input() set item(item: Food | undefined) {
-    if (!item) return;
-    this.data = item;
-
-    this.form.patchValue({
-      name: item.name,
-      ingredients: item.ingredients,
-      calories: item.calories,
-      notes: item.notes,
-    });
-  }
-
-  protected data?: Food;
+  loading = input<boolean>(false);
+  food = input<Food>();
 
   @Output() save = new EventEmitter();
+
+  constructor() {
+    effect(
+      () => {
+        const food = this.food();
+        if (!food) return;
+        this.form.patchValue({
+          name: food.name,
+          ingredients: food.ingredients,
+          calories: food.calories,
+          notes: food.notes,
+        });
+      },
+      { allowSignalWrites: true },
+    );
+  }
 
   protected form = new FormGroup({
     name: new FormControl<string>('', Validators.required),

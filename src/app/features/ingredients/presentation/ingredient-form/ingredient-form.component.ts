@@ -2,8 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   Output,
+  effect,
+  input,
 } from '@angular/core';
 import {
   FormControl,
@@ -55,9 +56,9 @@ import { Ingredient } from '../../data-access';
       <ion-button
         type="submit"
         expand="block"
-        [disabled]="loading || (form.invalid && form.touched)"
+        [disabled]="loading() || (form.invalid && form.touched)"
       >
-        {{ data ? 'Edit' : 'Create' }}
+        {{ ingredient() ? 'Edit' : 'Create' }}
       </ion-button>
     </form>
   `,
@@ -65,19 +66,22 @@ import { Ingredient } from '../../data-access';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IngredientFormComponent {
-  @Input() loading: boolean = false;
+  loading = input<boolean>(false);
+  ingredient = input<Ingredient>();
 
-  @Input() set item(item: Ingredient | undefined) {
-    if (!item) return;
-    this.data = item;
-
-    this.form.patchValue({
-      name: item.name,
-      notes: item.notes,
-    });
+  constructor() {
+    effect(
+      () => {
+        const ingredient = this.ingredient();
+        if (!ingredient) return;
+        this.form.patchValue({
+          name: ingredient.name,
+          notes: ingredient.notes,
+        });
+      },
+      { allowSignalWrites: true },
+    );
   }
-
-  protected data?: Ingredient;
 
   @Output() save = new EventEmitter();
 

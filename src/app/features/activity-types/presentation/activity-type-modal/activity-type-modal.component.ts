@@ -37,7 +37,7 @@ import { ActivityTypesHandlerDirective } from '../../utility';
       <app-activity-type-form
         [loading]="detailStore.mode() === 'PROCESSING'"
         (save)="save($event)"
-        [item]="detailStore.item()"
+        [activityType]="detailStore.item()"
       />
     </app-detail-modal-wrapper>
   `,

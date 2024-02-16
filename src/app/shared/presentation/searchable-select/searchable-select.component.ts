@@ -1,11 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
   OnInit,
   booleanAttribute,
   computed,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { ListStoreService, STORE_HANDLER } from '../../data-access';
@@ -49,13 +49,13 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
   ],
   template: `
     <ion-input
-      [label]="label"
-      [labelPlacement]="labelPlacement"
-      [multiple]="multiple"
-      [placeholder]="placeholder"
+      [label]="label()"
+      [labelPlacement]="labelPlacement()"
+      [multiple]="multiple()"
+      [placeholder]="placeholder()"
       [value]="displayLabel()"
-      readonly="true"
       (click)="open.set(true)"
+      readonly="true"
     >
       <ion-icon aria-hidden="true" name="caret-down-sharp" slot="end" />
     </ion-input>
@@ -68,7 +68,7 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
               <ion-button (click)="open.set(false)">Done</ion-button>
             </ion-buttons>
             <ion-title>
-              {{ label }}
+              {{ label() }}
             </ion-title>
           </ion-toolbar>
           <ion-toolbar>
@@ -125,12 +125,16 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
   protected listStore = inject(ListStoreService);
   protected storeHandler = inject(STORE_HANDLER);
 
-  @Input({ required: true }) searchKey!: string;
-  @Input({ transform: booleanAttribute }) multiple: boolean = false;
-  @Input() label?: string;
-  @Input() labelPlacement?: string;
-  @Input() placeholder?: string;
-  @Input({ transform: booleanAttribute }) required: boolean = false;
+  searchKey = input.required<string>();
+  multiple = input<boolean, string>(false, {
+    transform: booleanAttribute,
+  });
+  label = input<string>();
+  labelPlacement = input<string>();
+  placeholder = input<string>();
+  readonly = input<boolean, string>(false, {
+    transform: booleanAttribute,
+  });
 
   protected selected = signal<Option[]>([]);
   protected open = signal<boolean>(false);
@@ -167,7 +171,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
 
     this.onTouched?.();
 
-    if (this.multiple) {
+    if (this.multiple()) {
       const values = value as unknown[];
       const selectedOptions = values.map((value) => this.toOption(value));
       this.selected.set(selectedOptions);
@@ -190,7 +194,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
     const query = event.detail.value;
     if (query.length > 0 && query.length < 3) return;
     if (query) this.onTouched?.();
-    this.listStore.query$.next({ [this.searchKey]: query });
+    this.listStore.query$.next({ [this.searchKey()]: query });
   }
 
   protected toggleOption(option: Option): void {
@@ -198,7 +202,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
     this.selected.set(selected);
 
     const values = selected.map((option) => option.value);
-    this.onChange?.(this.multiple ? values : values[0]);
+    this.onChange?.(this.multiple() ? values : values[0]);
   }
 
   private toOption(value: unknown): Option {
@@ -211,7 +215,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
     const selectedOptions = this.selected();
     const isSelected = selectedOptions.some((o) => o.ref === option.ref);
 
-    if (this.multiple) {
+    if (this.multiple()) {
       return isSelected
         ? selectedOptions.filter((o) => o.ref !== option.ref)
         : [...selectedOptions, option];
