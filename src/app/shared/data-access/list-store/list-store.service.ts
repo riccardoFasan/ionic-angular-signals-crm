@@ -2,7 +2,6 @@ import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { STORE_HANDLER } from '../store-handler.token';
 import {
   ErrorInterpreterService,
-  FilterClause,
   SearchCriteria,
   SearchFilters,
   Sorting,
@@ -11,6 +10,8 @@ import {
   forceObservable,
   getSearchCriteriaWithPage,
   onHandlerError,
+  pushOrReplace,
+  FilterClause,
 } from '../../utility';
 import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import {
@@ -36,16 +37,23 @@ export class ListStoreService<T> {
 
   private state = signal<ListState<T>>(this.initialState);
 
-  items = computed<T[]>(() => this.state().items);
   searchCriteria = computed<SearchCriteria>(() => this.state().searchCriteria);
   total = computed<number>(() => this.state().total);
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
+  items = computed<T[]>(() =>
+    this.state()
+      .pages.sort((a, b) => a.pageIndex - b.pageIndex)
+      .map((page) => page.items)
+      .flat(),
+  );
+
   pageItems = computed<T[]>(() => {
     const { pagination } = this.searchCriteria();
-    const { pageIndex, pageSize } = pagination;
-    return this.items().slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
+    const { pageIndex } = pagination;
+    const pages = this.state().pages;
+    return pages.find((page) => page.pageIndex === pageIndex)?.items || [];
   });
 
   canLoadNextPage = computed<boolean>(() => {
@@ -118,13 +126,37 @@ export class ListStoreService<T> {
             this.total(),
           ),
         ),
-        // update state definition in order to save the order of item batches, so items and pageItems will be computed from this
-        // if it's not in collection, fetch and update the state with searchCriteria and items
-        // if it's in collection, just update the state with searchCriteria
-
         map((pageIndex) =>
           getSearchCriteriaWithPage(pageIndex, this.searchCriteria()),
         ),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Fetching,
+          })),
+        ),
+        switchMap((searchCriteria) =>
+          this.handler.getList(searchCriteria).pipe(
+            catchError((error) => onHandlerError(error, this.state)),
+            tap(({ items }) =>
+              this.state.update((state) => ({
+                ...state,
+                searchCriteria: searchCriteria,
+                pages: pushOrReplace(
+                  state.pages,
+                  { pageIndex: searchCriteria.pagination.pageSize, items },
+                  (page) =>
+                    page.pageIndex === searchCriteria.pagination.pageSize,
+                ),
+                mode: MachineState.Idle,
+                error: undefined,
+              })),
+            ),
+          ),
+        ),
+        // update state definition in order to save the order of item batches, so items and pageItems will be computed from this
+        // if it's not in collection, fetch and update the state with searchCriteria and items
+        // if it's in collection, just update the state with searchCriteria
       )
       .subscribe();
 
@@ -149,7 +181,13 @@ export class ListStoreService<T> {
               this.state.update((state) => ({
                 ...state,
                 searchCriteria: nextPageSearchCriteria,
-                items: [...state.items, ...items],
+                pages: [
+                  ...state.pages,
+                  {
+                    pageIndex: nextPageSearchCriteria.pagination.pageSize,
+                    items,
+                  },
+                ],
                 mode: MachineState.Idle,
                 error: undefined,
               })),
@@ -178,7 +216,7 @@ export class ListStoreService<T> {
               const mutateItems = this.handler.mutateItems?.(
                 operation,
                 item,
-                this.items(),
+                this.state().pages,
                 this.total(),
                 this.searchCriteria(),
               );
@@ -189,34 +227,42 @@ export class ListStoreService<T> {
                   switchMap((item) =>
                     this.handler.getList(this.initialState.searchCriteria).pipe(
                       catchError((error) => onHandlerError(error, this.state)),
-                      tap(({ items, total }) =>
+                      tap(({ items, total }) => {
+                        const initialSearchCriteria =
+                          this.initialState.searchCriteria;
                         this.state.update((state) => ({
                           ...state,
-                          items,
+                          pages: [
+                            {
+                              pageIndex:
+                                initialSearchCriteria.pagination.pageIndex,
+                              items,
+                            },
+                          ],
                           total,
                           mode: MachineState.Idle,
-                          searchCriteria: this.initialState.searchCriteria,
-                        })),
-                      ),
+                          searchCriteria: initialSearchCriteria,
+                        }));
+                      }),
                       map(() => ({ operation, item })),
                     ),
                   ),
                 );
               }
 
-              const { items: currentItems, total: currentTotal } = this.state();
+              const { pages: currentPages, total: currentTotal } = this.state();
 
               const mutate$ = forceObservable(mutateItems).pipe(
-                tap(({ items, total }) =>
+                tap(({ pages, total }) =>
                   this.state.update((state) => ({
                     ...state,
-                    items,
+                    pages,
                     total,
                     mode: MachineState.Idle,
                   })),
                 ),
-                map(({ items, total }) => ({
-                  items,
+                map(({ pages, total }) => ({
+                  pages,
                   total,
                   operation,
                   item,
@@ -230,7 +276,7 @@ export class ListStoreService<T> {
                 map(([item]) => ({ item, operation })),
                 catchError((error) =>
                   onHandlerError(error, this.state, {
-                    items: currentItems,
+                    pages: currentPages,
                     total: currentTotal,
                   }),
                 ),

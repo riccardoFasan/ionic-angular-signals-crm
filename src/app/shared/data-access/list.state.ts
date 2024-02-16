@@ -1,5 +1,6 @@
 import {
   FilterClause,
+  ItemsPage,
   Pagination,
   SearchCriteria,
   SortOrder,
@@ -8,7 +9,7 @@ import {
 import { MachineState } from './machine-state.enum';
 
 export type ListState<T> = {
-  items: T[];
+  pages: ItemsPage<T>[];
   searchCriteria: SearchCriteria;
   total: number;
   mode: MachineState;
@@ -34,7 +35,7 @@ export const INITIAL_SEARCH_CRITERIA: SearchCriteria = {
 };
 
 export const INITIAL_LIST_STATE: ListState<never> = {
-  items: [],
+  pages: [],
   total: 0,
   searchCriteria: INITIAL_SEARCH_CRITERIA,
   mode: MachineState.Idle,

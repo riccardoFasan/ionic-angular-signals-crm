@@ -1,25 +1,51 @@
-import { SearchCriteria, SearchFilters, SortOrder, Sorting } from '../utility';
+import {
+  ItemsPage,
+  SearchCriteria,
+  SearchFilters,
+  SortOrder,
+  Sorting,
+} from '../utility';
 
 export function pushSorted<T>(
   item: T,
-  items: T[],
-  { filters, sortings }: SearchCriteria,
+  pages: ItemsPage<T>[],
+  { filters, sortings, pagination }: SearchCriteria,
   inCustomFilters?: (item: T, filters: SearchFilters) => boolean,
   getCustomSortedIndex?: (item: T, items: T[], sortings?: Sorting[]) => number,
-): T[] {
+): ItemsPage<T>[] {
   if (filters) {
     const matchFilters = inCustomFilters
       ? inCustomFilters(item, filters)
       : inFilters(item, filters);
-    if (!matchFilters) return items;
+    if (!matchFilters) return pages;
   }
+
+  const { pageSize, pageIndex } = pagination;
+
+  const items = pages.find((page) => page.pageIndex === pageIndex)?.items;
+
+  if (!items) {
+    return [...pages, { pageIndex, items: [item] }];
+  }
+
+  // the main idea is to isert the new item in its page.items and move the last, if present,
+  // to the next page and if the next page is full, move the last to the next page and so on
 
   const sortedIndex =
     getCustomSortedIndex?.(item, items, sortings) ??
     getSortedIndex(item, items, sortings);
 
-  // add item and remove last so pagination is respected
-  return items.splice(sortedIndex, items.length, item);
+  const page = {
+    pageIndex,
+    items: items.splice(sortedIndex, pageSize, item),
+  };
+
+  pages = pages.map((p) => (p.pageIndex === pageIndex ? page : p));
+
+  const lastItem = items[pageSize - 1];
+  if (!lastItem) return pages;
+
+  return recursiveInsertFirstItem(lastItem, pages, pageIndex + 1, pageSize);
 }
 
 function inFilters<T>(item: T, filters: SearchFilters): boolean {
@@ -56,4 +82,34 @@ function getSortedIndex<T>(
   }
 
   return items.length;
+}
+
+function recursiveInsertFirstItem<T>(
+  item: T,
+  pages: ItemsPage<T>[],
+  pageIndex: number,
+  pageSize: number,
+): ItemsPage<T>[] {
+  const page = pages.find((p) => p.pageIndex === pageIndex);
+  if (!page) return [...pages, { pageIndex, items: [item] }];
+  if (page.items.length < pageSize) {
+    return [
+      ...pages.map((p) =>
+        p.pageIndex === pageIndex
+          ? { pageIndex, items: [item, ...p.items] }
+          : p,
+      ),
+    ];
+  }
+  const lastItem = page.items[pageSize - 1];
+  const itemsUpdated = page.items.splice(0, pageSize, item);
+  const pagesUpdated = pages.map((p) =>
+    p.pageIndex === pageIndex ? { pageIndex, items: itemsUpdated } : p,
+  );
+  return recursiveInsertFirstItem(
+    lastItem,
+    pagesUpdated,
+    pageIndex + 1,
+    pageSize,
+  );
 }

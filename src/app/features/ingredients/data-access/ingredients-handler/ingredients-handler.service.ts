@@ -18,6 +18,9 @@ import {
   List,
   SearchCriteria,
   ToastsService,
+  removeSorted,
+  ItemsPage,
+  replaceItemInPages,
 } from 'src/app/shared/utility';
 
 @Injectable({
@@ -94,26 +97,36 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
   mutateItems(
     { type }: Operation,
     item: Ingredient,
-    items: Ingredient[],
+    pages: ItemsPage<Ingredient>[],
     total: number,
     searchCriteria: SearchCriteria,
   ): void | ItemsMutation<Ingredient> {
     switch (type) {
       case OperationType.Create:
         return {
-          items: pushSorted(item, items, searchCriteria),
+          pages: pushSorted(item, pages, searchCriteria),
           total: total + 1,
         };
 
       case OperationType.Update:
         return {
-          items: items.map((i) => (i.id === item.id ? item : i)),
+          pages: replaceItemInPages(
+            item,
+            pages,
+            searchCriteria.pagination.pageIndex,
+            (item) => item.id,
+          ),
           total,
         };
 
       case OperationType.Delete:
         return {
-          items: items.filter((i) => i.id !== item.id),
+          pages: removeSorted(
+            item,
+            pages,
+            searchCriteria.pagination,
+            (item) => item.id,
+          ),
           total: total - 1,
         };
     }

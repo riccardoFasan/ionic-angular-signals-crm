@@ -12,6 +12,8 @@ import {
   ToastsService,
   AlertsService,
   SortOrder,
+  ItemsPage,
+  removeSorted,
 } from 'src/app/shared/utility';
 import { DiaryEvent } from '../diary-event.model';
 import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
@@ -80,13 +82,19 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
   mutateItems(
     { type }: Operation,
     item: DiaryEvent,
-    items: DiaryEvent[],
+    pages: ItemsPage<DiaryEvent>[],
     total: number,
+    searchCriteria: SearchCriteria,
   ): void | ItemsMutation<DiaryEvent> {
     switch (type) {
       case OperationType.Delete:
         return {
-          items: items.filter((i) => i.id !== item.id),
+          pages: removeSorted(
+            item,
+            pages,
+            searchCriteria.pagination,
+            (item) => item.id,
+          ),
           total: total - 1,
         };
     }
