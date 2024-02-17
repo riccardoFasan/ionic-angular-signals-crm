@@ -5,7 +5,7 @@ import { ItemsMutation } from './items-mutation.type';
 import { ListState } from './list.state';
 import { DetailState } from './detail.state';
 
-export interface StoreHandler<T> {
+export interface StoreHandler<T, TExtended extends T = T> {
   initialState?: {
     list?: Partial<ListState<T>>;
     detail?: Partial<DetailState<T>>;
@@ -13,12 +13,17 @@ export interface StoreHandler<T> {
 
   extractId(item: T): number;
   extractName(item: T): string;
-  get(id: number): Observable<T>;
+  get(id: number): Observable<TExtended>;
   getList(searchCriteria: SearchCriteria): Observable<List<T>>;
 
-  canOperate?(operation: Operation, item?: T): Observable<boolean> | boolean;
-
-  operate(operation: Operation, item?: T): Observable<T>;
+  canOperate?(
+    operation: Operation,
+    item?: T | TExtended,
+  ): Observable<boolean> | boolean;
+  operate(
+    operation: Operation,
+    item?: T | TExtended,
+  ): Observable<T | TExtended>;
 
   // mutateItems is intended for optimistic updates.
   // pushSorted utility is meant to be used with create operations
@@ -34,7 +39,10 @@ export interface StoreHandler<T> {
   ): ItemsMutation<T> | void;
 
   // intended for side effects like toasts or redirections. Use operate for data management
-  onOperation?(operation: Operation, item: T): Observable<void> | void;
+  onOperation?(
+    operation: Operation,
+    item: T | TExtended,
+  ): Observable<void> | void;
 
-  interpretError?(error: Error, item?: T): string | undefined;
+  interpretError?(error: Error, item?: T | TExtended): string | undefined;
 }
