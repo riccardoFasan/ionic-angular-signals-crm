@@ -35,8 +35,8 @@ import {
       [labelPlacement]="labelPlacement()"
       [placeholder]="placeholder()"
       [value]="selected() | date: 'dd/MM/YYYY HH:mm'"
-      readonly="true"
       (click)="open.set(true)"
+      readonly="true"
     >
       <ion-icon
         aria-hidden="true"
