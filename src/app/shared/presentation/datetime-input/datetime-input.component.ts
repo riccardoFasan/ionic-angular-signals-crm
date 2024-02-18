@@ -4,38 +4,25 @@ import {
   Component,
   computed,
   effect,
+  inject,
   input,
   signal,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import {
-  IonBackdrop,
-  IonContent,
-  IonDatetime,
-  IonIcon,
-  IonInput,
-  IonModal,
-} from '@ionic/angular/standalone';
+import { IonIcon, IonInput } from '@ionic/angular/standalone';
+import { ModalsService } from '../../utility';
 
 @Component({
   selector: 'app-datetime-input',
   standalone: true,
-  imports: [
-    IonDatetime,
-    IonInput,
-    IonModal,
-    IonBackdrop,
-    IonContent,
-    IonIcon,
-    DatePipe,
-  ],
+  imports: [IonInput, IonIcon, DatePipe],
   template: `
     <ion-input
       [label]="label()"
       [labelPlacement]="labelPlacement()"
       [placeholder]="placeholder()"
       [value]="selected() | date: 'dd/MM/YYYY HH:mm'"
-      (click)="open.set(true)"
+      (click)="askDatetime()"
       readonly="true"
     >
       <ion-icon
@@ -45,20 +32,6 @@ import {
         slot="end"
       />
     </ion-input>
-
-    <ion-modal [isOpen]="open()" (willDismiss)="open.set(false)">
-      <ng-template>
-        <div class="ion-padding">
-          <ion-datetime
-            [value]="selected()"
-            (cancel)="open.set(false)"
-            (confirm)="open.set(false)"
-            (ionChange)="selected.set($any($event.detail.value))"
-            showDefaultButtons="true"
-          />
-        </div>
-      </ng-template>
-    </ion-modal>
   `,
   styles: `
     :host {
@@ -67,29 +40,7 @@ import {
 
       ion-input {
         user-select: none;
-      }
-    }
-
-    ion-modal {
-      &::part(content) {
-        background: transparent;
-      }
-
-      &::part(backdrop) {
-        --backdrop-opacity: 0.75;
-      }
-    }
-
-    div:has(ion-datetime) {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translateY(-50%) translateX(-50%);
-      width: 100%;
-      background: transparent;
-
-      ion-datetime {
-        max-width: unset;
+        z-index: 1;
       }
     }
   `,
@@ -103,6 +54,8 @@ import {
   ],
 })
 export class DatetimeInputComponent implements ControlValueAccessor {
+  private modals = inject(ModalsService);
+
   label = input<string>();
   labelPlacement = input<string>();
   placeholder = input<string>();
@@ -114,8 +67,6 @@ export class DatetimeInputComponent implements ControlValueAccessor {
     if (!selected) return null;
     return new Date(selected);
   });
-
-  protected open = signal<boolean>(false);
 
   private onChange!: (value: Date | null) => void;
   private onTouched!: () => void;
@@ -142,5 +93,10 @@ export class DatetimeInputComponent implements ControlValueAccessor {
 
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
+  }
+
+  protected async askDatetime(): Promise<void> {
+    const result = await this.modals.askDatetime(this.selected() || undefined);
+    if (result) this.selected.set(result);
   }
 }

@@ -114,7 +114,8 @@ export class FoodsPage implements OnInit {
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
   );
 
-  protected trackFn = (item: Food): number => this.storeHandler.extractId(item);
+  protected trackFn = (item: Food): number | string =>
+    this.storeHandler.extractId(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();

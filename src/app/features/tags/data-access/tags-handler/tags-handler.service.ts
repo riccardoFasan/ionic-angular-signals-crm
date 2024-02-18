@@ -82,7 +82,7 @@ export class TagsHandlerService implements StoreHandler<Tag> {
   }
 
   mutateItems(
-    { type }: Operation,
+    { type, payload }: Operation,
     item: Tag,
     pages: ItemsPage<Tag>[],
     total: number,
@@ -98,7 +98,7 @@ export class TagsHandlerService implements StoreHandler<Tag> {
       case OperationType.Update:
         return {
           pages: replaceItemInPages(
-            item,
+            { ...(payload as UpdateTagFormData), ...item },
             pages,
             searchCriteria.pagination.pageIndex,
             (item) => item.id,

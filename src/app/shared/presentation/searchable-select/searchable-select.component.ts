@@ -154,7 +154,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
     return labels.join(', ');
   });
 
-  protected trackFn = (option: Option): number => option.ref;
+  protected trackFn = (option: Option): number | string => option.ref;
 
   private onChange!: (value: unknown | unknown[]) => void;
   private onTouched!: () => void;

@@ -117,7 +117,7 @@ export class IngredientsPage implements OnInit {
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
   );
 
-  protected trackFn = (item: Ingredient): number =>
+  protected trackFn = (item: Ingredient): number | string =>
     this.storeHandler.extractId(item);
 
   ngOnInit(): void {
