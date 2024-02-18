@@ -84,7 +84,7 @@ export class FoodsHandlerService implements StoreHandler<Food> {
   }
 
   mutateItems(
-    { type }: Operation,
+    { type, payload }: Operation,
     item: Food,
     pages: ItemsPage<Food>[],
     total: number,
@@ -100,7 +100,7 @@ export class FoodsHandlerService implements StoreHandler<Food> {
       case OperationType.Update:
         return {
           pages: replaceItemInPages(
-            item,
+            { ...(payload as UpdateFoodFormData), ...item },
             pages,
             searchCriteria.pagination.pageIndex,
             (item) => item.id,

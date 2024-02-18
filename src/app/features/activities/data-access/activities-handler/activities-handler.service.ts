@@ -92,7 +92,7 @@ export class ActivitiesHandlerService implements StoreHandler<Activity> {
   }
 
   mutateItems(
-    { type }: Operation,
+    { type, payload }: Operation,
     item: Activity,
     pages: ItemsPage<Activity>[],
     total: number,
@@ -108,7 +108,7 @@ export class ActivitiesHandlerService implements StoreHandler<Activity> {
       case OperationType.Update:
         return {
           pages: replaceItemInPages(
-            item,
+            { ...(payload as UpdateActivityFormData), ...item },
             pages,
             searchCriteria.pagination.pageIndex,
             (item) => item.id,

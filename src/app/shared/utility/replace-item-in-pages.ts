@@ -4,7 +4,7 @@ export function replaceItemInPages<T>(
   item: T,
   pages: ItemsPage<T>[],
   pageIndex: number,
-  extractId: (item: T) => number,
+  extractId: (item: T) => number | string,
 ): ItemsPage<T>[] {
   return pages.map((p) =>
     p.pageIndex === pageIndex

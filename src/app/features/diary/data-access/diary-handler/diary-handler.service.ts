@@ -14,6 +14,7 @@ import {
   SortOrder,
   ItemsPage,
   removeSorted,
+  replaceItemInPages,
 } from 'src/app/shared/utility';
 import { DiaryEvent } from '../diary-event.model';
 import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
@@ -36,8 +37,8 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     },
   };
 
-  extractId(item: DiaryEvent): number {
-    return item.id;
+  extractId(item: DiaryEvent): string {
+    return item.ref;
   }
 
   extractName(item: DiaryEvent): string {
@@ -61,39 +62,56 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
         return defer(() =>
           this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
         );
-
       default:
         return true;
     }
   }
 
-  operate({ type }: Operation, item?: DiaryEvent): Observable<DiaryEvent> {
+  operate(
+    { type, payload }: Operation,
+    item?: DiaryEvent,
+  ): Observable<DiaryEvent> {
     switch (type) {
       case OperationType.Delete:
         if (!item) {
           throw new Error('Item is required for delete effects');
         }
-        return defer(() => this.diaryFacade.delete(item.id, item.type));
+        return defer(() => this.diaryFacade.delete(item.entityId, item.type));
+      case 'REORDER':
+        return defer(() =>
+          this.diaryFacade.reorder(item!.entityId, item!.type, payload as Date),
+        );
       default:
         throw new Error(`Operation not implemented for: ${type}`);
     }
   }
 
   mutateItems(
-    { type }: Operation,
+    { type, payload }: Operation,
     item: DiaryEvent,
     pages: ItemsPage<DiaryEvent>[],
     total: number,
     searchCriteria: SearchCriteria,
   ): void | ItemsMutation<DiaryEvent> {
     switch (type) {
+      case 'REORDER':
+        return {
+          pages: replaceItemInPages(
+            { ...item, at: payload as Date },
+            pages,
+            searchCriteria.pagination.pageIndex,
+            (item) => item.ref,
+          ),
+          total,
+        };
+
       case OperationType.Delete:
         return {
           pages: removeSorted(
             item,
             pages,
             searchCriteria.pagination,
-            (item) => item.id,
+            (item) => item.ref,
           ),
           total: total - 1,
         };
@@ -112,6 +130,8 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     switch (type) {
       case OperationType.Delete:
         return `Event ${item.name} deleted`;
+      case 'REORDER':
+        return `Event ${item.name} reordered`;
       default:
         throw new Error(`getMessage not implemented for: ${type}`);
     }
