@@ -5,7 +5,7 @@ export function removeSorted<T>(
   item: T,
   pages: ItemsPage<T>[],
   { pageSize }: Pagination,
-  extractId: (item: T) => number,
+  extractId: (item: T) => number | string,
 ): ItemsPage<T>[] {
   let page = pages.find((page) =>
     page.items.some((i) => extractId(i) === extractId(item)),

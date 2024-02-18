@@ -29,6 +29,7 @@ import { DiaryEvent, DiaryEventType } from '../data-access';
 import { DiaryEventIconPipe } from '../presentation';
 import { DatePipe } from '@angular/common';
 import { DiaryHandlerDirective } from '../utility/diary-handler/diary-handler.directive';
+import { ModalsService } from 'src/app/shared/utility';
 
 @Component({
   selector: 'app-diary',
@@ -111,6 +112,9 @@ import { DiaryHandlerDirective } from '../utility/diary-handler/diary-handler.di
               <ion-item-option (click)="[openModal(item), itemSliding.close()]">
                 Edit
               </ion-item-option>
+              <ion-item-option (click)="[reorder(item), itemSliding.close()]">
+                Reorder
+              </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
         </ng-template>
@@ -144,12 +148,13 @@ export class DiaryPage implements OnInit {
   protected storeHandler = inject(STORE_HANDLER);
   protected mealModals = inject(MealModalsService);
   protected activityModals = inject(ActivityModalsService);
+  protected modals = inject(ModalsService);
 
   protected nextPage = computed<number>(
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
   );
 
-  protected trackFn = (item: DiaryEvent): number =>
+  protected trackFn = (item: DiaryEvent): number | string =>
     this.storeHandler.extractId(item);
 
   ngOnInit(): void {
@@ -163,12 +168,12 @@ export class DiaryPage implements OnInit {
     });
   }
 
-  protected async openModal({ id, type }: DiaryEvent): Promise<void> {
+  protected async openModal({ entityId, type }: DiaryEvent): Promise<void> {
     if (type === DiaryEventType.Meal) {
-      await this.openMealModal(id);
+      await this.openMealModal(entityId);
       return;
     }
-    await this.openActivityModal(id);
+    await this.openActivityModal(entityId);
   }
 
   protected async openActivityModal(id?: number): Promise<void> {
@@ -179,5 +184,15 @@ export class DiaryPage implements OnInit {
   protected async openMealModal(id?: number): Promise<void> {
     await this.mealModals.openModal(id);
     this.listStore.refresh$.next();
+  }
+
+  protected async reorder(item: DiaryEvent): Promise<void> {
+    const at = item.at.toISOString();
+    const date = await this.modals.askDatetime(at);
+    if (!date) return;
+    this.listStore.operation$.next({
+      operation: { type: 'REORDER', payload: new Date(date) },
+      item,
+    });
   }
 }

@@ -114,7 +114,8 @@ export class TagsPage implements OnInit {
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
   );
 
-  protected trackFn = (item: Tag): number => this.storeHandler.extractId(item);
+  protected trackFn = (item: Tag): number | string =>
+    this.storeHandler.extractId(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();

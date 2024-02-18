@@ -1,5 +1,5 @@
 export type Option = {
-  ref: number;
+  ref: number | string;
   label: string;
   value: unknown;
 };

@@ -15,6 +15,7 @@ export * from './initializer/initializer.service';
 export * from './initializer/is-initialized.resolver';
 export * from './alerts/alerts.service';
 export * from './toasts/toasts.service';
+export * from './modals/modals.service';
 export * from './error-interpreter/error-interpreter.service';
 export * from './force-observable';
 export * from './get-search-criteria-with-page';

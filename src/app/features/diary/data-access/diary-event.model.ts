@@ -1,7 +1,8 @@
 import { DiaryEventType } from './diary-event-type.enum';
 
 export type DiaryEvent = {
-  id: number;
+  entityId: number;
+  ref: string;
   name: string;
   type: DiaryEventType;
   createdAt: Date;

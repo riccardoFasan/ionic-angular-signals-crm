@@ -11,9 +11,9 @@ export interface StoreHandler<T, TExtended extends T = T> {
     detail?: Partial<DetailState<T>>;
   };
 
-  extractId(item: T): number;
+  extractId(item: T): number | string;
   extractName(item: T): string;
-  get(id: number): Observable<TExtended>;
+  get(id: number | string): Observable<TExtended>;
   getList(searchCriteria: SearchCriteria): Observable<List<T>>;
 
   canOperate?(

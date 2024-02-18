@@ -117,7 +117,7 @@ export class ActivityTypesPage implements OnInit {
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
   );
 
-  protected trackFn = (item: ActivityType): number =>
+  protected trackFn = (item: ActivityType): number | string =>
     this.storeHandler.extractId(item);
 
   ngOnInit(): void {
