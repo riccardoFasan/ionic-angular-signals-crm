@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   IonApp,
@@ -14,13 +14,7 @@ import {
   IonLabel,
   IonRouterOutlet,
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import {
-  pricetagSharp,
-  pricetagOutline,
-  bookSharp,
-  bookOutline,
-} from 'ionicons/icons';
+import { InitializerService } from './shared/utility';
 
 @Component({
   selector: 'app-root',
@@ -43,8 +37,8 @@ import {
                   <ion-icon
                     aria-hidden="true"
                     slot="start"
-                    [ios]="'book-outline'"
-                    [md]="'book-sharp'"
+                    ios="book-outline"
+                    md="book-sharp"
                   />
                   <ion-label>Diary</ion-label>
                 </ion-item>
@@ -53,7 +47,7 @@ import {
               <ion-menu-toggle auto-hide="false">
                 <ion-item
                   routerDirection="root"
-                  routerLink="events"
+                  routerLink="activity-types"
                   lines="none"
                   detail="false"
                   routerLinkActive="selected"
@@ -61,16 +55,70 @@ import {
                   <ion-icon
                     aria-hidden="true"
                     slot="start"
-                    [ios]="'pricetag-outline'"
-                    [md]="'pricetag-sharp'"
+                    ios="calendar-outline"
+                    md="calendar-sharp"
                   />
-                  <ion-label>Custom events</ion-label>
+                  <ion-label>Activities</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="tags"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    ios="pricetag-outline"
+                    md="pricetag-sharp"
+                  />
+                  <ion-label>Tags</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="foods"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    ios="fast-food-outline"
+                    md="fast-food-sharp"
+                  />
+                  <ion-label>Foods</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  routerDirection="root"
+                  routerLink="ingredients"
+                  lines="none"
+                  detail="false"
+                  routerLinkActive="selected"
+                >
+                  <ion-icon
+                    aria-hidden="true"
+                    slot="start"
+                    ios="list-outline"
+                    md="list-sharp"
+                  />
+                  <ion-label>Ingredients</ion-label>
                 </ion-item>
               </ion-menu-toggle>
             </ion-list>
           </ion-content>
         </ion-menu>
-        <ion-router-outlet id="main-content"></ion-router-outlet>
+        <ion-router-outlet id="main-content" />
       </ion-split-pane>
     </ion-app>
   `,
@@ -179,12 +227,9 @@ import {
   ],
 })
 export class AppComponent {
+  protected initializer = inject(InitializerService);
+
   constructor() {
-    addIcons({
-      pricetagSharp,
-      pricetagOutline,
-      bookSharp,
-      bookOutline,
-    });
+    this.initializer.initialize$.next();
   }
 }
