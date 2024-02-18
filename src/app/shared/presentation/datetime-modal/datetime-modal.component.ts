@@ -17,16 +17,6 @@ import { IonDatetime, ModalController } from '@ionic/angular/standalone';
     </div>
   `,
   styles: `
-    // ion-modal {
-    //       &::part(content) {
-    //         background: transparent;
-    //       }
-
-    //       &::part(backdrop) {
-    //         --backdrop-opacity: 0.75;
-    //       }
-    //     }
-
     div:has(ion-datetime) {
       position: absolute;
       top: 50%;

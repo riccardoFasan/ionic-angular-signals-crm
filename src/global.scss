@@ -24,3 +24,13 @@
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
+
+ion-modal.modal-alert {
+  &::part(content) {
+    background: transparent;
+  }
+
+  &::part(backdrop) {
+    --backdrop-opacity: 0.75;
+  }
+}

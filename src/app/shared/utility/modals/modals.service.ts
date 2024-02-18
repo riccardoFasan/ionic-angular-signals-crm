@@ -12,6 +12,7 @@ export class ModalsService {
     const modal = await this.modalCtrl.create({
       component: DatetimeModalComponent,
       componentProps: { value },
+      cssClass: 'modal-alert',
     });
     await modal.present();
     const result = await modal.onDidDismiss();
