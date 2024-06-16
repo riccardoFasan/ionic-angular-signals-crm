@@ -72,12 +72,14 @@ export class ListStoreService<T> {
   operation$ = new Subject<{ operation: Operation; item?: T }>();
   sortings$ = new Subject<Sorting[]>();
 
+  private filters$ = combineLatest([this.query$, this.filterClause$]).pipe(
+    map(([query, clause]) => ({ query, clause })),
+  );
+
   private searchCriteria$ = combineLatest([
     this.sortings$,
     this.params$,
-    combineLatest([this.query$, this.filterClause$]).pipe(
-      map(([query, clause]) => ({ query, clause })),
-    ),
+    this.filters$,
   ]).pipe(
     map(([sortings, params, filters]) => ({ sortings, params, filters })),
   );
@@ -170,12 +172,6 @@ export class ListStoreService<T> {
     this.operation$
       .pipe(
         takeUntilDestroyed(),
-        tap(() =>
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Processing,
-          })),
-        ),
         switchMap(({ operation, item }) => {
           const canOperate$ = forceObservable(
             this.handler.canOperate?.(operation, item) || true,
@@ -183,6 +179,10 @@ export class ListStoreService<T> {
           return canOperate$.pipe(
             filter((canOperate) => canOperate),
             switchMap(() => {
+              this.state.update((state) => ({
+                ...state,
+                mode: MachineState.Processing,
+              }));
               const mutateItems = this.handler.mutateItems?.(
                 operation,
                 item,

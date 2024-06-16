@@ -94,16 +94,14 @@ export class DetailStoreService<T> {
     this.operation$
       .pipe(
         takeUntilDestroyed(),
-        tap(() =>
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Processing,
-          })),
-        ),
         switchMap((operation) => {
           const canOperate$ = forceObservable(
             this.handler.canOperate?.(operation, this.item()) || true,
           );
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Processing,
+          }));
           return canOperate$.pipe(
             filter((canOperate) => canOperate),
             switchMap(() =>

@@ -20,6 +20,8 @@ export interface StoreHandler<T, TExtended extends T = T> {
     operation: Operation,
     item?: T | TExtended,
   ): Observable<boolean> | boolean;
+
+  // TODO: support void return type
   operate(
     operation: Operation,
     item?: T | TExtended,

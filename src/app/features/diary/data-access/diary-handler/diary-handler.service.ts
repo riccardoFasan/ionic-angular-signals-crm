@@ -74,7 +74,7 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     switch (type) {
       case OperationType.Delete:
         if (!item) {
-          throw new Error('Item is required for delete effects');
+          throw new Error('Item is required for delete operations');
         }
         return defer(() => this.diaryFacade.delete(item.entityId, item.type));
       case 'REORDER':
