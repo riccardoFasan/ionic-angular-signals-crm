@@ -11,8 +11,6 @@ import {
 } from '@angular/core';
 import {
   IonList,
-  IonItem,
-  IonLabel,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   InfiniteScrollCustomEvent,
@@ -27,8 +25,6 @@ import {
   imports: [
     NgTemplateOutlet,
     IonList,
-    IonItem,
-    IonLabel,
     IonRefresher,
     IonInfiniteScroll,
     IonRefresherContent,

@@ -5,26 +5,40 @@ import { ItemsMutation } from './items-mutation.type';
 import { ListState } from './list.state';
 import { DetailState } from './detail.state';
 
-export interface StoreHandler<T, TExtended extends T = T> {
+export interface StoreHandler<
+  T,
+  TExtended extends T = T,
+  PKeys extends Record<string, string | number> = {},
+  PEntities extends Record<string, unknown> = {},
+> {
   initialState?: {
     list?: Partial<ListState<T>>;
     detail?: Partial<DetailState<T>>;
   };
 
+  loadParentsFirst?: boolean;
+
   extractId(item: T): number | string;
   extractName(item: T): string;
-  get(id: number | string): Observable<TExtended>;
-  getList(searchCriteria: SearchCriteria): Observable<List<T>>;
+  get(id: number | string, parentKeys?: PKeys): Observable<TExtended>;
+  getList(
+    searchCriteria: SearchCriteria,
+    parentKeys?: PKeys,
+  ): Observable<List<T>>;
+
+  loadParents?(parentKeys: PKeys): Observable<PEntities>;
 
   canOperate?(
     operation: Operation,
     item?: T | TExtended,
+    parentKeys?: PKeys,
   ): Observable<boolean> | boolean;
 
   // TODO: support void return type
   operate(
     operation: Operation,
     item?: T | TExtended,
+    parentKeys?: PKeys,
   ): Observable<T | TExtended>;
 
   // mutateItems is intended for optimistic updates.
@@ -44,6 +58,7 @@ export interface StoreHandler<T, TExtended extends T = T> {
   onOperation?(
     operation: Operation,
     item: T | TExtended,
+    parentKeys?: PKeys,
   ): Observable<void> | void;
 
   interpretError?(error: Error, item?: T | TExtended): string | undefined;
