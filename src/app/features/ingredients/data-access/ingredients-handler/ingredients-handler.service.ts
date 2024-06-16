@@ -74,7 +74,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
 
       case OperationType.Update:
         if (!item) {
-          throw new Error('Item is required for update effects');
+          throw new Error('Item is required for update operations');
         }
         return defer(() =>
           this.ingredientsFacade.update(
@@ -85,7 +85,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
 
       case OperationType.Delete:
         if (!item) {
-          throw new Error('Item is required for delete effects');
+          throw new Error('Item is required for delete operations');
         }
         return defer(() => this.ingredientsFacade.delete(item.id));
 

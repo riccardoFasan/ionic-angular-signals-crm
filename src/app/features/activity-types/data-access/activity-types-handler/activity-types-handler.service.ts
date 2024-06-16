@@ -76,7 +76,7 @@ export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
 
       case OperationType.Update:
         if (!item) {
-          throw new Error('Item is required for update effects');
+          throw new Error('Item is required for update operations');
         }
         return defer(() =>
           this.activityTypesFacade.update(
@@ -87,7 +87,7 @@ export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
 
       case OperationType.Delete:
         if (!item) {
-          throw new Error('Item is required for delete effects');
+          throw new Error('Item is required for delete operations');
         }
         return defer(() => this.activityTypesFacade.delete(item.id));
 
