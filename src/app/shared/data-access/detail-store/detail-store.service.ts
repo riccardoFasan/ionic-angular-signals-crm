@@ -39,7 +39,6 @@ export class DetailStoreService<T> {
   constructor() {
     this.id$
       .pipe(
-        takeUntilDestroyed(),
         filter((id) => !!id),
         distinctUntilChanged(),
         tap(() =>
@@ -61,12 +60,12 @@ export class DetailStoreService<T> {
             error: undefined,
           })),
         ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
     this.refresh$
       .pipe(
-        takeUntilDestroyed(),
         filter(() => !!this.item()),
         tap(() =>
           this.state.update((state) => ({
@@ -88,12 +87,12 @@ export class DetailStoreService<T> {
             error: undefined,
           })),
         ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
     this.operation$
       .pipe(
-        takeUntilDestroyed(),
         switchMap((operation) => {
           const canOperate$ = forceObservable(
             this.handler.canOperate?.(operation, this.item()) || true,
@@ -123,6 +122,7 @@ export class DetailStoreService<T> {
         switchMap(({ operation, item }) =>
           forceObservable(this.handler.onOperation?.(operation, item)),
         ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 

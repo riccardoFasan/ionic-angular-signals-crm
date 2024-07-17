@@ -87,7 +87,6 @@ export class ListStoreService<T> {
   constructor() {
     merge(this.refresh$, this.loadFirstPage$, this.searchCriteria$)
       .pipe(
-        takeUntilDestroyed(),
         map((searchCriteria) => ({
           ...this.initialState.searchCriteria,
           ...(searchCriteria || {}),
@@ -116,12 +115,12 @@ export class ListStoreService<T> {
             error: undefined,
           })),
         ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
     this.loadPage$
       .pipe(
-        takeUntilDestroyed(),
         filter((pageIndex) =>
           isPageIndexInRange(
             pageIndex,
@@ -166,12 +165,12 @@ export class ListStoreService<T> {
             ),
           ),
         ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
     this.operation$
       .pipe(
-        takeUntilDestroyed(),
         switchMap(({ operation, item }) => {
           const canOperate$ = forceObservable(
             this.handler.canOperate?.(operation, item) || true,
@@ -257,6 +256,7 @@ export class ListStoreService<T> {
         switchMap(({ operation, item }) =>
           forceObservable(this.handler.onOperation?.(operation, item)),
         ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 

@@ -41,10 +41,10 @@ export class InitializerService {
   constructor() {
     this.initialize$
       .pipe(
-        takeUntilDestroyed(),
         filter(() => !this.initialized()),
         switchMap(() => defer(() => this.initDatabase())),
         tap(() => this.state.set({ initialized: true })),
+        takeUntilDestroyed(),
       )
       .subscribe();
 

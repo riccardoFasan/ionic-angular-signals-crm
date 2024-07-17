@@ -24,11 +24,9 @@ export function pushSorted<T>(
 
   const items = pages.find((page) => page.pageIndex === pageIndex)?.items;
 
-  if (!items) {
-    return [...pages, { pageIndex, items: [item] }];
-  }
+  if (!items) return [...pages, { pageIndex, items: [item] }];
 
-  // the main idea is to isert the new item in its page.items and move the last, if present,
+  // the main idea is to insert the new item in its page.items and move the last, if present,
   // to the next page and if the next page is full, move the last to the next page and so on
 
   const sortedIndex =
