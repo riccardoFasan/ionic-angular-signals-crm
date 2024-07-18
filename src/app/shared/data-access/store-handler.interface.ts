@@ -34,12 +34,11 @@ export interface StoreHandler<
     parentKeys?: PKeys,
   ): Observable<boolean> | boolean;
 
-  // TODO: support void return type
   operate(
     operation: Operation,
     item?: T | TExtended,
     parentKeys?: PKeys,
-  ): Observable<T | TExtended>;
+  ): Observable<T | TExtended | void>;
 
   // mutateItems is intended for optimistic updates.
   // pushSorted utility is meant to be used with create operations
@@ -57,7 +56,7 @@ export interface StoreHandler<
   // intended for side effects like toasts or redirections. Use operate for data management
   onOperation?(
     operation: Operation,
-    item: T | TExtended,
+    item?: T | TExtended,
     parentKeys?: PKeys,
   ): Observable<void> | void;
 

@@ -12,6 +12,7 @@ import {
   onHandlerError,
   pushOrReplace,
   FilterClause,
+  ItemsPage,
 } from '../../utility';
 import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import {
@@ -43,8 +44,8 @@ export class ListStoreService<T> {
   error = computed<Error | undefined>(() => this.state().error);
 
   items = computed<T[]>(() =>
-    this.state()
-      .pages.sort((a, b) => a.pageIndex - b.pageIndex)
+    this.pages()
+      .sort((a, b) => a.pageIndex - b.pageIndex)
       .map((page) => page.items)
       .flat(),
   );
@@ -52,7 +53,7 @@ export class ListStoreService<T> {
   pageItems = computed<T[]>(() => {
     const { pagination } = this.searchCriteria();
     const { pageIndex } = pagination;
-    const pages = this.state().pages;
+    const pages = this.pages();
     return pages.find((page) => page.pageIndex === pageIndex)?.items || [];
   });
 
@@ -62,6 +63,8 @@ export class ListStoreService<T> {
     const { pageIndex, pageSize } = pagination;
     return isPageIndexInRange(pageIndex + 1, pageSize, total);
   });
+
+  private pages = computed<ItemsPage<T>[]>(() => this.state().pages);
 
   refresh$ = new Subject<void>();
   loadFirstPage$ = new Subject<void>();
@@ -132,7 +135,7 @@ export class ListStoreService<T> {
           getSearchCriteriaWithPage(pageIndex, this.searchCriteria()),
         ),
         filter((searchCriteria) => {
-          const inCollection = this.state().pages.some(
+          const inCollection = this.pages().some(
             (page) => page.pageIndex === searchCriteria.pagination.pageIndex,
           );
           if (inCollection) {
@@ -182,38 +185,38 @@ export class ListStoreService<T> {
                 ...state,
                 mode: MachineState.Processing,
               }));
-              const mutateItems = this.handler.mutateItems?.(
-                operation,
-                item,
-                this.state().pages,
-                this.total(),
-                this.searchCriteria(),
-              );
+
+              const mutateItems =
+                item &&
+                this.handler.mutateItems?.(
+                  operation,
+                  item,
+                  this.pages(),
+                  this.total(),
+                  this.searchCriteria(),
+                );
 
               if (!mutateItems) {
                 return this.handler.operate(operation, item).pipe(
                   catchError((error) => onHandlerError(error, this.state)),
-                  switchMap((item) =>
-                    this.handler.getList(this.initialState.searchCriteria).pipe(
+                  switchMap((updatedItem) =>
+                    this.handler.getList(this.searchCriteria()).pipe(
                       catchError((error) => onHandlerError(error, this.state)),
                       tap(({ items, total }) => {
-                        const initialSearchCriteria =
-                          this.initialState.searchCriteria;
+                        const pageIndex =
+                          this.searchCriteria().pagination.pageIndex;
                         this.state.update((state) => ({
                           ...state,
-                          pages: [
-                            {
-                              pageIndex:
-                                initialSearchCriteria.pagination.pageIndex,
-                              items,
-                            },
-                          ],
+                          pages: pushOrReplace(
+                            state.pages,
+                            { pageIndex, items },
+                            (page) => page.pageIndex === pageIndex,
+                          ),
                           total,
                           mode: MachineState.Idle,
-                          searchCriteria: initialSearchCriteria,
                         }));
                       }),
-                      map(() => ({ operation, item })),
+                      map(() => ({ operation, item: updatedItem || item })),
                     ),
                   ),
                 );
@@ -242,7 +245,10 @@ export class ListStoreService<T> {
                 this.handler.operate(operation, item),
                 mutate$,
               ]).pipe(
-                map(([item]) => ({ item, operation })),
+                map(([updatedItem]) => ({
+                  item: updatedItem || item,
+                  operation,
+                })),
                 catchError((error) =>
                   onHandlerError(error, this.state, {
                     pages: currentPages,

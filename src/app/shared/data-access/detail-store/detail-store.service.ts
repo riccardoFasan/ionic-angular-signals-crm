@@ -106,7 +106,10 @@ export class DetailStoreService<T> {
             switchMap(() =>
               this.handler.operate(operation, this.item()).pipe(
                 catchError((error) => onHandlerError(error, this.state)),
-                map((item) => ({ operation, item })),
+                map((updatedItem) => ({
+                  operation,
+                  item: updatedItem || this.item(),
+                })),
               ),
             ),
           );
