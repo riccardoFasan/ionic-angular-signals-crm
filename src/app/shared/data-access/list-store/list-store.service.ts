@@ -262,7 +262,7 @@ export class ListStoreService<T> {
               forceObservable(this.handler.onOperation?.(operation, item)),
             ),
           );
-        }),
+        }, environment.operationsConcurrency),
         takeUntilDestroyed(),
       )
       .subscribe();
