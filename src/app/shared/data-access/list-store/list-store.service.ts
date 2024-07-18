@@ -22,6 +22,7 @@ import {
   filter,
   map,
   merge,
+  mergeMap,
   switchMap,
   tap,
 } from 'rxjs';
@@ -174,7 +175,7 @@ export class ListStoreService<T> {
 
     this.operation$
       .pipe(
-        switchMap(({ operation, item }) => {
+        mergeMap(({ operation, item }) => {
           const canOperate$ = forceObservable(
             this.handler.canOperate?.(operation, item) || true,
           );
@@ -257,11 +258,11 @@ export class ListStoreService<T> {
                 ),
               );
             }),
+            switchMap(({ operation, item }) =>
+              forceObservable(this.handler.onOperation?.(operation, item)),
+            ),
           );
         }),
-        switchMap(({ operation, item }) =>
-          forceObservable(this.handler.onOperation?.(operation, item)),
-        ),
         takeUntilDestroyed(),
       )
       .subscribe();

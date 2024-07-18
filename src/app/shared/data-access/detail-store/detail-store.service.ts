@@ -7,6 +7,7 @@ import {
   distinctUntilChanged,
   filter,
   map,
+  mergeMap,
   switchMap,
   tap,
 } from 'rxjs';
@@ -19,6 +20,7 @@ import {
 } from '../../utility';
 import { Operation } from '../operation.type';
 import { MachineState } from '../machine-state.enum';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class DetailStoreService<T> {
@@ -93,7 +95,7 @@ export class DetailStoreService<T> {
 
     this.operation$
       .pipe(
-        switchMap((operation) => {
+        mergeMap((operation) => {
           const canOperate$ = forceObservable(
             this.handler.canOperate?.(operation, this.item()) || true,
           );
@@ -112,19 +114,19 @@ export class DetailStoreService<T> {
                 })),
               ),
             ),
+            tap(({ item }) =>
+              this.state.update((state) => ({
+                ...state,
+                item,
+                mode: MachineState.Idle,
+                error: undefined,
+              })),
+            ),
+            switchMap(({ operation, item }) =>
+              forceObservable(this.handler.onOperation?.(operation, item)),
+            ),
           );
-        }),
-        tap(({ item }) =>
-          this.state.update((state) => ({
-            ...state,
-            item,
-            mode: MachineState.Idle,
-            error: undefined,
-          })),
-        ),
-        switchMap(({ operation, item }) =>
-          forceObservable(this.handler.onOperation?.(operation, item)),
-        ),
+        }, environment.operationsConcurrency),
         takeUntilDestroyed(),
       )
       .subscribe();

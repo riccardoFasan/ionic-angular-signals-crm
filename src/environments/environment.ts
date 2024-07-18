@@ -4,6 +4,7 @@
 
 export const environment = {
   production: false,
+  operationsConcurrency: 5,
   CapacitorSQLite: {
     androidIsEncryption: false,
   },
