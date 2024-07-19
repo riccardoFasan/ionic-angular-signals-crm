@@ -122,7 +122,7 @@ export class TagsPage implements OnInit {
   }
 
   protected remove(item: Tag): void {
-    this.listStore.operation$.next({
+    this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
     });

@@ -73,7 +73,7 @@ export class ListStoreService<T> {
   params$ = new Subject<SearchCriteria['params']>();
   query$ = new Subject<SearchFilters['query']>();
   filterClause$ = new Subject<FilterClause>();
-  operation$ = new Subject<{ operation: Operation; item?: T }>();
+  itemOperation$ = new Subject<{ operation: Operation; item?: T }>();
   sortings$ = new Subject<Sorting[]>();
 
   private filters$ = combineLatest([this.query$, this.filterClause$]).pipe(
@@ -173,7 +173,7 @@ export class ListStoreService<T> {
       )
       .subscribe();
 
-    this.operation$
+    this.itemOperation$
       .pipe(
         mergeMap(({ operation, item }) => {
           const canOperate$ = forceObservable(

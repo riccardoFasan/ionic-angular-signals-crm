@@ -162,7 +162,7 @@ export class DiaryPage implements OnInit {
   }
 
   protected remove(item: DiaryEvent): void {
-    this.listStore.operation$.next({
+    this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
     });
@@ -190,7 +190,7 @@ export class DiaryPage implements OnInit {
     const at = item.at.toISOString();
     const date = await this.modals.askDatetime(at);
     if (!date) return;
-    this.listStore.operation$.next({
+    this.listStore.itemOperation$.next({
       operation: { type: 'REORDER', payload: new Date(date) },
       item,
     });

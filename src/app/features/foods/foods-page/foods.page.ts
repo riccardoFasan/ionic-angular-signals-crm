@@ -122,7 +122,7 @@ export class FoodsPage implements OnInit {
   }
 
   protected remove(item: Food): void {
-    this.listStore.operation$.next({
+    this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
     });

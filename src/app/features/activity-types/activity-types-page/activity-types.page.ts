@@ -125,7 +125,7 @@ export class ActivityTypesPage implements OnInit {
   }
 
   protected remove(item: ActivityType): void {
-    this.listStore.operation$.next({
+    this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
     });
