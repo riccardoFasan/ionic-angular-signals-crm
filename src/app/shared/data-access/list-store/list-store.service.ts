@@ -16,6 +16,7 @@ import {
 } from '../../utility';
 import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import {
+  Observable,
   Subject,
   catchError,
   combineLatest,
@@ -30,6 +31,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MachineState } from '../machine-state.enum';
 import { Operation } from '../operation.type';
 import { environment } from 'src/environments/environment';
+import { ItemsMutation } from '../items-mutation.type';
 
 @Injectable()
 export class ListStoreService<T> {
@@ -187,75 +189,34 @@ export class ListStoreService<T> {
                 mode: MachineState.Processing,
               }));
 
-              const mutateItems =
-                item &&
-                this.handler.mutateItems?.(
-                  operation,
-                  item,
-                  this.pages(),
-                  this.total(),
-                  this.searchCriteria(),
-                );
+              // * creation of a new item or operations that do not require a specific item
+              if (!item) return this.operateAndThenMutateOrRefresh(operation);
 
-              if (!mutateItems) {
+              const itemsMutation = this.handler.mutateItems?.(
+                operation,
+                item,
+                this.pages(),
+                this.total(),
+                this.searchCriteria(),
+              );
+
+              if (!itemsMutation) {
                 return this.handler.operate(operation, item).pipe(
                   catchError((error) => onHandlerError(error, this.state)),
                   switchMap((updatedItem) =>
-                    this.handler.getList(this.searchCriteria()).pipe(
-                      catchError((error) => onHandlerError(error, this.state)),
-                      tap(({ items, total }) => {
-                        const pageIndex =
-                          this.searchCriteria().pagination.pageIndex;
-                        this.state.update((state) => ({
-                          ...state,
-                          pages: pushOrReplace(
-                            state.pages,
-                            { pageIndex, items },
-                            (page) => page.pageIndex === pageIndex,
-                          ),
-                          total,
-                          mode: MachineState.Idle,
-                        }));
-                      }),
-                      map(() => ({ operation, item: updatedItem || item })),
+                    this.refreshPagesAfterOperation(
+                      operation,
+                      item,
+                      updatedItem,
                     ),
                   ),
                 );
               }
 
-              const { pages: currentPages, total: currentTotal } = this.state();
-
-              const mutate$ = forceObservable(mutateItems).pipe(
-                tap(({ pages, total }) =>
-                  this.state.update((state) => ({
-                    ...state,
-                    pages,
-                    total,
-                    mode: MachineState.Idle,
-                  })),
-                ),
-                map(({ pages, total }) => ({
-                  pages,
-                  total,
-                  operation,
-                  item,
-                })),
-              );
-
-              return combineLatest([
-                this.handler.operate(operation, item),
-                mutate$,
-              ]).pipe(
-                map(([updatedItem]) => ({
-                  item: updatedItem || item,
-                  operation,
-                })),
-                catchError((error) =>
-                  onHandlerError(error, this.state, {
-                    pages: currentPages,
-                    total: currentTotal,
-                  }),
-                ),
+              return this.mutatePagesWhileOperating(
+                operation,
+                item,
+                itemsMutation,
               );
             }),
             switchMap(({ operation, item }) =>
@@ -285,5 +246,100 @@ export class ListStoreService<T> {
       ...INITIAL_LIST_STATE,
       ...this.handler.initialState?.list,
     };
+  }
+
+  private operateAndThenMutateOrRefresh(
+    operation: Operation,
+  ): Observable<{ operation: Operation; item?: T }> {
+    return this.handler.operate(operation).pipe(
+      catchError((error) => onHandlerError(error, this.state)),
+      switchMap((item) => {
+        const itemsMutation =
+          item &&
+          this.handler.mutateItems?.(
+            operation,
+            item,
+            this.pages(),
+            this.total(),
+            this.searchCriteria(),
+          );
+
+        if (!itemsMutation) {
+          return this.refreshPagesAfterOperation(operation, item);
+        }
+
+        const mutate$ = forceObservable(itemsMutation).pipe(
+          tap(({ pages, total }) =>
+            this.state.update((state) => ({
+              ...state,
+              pages,
+              total,
+              mode: MachineState.Idle,
+            })),
+          ),
+        );
+
+        return mutate$.pipe(
+          catchError((error) => onHandlerError(error, this.state)),
+          map(() => ({ item, operation })),
+        );
+      }),
+    );
+  }
+
+  private mutatePagesWhileOperating(
+    operation: Operation,
+    item: T,
+    itemsMutation: ItemsMutation<T>,
+  ): Observable<{ operation: Operation; item: T }> {
+    const { pages: currentPages, total: currentTotal } = this.state();
+
+    const mutate$ = forceObservable(itemsMutation).pipe(
+      tap(({ pages, total }) =>
+        this.state.update((state) => ({
+          ...state,
+          pages,
+          total,
+          mode: MachineState.Idle,
+        })),
+      ),
+    );
+
+    return combineLatest([this.handler.operate(operation, item), mutate$]).pipe(
+      map(([updatedItem]) => ({
+        item: updatedItem || item,
+        operation,
+      })),
+      catchError((error) =>
+        onHandlerError(error, this.state, {
+          pages: currentPages,
+          total: currentTotal,
+        }),
+      ),
+    );
+  }
+
+  private refreshPagesAfterOperation(
+    operation: Operation,
+    item?: T,
+    updatedItem?: T,
+  ): Observable<{ operation: Operation; item?: T }> {
+    return this.handler.getList(this.searchCriteria()).pipe(
+      catchError((error) => onHandlerError(error, this.state)),
+      tap(({ items, total }) => {
+        const pageIndex = this.searchCriteria().pagination.pageIndex;
+        this.state.update((state) => ({
+          ...state,
+          pages: pushOrReplace(
+            state.pages,
+            { pageIndex, items },
+            (page) => page.pageIndex === pageIndex,
+          ),
+          total,
+          mode: MachineState.Idle,
+        }));
+      }),
+      map(() => ({ operation, item: updatedItem || item })),
+    );
   }
 }
