@@ -31,7 +31,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Ingredient): number {
+  extractPk(item: Ingredient): number {
     return item.id;
   }
 

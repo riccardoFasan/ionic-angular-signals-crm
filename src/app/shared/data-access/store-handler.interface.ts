@@ -6,39 +6,40 @@ import { ListState } from './list.state';
 import { DetailState } from './detail.state';
 
 export interface StoreHandler<
-  T,
-  TExtended extends T = T,
-  PKeys extends Record<string, string | number> = {},
-  PEntities extends Record<string, unknown> = {},
+  Entity,
+  EntityKey,
+  PKeys extends Record<string, unknown>,
+  PEntities extends Record<string, unknown>,
+  ExtendedEntity extends Entity = Entity,
 > {
   initialState?: {
-    list?: Partial<ListState<T>>;
-    detail?: Partial<DetailState<T>>;
+    list?: Partial<ListState<Entity>>;
+    detail?: Partial<DetailState<ExtendedEntity>>;
   };
 
   loadParentsFirst?: boolean;
 
-  extractId(item: T): number | string;
-  extractName(item: T): string;
-  get(id: number | string, parentKeys?: PKeys): Observable<TExtended>;
+  extractPk(item: Entity): EntityKey;
+  extractName(item: Entity): string;
+  get(pk: EntityKey, parentKeys?: PKeys): Observable<ExtendedEntity>;
   getList(
     searchCriteria: SearchCriteria,
     parentKeys?: PKeys,
-  ): Observable<List<T>>;
+  ): Observable<List<Entity>>;
 
   loadParents?(parentKeys: PKeys): Observable<PEntities>;
 
   canOperate?(
     operation: Operation,
-    item?: T | TExtended,
+    item?: Entity | ExtendedEntity,
     parentKeys?: PKeys,
   ): Observable<boolean> | boolean;
 
   operate(
     operation: Operation,
-    item?: T | TExtended,
+    item?: Entity | ExtendedEntity,
     parentKeys?: PKeys,
-  ): Observable<T | TExtended | void>;
+  ): Observable<Entity | ExtendedEntity | void>;
 
   // mutateItems is intended for optimistic updates.
   // pushSorted utility is meant to be used with create operations
@@ -47,18 +48,21 @@ export interface StoreHandler<
   // a simple refresh by returning undefined or void.
   mutateItems?(
     operation: Operation,
-    item: T,
-    pages: ItemsPage<T>[],
+    item: Entity,
+    pages: ItemsPage<Entity>[],
     total: number,
     searchCriteria: SearchCriteria,
-  ): ItemsMutation<T> | void;
+  ): ItemsMutation<Entity> | void;
 
   // intended for side effects like toasts or redirections. Use operate for data management
   onOperation?(
     operation: Operation,
-    item?: T | TExtended,
+    item?: Entity | ExtendedEntity,
     parentKeys?: PKeys,
   ): Observable<void> | void;
 
-  interpretError?(error: Error, item?: T | TExtended): string | undefined;
+  interpretError?(
+    error: Error,
+    item?: Entity | ExtendedEntity,
+  ): string | undefined;
 }

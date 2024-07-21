@@ -115,7 +115,7 @@ export class TagsPage implements OnInit {
   );
 
   protected trackFn = (item: Tag): number | string =>
-    this.storeHandler.extractId(item);
+    this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();

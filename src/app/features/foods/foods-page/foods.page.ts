@@ -115,7 +115,7 @@ export class FoodsPage implements OnInit {
   );
 
   protected trackFn = (item: Food): number | string =>
-    this.storeHandler.extractId(item);
+    this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();

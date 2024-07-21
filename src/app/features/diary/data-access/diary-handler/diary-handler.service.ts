@@ -37,7 +37,7 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     },
   };
 
-  extractId(item: DiaryEvent): string {
+  extractPk(item: DiaryEvent): string {
     return item.ref;
   }
 

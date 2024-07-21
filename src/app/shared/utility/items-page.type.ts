@@ -1,4 +1,4 @@
-export type ItemsPage<T> = {
+export type ItemsPage<Entity> = {
   pageIndex: number;
-  items: T[];
+  items: Entity[];
 };

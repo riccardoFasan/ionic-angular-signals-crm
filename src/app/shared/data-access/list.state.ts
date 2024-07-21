@@ -8,8 +8,8 @@ import {
 } from '../utility';
 import { MachineState } from './machine-state.enum';
 
-export type ListState<T> = {
-  pages: ItemsPage<T>[];
+export type ListState<Entity> = {
+  pages: ItemsPage<Entity>[];
   searchCriteria: SearchCriteria;
   total: number;
   mode: MachineState;

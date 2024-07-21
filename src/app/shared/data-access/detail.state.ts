@@ -1,8 +1,8 @@
 import { MachineState } from './machine-state.enum';
 
-export type DetailState<T> = {
+export type DetailState<Entity> = {
   mode: MachineState;
-  item?: T;
+  item?: Entity;
   error?: Error;
 };
 

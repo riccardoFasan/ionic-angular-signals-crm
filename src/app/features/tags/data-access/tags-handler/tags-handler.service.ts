@@ -27,7 +27,7 @@ export class TagsHandlerService implements StoreHandler<Tag> {
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Tag): number {
+  extractPk(item: Tag): number {
     return item.id;
   }
 

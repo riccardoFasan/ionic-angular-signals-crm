@@ -23,25 +23,25 @@ import { MachineState } from '../machine-state.enum';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
-export class DetailStoreService<T> {
+export class DetailStoreService<Entity> {
   private handler = inject(STORE_HANDLER);
   private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
-  private state = signal<DetailState<T>>(this.initialState);
+  private state = signal<DetailState<Entity>>(this.initialState);
 
-  item = computed<T | undefined>(() => this.state().item);
+  item = computed<Entity | undefined>(() => this.state().item);
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
-  id$ = new Subject<number>();
+  pk$ = new Subject<unknown>();
   refresh$ = new Subject<void>();
   operation$ = new Subject<Operation>();
 
   constructor() {
-    this.id$
+    this.pk$
       .pipe(
-        filter((id) => !!id),
+        filter((pk) => !!pk),
         distinctUntilChanged(),
         tap(() =>
           this.state.update((state) => ({
@@ -49,9 +49,9 @@ export class DetailStoreService<T> {
             mode: MachineState.Fetching,
           })),
         ),
-        switchMap((id) =>
+        switchMap((pk) =>
           this.handler
-            .get(id)
+            .get(pk)
             .pipe(catchError((error) => onHandlerError(error, this.state))),
         ),
         tap((item) =>
@@ -75,10 +75,10 @@ export class DetailStoreService<T> {
             mode: MachineState.Fetching,
           })),
         ),
-        map(() => this.handler.extractId(this.item()!)),
-        switchMap((id) =>
+        map(() => this.handler.extractPk(this.item()!)),
+        switchMap((pk) =>
           this.handler
-            .get(id)
+            .get(pk)
             .pipe(catchError((error) => onHandlerError(error, this.state))),
         ),
         tap((item) =>
@@ -144,7 +144,7 @@ export class DetailStoreService<T> {
     });
   }
 
-  private get initialState(): DetailState<T> {
+  private get initialState(): DetailState<Entity> {
     return {
       ...INITIAL_DETAIL_STATE,
       ...this.handler.initialState?.detail,

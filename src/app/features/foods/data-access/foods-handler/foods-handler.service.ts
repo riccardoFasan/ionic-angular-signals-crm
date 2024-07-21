@@ -26,7 +26,7 @@ export class FoodsHandlerService implements StoreHandler<Food> {
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Food): number {
+  extractPk(item: Food): number {
     return item.id;
   }
 

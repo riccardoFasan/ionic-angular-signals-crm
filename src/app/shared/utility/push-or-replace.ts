@@ -1,8 +1,8 @@
-export function pushOrReplace<T>(
-  array: T[],
-  item: T,
-  predicate: (items: T) => boolean,
-): T[] {
+export function pushOrReplace<Entity>(
+  array: Entity[],
+  item: Entity,
+  predicate: (items: Entity) => boolean,
+): Entity[] {
   const index = array.findIndex(predicate);
   if (index === -1) return [...array, item];
   return array.map((x, i) => (i === index ? item : x));

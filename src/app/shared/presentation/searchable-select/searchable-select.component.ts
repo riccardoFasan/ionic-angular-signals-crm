@@ -206,7 +206,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
   }
 
   private toOption(value: unknown): Option {
-    const ref = this.storeHandler.extractId(value);
+    const ref = this.storeHandler.extractPk(value);
     const label = this.storeHandler.extractName(value);
     return { ref, label, value };
   }

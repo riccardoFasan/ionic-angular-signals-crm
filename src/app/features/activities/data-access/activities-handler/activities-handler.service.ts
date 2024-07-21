@@ -31,7 +31,7 @@ export class ActivitiesHandlerService implements StoreHandler<Activity> {
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Activity): number {
+  extractPk(item: Activity): number {
     return item.id;
   }
 

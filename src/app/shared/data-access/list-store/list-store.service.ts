@@ -34,26 +34,26 @@ import { environment } from 'src/environments/environment';
 import { ItemsMutation } from '../items-mutation.type';
 
 @Injectable()
-export class ListStoreService<T> {
+export class ListStoreService<Entity> {
   private handler = inject(STORE_HANDLER);
   private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
-  private state = signal<ListState<T>>(this.initialState);
+  private state = signal<ListState<Entity>>(this.initialState);
 
   searchCriteria = computed<SearchCriteria>(() => this.state().searchCriteria);
   total = computed<number>(() => this.state().total);
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
-  items = computed<T[]>(() =>
+  items = computed<Entity[]>(() =>
     this.pages()
       .sort((a, b) => a.pageIndex - b.pageIndex)
       .map((page) => page.items)
       .flat(),
   );
 
-  pageItems = computed<T[]>(() => {
+  pageItems = computed<Entity[]>(() => {
     const { pagination } = this.searchCriteria();
     const { pageIndex } = pagination;
     const pages = this.pages();
@@ -67,7 +67,7 @@ export class ListStoreService<T> {
     return isPageIndexInRange(pageIndex + 1, pageSize, total);
   });
 
-  private pages = computed<ItemsPage<T>[]>(() => this.state().pages);
+  private pages = computed<ItemsPage<Entity>[]>(() => this.state().pages);
 
   refresh$ = new Subject<void>();
   loadFirstPage$ = new Subject<void>();
@@ -75,7 +75,7 @@ export class ListStoreService<T> {
   params$ = new Subject<SearchCriteria['params']>();
   query$ = new Subject<SearchFilters['query']>();
   filterClause$ = new Subject<FilterClause>();
-  itemOperation$ = new Subject<{ operation: Operation; item?: T }>();
+  itemOperation$ = new Subject<{ operation: Operation; item?: Entity }>();
   sortings$ = new Subject<Sorting[]>();
 
   private filters$ = combineLatest([this.query$, this.filterClause$]).pipe(
@@ -241,7 +241,7 @@ export class ListStoreService<T> {
     });
   }
 
-  private get initialState(): ListState<T> {
+  private get initialState(): ListState<Entity> {
     return {
       ...INITIAL_LIST_STATE,
       ...this.handler.initialState?.list,
@@ -250,7 +250,7 @@ export class ListStoreService<T> {
 
   private operateAndThenMutateOrRefresh(
     operation: Operation,
-  ): Observable<{ operation: Operation; item?: T }> {
+  ): Observable<{ operation: Operation; item?: Entity }> {
     return this.handler.operate(operation).pipe(
       catchError((error) => onHandlerError(error, this.state)),
       switchMap((item) => {
@@ -289,9 +289,9 @@ export class ListStoreService<T> {
 
   private mutatePagesWhileOperating(
     operation: Operation,
-    item: T,
-    itemsMutation: ItemsMutation<T>,
-  ): Observable<{ operation: Operation; item: T }> {
+    item: Entity,
+    itemsMutation: ItemsMutation<Entity>,
+  ): Observable<{ operation: Operation; item: Entity }> {
     const { pages: currentPages, total: currentTotal } = this.state();
 
     const mutate$ = forceObservable(itemsMutation).pipe(
@@ -321,9 +321,9 @@ export class ListStoreService<T> {
 
   private refreshPagesAfterOperation(
     operation: Operation,
-    item?: T,
-    updatedItem?: T,
-  ): Observable<{ operation: Operation; item?: T }> {
+    item?: Entity,
+    updatedItem?: Entity,
+  ): Observable<{ operation: Operation; item?: Entity }> {
     return this.handler.getList(this.searchCriteria()).pipe(
       catchError((error) => onHandlerError(error, this.state)),
       tap(({ items, total }) => {

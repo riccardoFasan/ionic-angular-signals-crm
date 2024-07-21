@@ -1,14 +1,14 @@
 import { ItemsPage } from './items-page.type';
 import { Pagination } from './pagination.type';
 
-export function removeSorted<T>(
-  item: T,
-  pages: ItemsPage<T>[],
+export function removeSorted<Entity, EntityKey>(
+  item: Entity,
+  pages: ItemsPage<Entity>[],
   { pageSize }: Pagination,
-  extractId: (item: T) => number | string,
-): ItemsPage<T>[] {
+  extractPk: (item: Entity) => EntityKey,
+): ItemsPage<Entity>[] {
   let page = pages.find((page) =>
-    page.items.some((i) => extractId(i) === extractId(item)),
+    page.items.some((i) => extractPk(i) === extractPk(item)),
   );
 
   if (!page) return pages;
@@ -17,7 +17,7 @@ export function removeSorted<T>(
 
   page = {
     pageIndex,
-    items: page.items.filter((i) => extractId(i) !== extractId(item)),
+    items: page.items.filter((i) => extractPk(i) !== extractPk(item)),
   };
 
   pages = pages.map((p) => (p.pageIndex === pageIndex ? page! : p));
@@ -29,11 +29,11 @@ export function removeSorted<T>(
   return recursiveFillLastItem(pages, pageIndex, pageSize);
 }
 
-function recursiveFillLastItem<T>(
-  pages: ItemsPage<T>[],
+function recursiveFillLastItem<Entity>(
+  pages: ItemsPage<Entity>[],
   pageIndex: number,
   pageSize: number,
-): ItemsPage<T>[] {
+): ItemsPage<Entity>[] {
   const page = pages.find((p) => p.pageIndex === pageIndex);
   if (!page || page.items.length >= pageSize) return pages;
 

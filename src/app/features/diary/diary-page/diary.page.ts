@@ -155,7 +155,7 @@ export class DiaryPage implements OnInit {
   );
 
   protected trackFn = (item: DiaryEvent): number | string =>
-    this.storeHandler.extractId(item);
+    this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
     this.listStore.loadFirstPage$.next();
