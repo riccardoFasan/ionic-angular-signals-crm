@@ -23,14 +23,18 @@ import { MachineState } from '../machine-state.enum';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
-export class DetailStoreService<Entity> {
+export class DetailStoreService<
+  Entity extends Record<string, unknown>,
+  PEntities extends Record<string, unknown>,
+> {
   private handler = inject(STORE_HANDLER);
   private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
-  private state = signal<DetailState<Entity>>(this.initialState);
+  private state = signal<DetailState<Entity, PEntities>>(this.initialState);
 
   item = computed<Entity | undefined>(() => this.state().item);
+  parentItems = computed<PEntities | undefined>(() => this.state().parentItems);
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
@@ -144,7 +148,7 @@ export class DetailStoreService<Entity> {
     });
   }
 
-  private get initialState(): DetailState<Entity> {
+  private get initialState(): DetailState<Entity, PEntities> {
     return {
       ...INITIAL_DETAIL_STATE,
       ...this.handler.initialState?.detail,

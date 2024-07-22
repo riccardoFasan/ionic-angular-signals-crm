@@ -34,12 +34,15 @@ import { environment } from 'src/environments/environment';
 import { ItemsMutation } from '../items-mutation.type';
 
 @Injectable()
-export class ListStoreService<Entity> {
+export class ListStoreService<
+  Entity extends Record<string, unknown>,
+  PEntities extends Record<string, unknown>,
+> {
   private handler = inject(STORE_HANDLER);
   private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
-  private state = signal<ListState<Entity>>(this.initialState);
+  private state = signal<ListState<Entity, PEntities>>(this.initialState);
 
   searchCriteria = computed<SearchCriteria>(() => this.state().searchCriteria);
   total = computed<number>(() => this.state().total);
@@ -52,6 +55,8 @@ export class ListStoreService<Entity> {
       .map((page) => page.items)
       .flat(),
   );
+
+  parentItems = computed<PEntities | undefined>(() => this.state().parentItems);
 
   pageItems = computed<Entity[]>(() => {
     const { pagination } = this.searchCriteria();
@@ -241,7 +246,7 @@ export class ListStoreService<Entity> {
     });
   }
 
-  private get initialState(): ListState<Entity> {
+  private get initialState(): ListState<Entity, PEntities> {
     return {
       ...INITIAL_LIST_STATE,
       ...this.handler.initialState?.list,

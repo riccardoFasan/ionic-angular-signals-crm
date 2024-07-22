@@ -6,15 +6,15 @@ import { ListState } from './list.state';
 import { DetailState } from './detail.state';
 
 export interface StoreHandler<
-  Entity,
+  Entity extends Record<string, unknown>,
   EntityKey,
-  PKeys extends Record<string, unknown>,
-  PEntities extends Record<string, unknown>,
   ExtendedEntity extends Entity = Entity,
+  PKeys extends Record<string, unknown> = {},
+  PEntities extends Record<string, unknown> = {},
 > {
   initialState?: {
-    list?: Partial<ListState<Entity>>;
-    detail?: Partial<DetailState<ExtendedEntity>>;
+    list?: Partial<ListState<Entity, PEntities>>;
+    detail?: Partial<DetailState<ExtendedEntity, PEntities>>;
   };
 
   loadParentsFirst?: boolean;

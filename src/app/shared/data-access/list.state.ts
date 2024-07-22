@@ -8,11 +8,15 @@ import {
 } from '../utility';
 import { MachineState } from './machine-state.enum';
 
-export type ListState<Entity> = {
+export type ListState<
+  Entity extends Record<string, unknown>,
+  PEntities extends Record<string, unknown>,
+> = {
+  mode: MachineState;
   pages: ItemsPage<Entity>[];
   searchCriteria: SearchCriteria;
   total: number;
-  mode: MachineState;
+  parentItems?: PEntities;
   error?: Error;
 };
 
@@ -34,7 +38,7 @@ export const INITIAL_SEARCH_CRITERIA: SearchCriteria = {
   sortings: INITIAL_LIST_SORTINGS,
 };
 
-export const INITIAL_LIST_STATE: ListState<never> = {
+export const INITIAL_LIST_STATE: ListState<never, Record<string, unknown>> = {
   pages: [],
   total: 0,
   searchCriteria: INITIAL_SEARCH_CRITERIA,
