@@ -7,6 +7,5 @@ export type DetailState<Entity> = {
 };
 
 export const INITIAL_DETAIL_STATE: DetailState<never> = {
-  item: undefined,
   mode: MachineState.Idle,
 };
