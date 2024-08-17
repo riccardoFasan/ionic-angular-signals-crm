@@ -13,6 +13,7 @@ import {
   pushOrReplace,
   FilterClause,
   ItemsPage,
+  areEqualObjects,
 } from '../../utility';
 import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import {
@@ -20,6 +21,7 @@ import {
   Subject,
   catchError,
   combineLatest,
+  distinctUntilChanged,
   filter,
   map,
   merge,
@@ -36,7 +38,7 @@ import { ItemsMutation } from '../items-mutation.type';
 @Injectable()
 export class ListStoreService<
   Entity extends Record<string, unknown>,
-  PEntities extends Record<string, unknown>,
+  PEntities extends Record<string, unknown> | undefined = undefined,
 > {
   private handler = inject(STORE_HANDLER);
   private errorInterpreter = inject(ErrorInterpreterService);
@@ -75,12 +77,16 @@ export class ListStoreService<
   private pages = computed<ItemsPage<Entity>[]>(() => this.state().pages);
 
   refresh$ = new Subject<void>();
+  itemOperation$ = new Subject<{ operation: Operation; item?: Entity }>();
+
+  parentKeys$ = new Subject<Record<string, unknown>>();
+
   loadFirstPage$ = new Subject<void>();
   loadPage$ = new Subject<number>();
+
   params$ = new Subject<SearchCriteria['params']>();
   query$ = new Subject<SearchFilters['query']>();
   filterClause$ = new Subject<FilterClause>();
-  itemOperation$ = new Subject<{ operation: Operation; item?: Entity }>();
   sortings$ = new Subject<Sorting[]>();
 
   private filters$ = combineLatest([this.query$, this.filterClause$]).pipe(
@@ -180,6 +186,34 @@ export class ListStoreService<
       )
       .subscribe();
 
+    this.parentKeys$
+      .pipe(
+        filter((parentKeys) => !!parentKeys && !!this.handler.loadParents),
+        distinctUntilChanged(areEqualObjects),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Fetching,
+          })),
+        ),
+        switchMap((parentKeys) =>
+          // @ts-ignore
+          this.handler.loadParents!(parentKeys).pipe(
+            catchError((error) => onHandlerError(error, this.state)),
+          ),
+        ),
+        tap((parentItems) =>
+          this.state.update((state) => ({
+            ...state,
+            parentItems,
+            mode: MachineState.Idle,
+            error: undefined,
+          })),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+
     this.itemOperation$
       .pipe(
         mergeMap(({ operation, item }) => {
@@ -249,7 +283,7 @@ export class ListStoreService<
   private get initialState(): ListState<Entity, PEntities> {
     return {
       ...INITIAL_LIST_STATE,
-      ...this.handler.initialState?.list,
+      ...(this.handler.initialState?.list || {}),
     };
   }
 

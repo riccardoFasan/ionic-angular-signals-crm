@@ -7,17 +7,15 @@ import { DetailState } from './detail.state';
 
 export interface StoreHandler<
   Entity extends Record<string, unknown>,
-  EntityKey,
+  EntityKey = number,
   ExtendedEntity extends Entity = Entity,
-  PKeys extends Record<string, unknown> = {},
-  PEntities extends Record<string, unknown> = {},
+  PKeys extends Record<string, unknown> | undefined = undefined,
+  PEntities extends Record<string, unknown> | undefined = undefined,
 > {
   initialState?: {
     list?: Partial<ListState<Entity, PEntities>>;
     detail?: Partial<DetailState<ExtendedEntity, PEntities>>;
   };
-
-  loadParentsFirst?: boolean;
 
   extractPk(item: Entity): EntityKey;
   extractName(item: Entity): string;

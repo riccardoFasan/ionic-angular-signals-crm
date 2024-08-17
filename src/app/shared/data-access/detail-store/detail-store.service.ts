@@ -15,6 +15,7 @@ import { STORE_HANDLER } from '../store-handler.token';
 import {
   ErrorInterpreterService,
   ToastsService,
+  areEqualObjects,
   forceObservable,
   onHandlerError,
 } from '../../utility';
@@ -25,7 +26,7 @@ import { environment } from 'src/environments/environment';
 @Injectable()
 export class DetailStoreService<
   Entity extends Record<string, unknown>,
-  PEntities extends Record<string, unknown>,
+  PEntities extends Record<string, unknown> = {},
 > {
   private handler = inject(STORE_HANDLER);
   private errorInterpreter = inject(ErrorInterpreterService);
@@ -39,6 +40,8 @@ export class DetailStoreService<
   error = computed<Error | undefined>(() => this.state().error);
 
   pk$ = new Subject<unknown>();
+  parentKeys$ = new Subject<Record<string, unknown>>();
+
   refresh$ = new Subject<void>();
   operation$ = new Subject<Operation>();
 
@@ -62,6 +65,34 @@ export class DetailStoreService<
           this.state.update((state) => ({
             ...state,
             item,
+            mode: MachineState.Idle,
+            error: undefined,
+          })),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+
+    this.parentKeys$
+      .pipe(
+        filter((parentKeys) => !!parentKeys && !!this.handler.loadParents),
+        distinctUntilChanged(areEqualObjects),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Fetching,
+          })),
+        ),
+        switchMap((parentKeys) =>
+          // @ts-ignore
+          this.handler.loadParents!(parentKeys).pipe(
+            catchError((error) => onHandlerError(error, this.state)),
+          ),
+        ),
+        tap((parentItems) =>
+          this.state.update((state) => ({
+            ...state,
+            parentItems,
             mode: MachineState.Idle,
             error: undefined,
           })),
@@ -151,7 +182,7 @@ export class DetailStoreService<
   private get initialState(): DetailState<Entity, PEntities> {
     return {
       ...INITIAL_DETAIL_STATE,
-      ...this.handler.initialState?.detail,
+      ...(this.handler.initialState?.detail || {}),
     };
   }
 }
