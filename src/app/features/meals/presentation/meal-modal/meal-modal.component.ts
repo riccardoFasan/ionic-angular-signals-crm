@@ -22,8 +22,11 @@ import { MealsHandlerDirective } from '../../utility';
   imports: [IonButton, DetailModalWrapperComponent, MealFormComponent],
   template: `
     <app-detail-modal-wrapper
-      [loading]="detailStore.mode() === 'PROCESSING'"
+      [loading]="
+        detailStore.mode() === 'PROCESSING' || detailStore.mode() === 'FETCHING'
+      "
       [title]="title()"
+      (refresh)="detailStore.refresh$.next()"
     >
       <ng-container ngProjectAs="[buttons]">
         @if (detailStore.item()) {
