@@ -9,4 +9,11 @@ export const INGREDIENTS_ROUTES: Routes = [
         (m) => m.IngredientsPage,
       ),
   },
+  {
+    path: ':ingredientId/foods',
+    loadComponent: () =>
+      import('./ingredient-foods-page/ingredient-foods.page').then(
+        (m) => m.IngredientFoodsPage,
+      ),
+  },
 ];
