@@ -48,7 +48,7 @@ export class DetailStoreService<
   parentKeys$ = new Subject<Record<string, unknown>>();
 
   private keys$ = combineLatest([
-    this.pk$,
+    this.pk$.pipe(startWith(undefined)),
     this.parentKeys$.pipe(startWith({})),
   ]).pipe(distinctUntilChanged(areEqualObjects), debounceTime(50));
 
