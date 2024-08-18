@@ -31,25 +31,27 @@ import { environment } from 'src/environments/environment';
 @Injectable()
 export class DetailStoreService<
   Entity extends Record<string, unknown>,
-  PEntities extends Record<string, unknown> = {},
+  REntities extends Record<string, unknown> = {},
 > {
   private handler = inject(STORE_HANDLER);
   private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
-  private state = signal<DetailState<Entity, PEntities>>(this.initialState);
+  private state = signal<DetailState<Entity, REntities>>(this.initialState);
 
   item = computed<Entity | undefined>(() => this.state().item);
-  parentItems = computed<PEntities | undefined>(() => this.state().parentItems);
+  relatedItems = computed<REntities | undefined>(
+    () => this.state().relatedItems,
+  );
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
   pk$ = new Subject<unknown>();
-  parentKeys$ = new Subject<Record<string, unknown>>();
+  relatedItemsKeys$ = new Subject<Record<string, unknown>>();
 
   private keys$ = combineLatest([
     this.pk$.pipe(startWith(undefined)),
-    this.parentKeys$.pipe(startWith({})),
+    this.relatedItemsKeys$.pipe(startWith({})),
   ]).pipe(distinctUntilChanged(areEqualObjects), debounceTime(50));
 
   refresh$ = new Subject<void>();
@@ -65,28 +67,29 @@ export class DetailStoreService<
             mode: MachineState.Fetching,
           })),
         ),
-        switchMap(([pk, parentKeys]) => {
+        switchMap(([pk, relatedItemsKeys]) => {
           const loadEntity$ = this.handler
             // @ts-ignore
-            .get(pk, parentKeys)
+            .get(pk, relatedItemsKeys)
             .pipe(catchError((error) => onHandlerError(error, this.state)));
 
-          const canLoadParents = !!parentKeys && !!this.handler.loadParents;
-          const loadParents$ = forceObservable(
-            canLoadParents
+          const canLoadRelatedItems =
+            !!relatedItemsKeys && !!this.handler.loadRelatedItems;
+          const loadRelatedItems$ = forceObservable(
+            canLoadRelatedItems
               ? // @ts-ignore
-                this.handler.loadParents!(parentKeys).pipe(
+                this.handler.loadRelatedItems!(relatedItemsKeys).pipe(
                   catchError((error) => onHandlerError(error, this.state)),
                 )
               : undefined,
           );
-          return forkJoin([loadEntity$, loadParents$]);
+          return forkJoin([loadEntity$, loadRelatedItems$]);
         }),
-        tap(([item, parentItems]) =>
+        tap(([item, relatedItems]) =>
           this.state.update((state) => ({
             ...state,
             item,
-            parentItems,
+            relatedItems,
             mode: MachineState.Idle,
             error: undefined,
           })),
@@ -105,10 +108,10 @@ export class DetailStoreService<
           })),
         ),
         withLatestFrom(this.keys$),
-        switchMap(([pk, parentKeys]) =>
+        switchMap(([pk, relatedItemsKeys]) =>
           this.handler
             // @ts-ignore
-            .get(pk, parentKeys)
+            .get(pk, relatedItemsKeys)
             .pipe(catchError((error) => onHandlerError(error, this.state))),
         ),
         tap((item) =>
@@ -126,11 +129,14 @@ export class DetailStoreService<
     this.operation$
       .pipe(
         withLatestFrom(this.keys$),
-        mergeMap(([operation, [_, parentKeys]]) => {
+        mergeMap(([operation, [_, relatedItemsKeys]]) => {
           const canOperate$ = forceObservable(
-            // @ts-ignore
-            this.handler.canOperate?.(operation, this.item(), parentKeys) ||
-              true,
+            this.handler.canOperate?.(
+              operation,
+              this.item(),
+              // @ts-ignore
+              relatedItemsKeys,
+            ) || true,
           );
           this.state.update((state) => ({
             ...state,
@@ -139,14 +145,16 @@ export class DetailStoreService<
           return canOperate$.pipe(
             filter((canOperate) => canOperate),
             switchMap(() =>
-              // @ts-ignore
-              this.handler.operate(operation, this.item(), parentKeys).pipe(
-                catchError((error) => onHandlerError(error, this.state)),
-                map((updatedItem) => ({
-                  operation,
-                  item: updatedItem || this.item(),
-                })),
-              ),
+              this.handler
+                // @ts-ignore
+                .operate(operation, this.item(), relatedItemsKeys)
+                .pipe(
+                  catchError((error) => onHandlerError(error, this.state)),
+                  map((updatedItem) => ({
+                    operation,
+                    item: updatedItem || this.item(),
+                  })),
+                ),
             ),
             tap(({ item }) =>
               this.state.update((state) => ({
@@ -159,7 +167,7 @@ export class DetailStoreService<
             switchMap(({ operation, item }) =>
               forceObservable(
                 // @ts-ignore
-                this.handler.onOperation?.(operation, item, parentKeys),
+                this.handler.onOperation?.(operation, item, relatedItemsKeys),
               ),
             ),
           );
@@ -181,7 +189,7 @@ export class DetailStoreService<
     });
   }
 
-  private get initialState(): DetailState<Entity, PEntities> {
+  private get initialState(): DetailState<Entity, REntities> {
     return {
       ...INITIAL_DETAIL_STATE,
       ...(this.handler.initialState?.detail || {}),

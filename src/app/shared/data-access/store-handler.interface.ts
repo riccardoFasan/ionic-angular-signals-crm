@@ -9,34 +9,34 @@ export interface StoreHandler<
   Entity extends Record<string, unknown>,
   EntityKey = number,
   ExtendedEntity extends Entity = Entity,
-  PKeys extends Record<string, unknown> | undefined = undefined,
-  PEntities extends Record<string, unknown> | undefined = undefined,
+  RKeys extends Record<string, unknown> | undefined = undefined,
+  REntities extends Record<string, unknown> | undefined = undefined,
 > {
   initialState?: {
-    list?: Partial<ListState<Entity, PEntities>>;
-    detail?: Partial<DetailState<ExtendedEntity, PEntities>>;
+    list?: Partial<ListState<Entity, REntities>>;
+    detail?: Partial<DetailState<ExtendedEntity, REntities>>;
   };
 
   extractPk(item: Entity): EntityKey;
   extractName(item: Entity): string;
-  get(pk: EntityKey, parentKeys?: PKeys): Observable<ExtendedEntity>;
+  get(pk: EntityKey, relatedItemsKeys?: RKeys): Observable<ExtendedEntity>;
   getList(
     searchCriteria: SearchCriteria,
-    parentKeys?: PKeys,
+    relatedItemsKeys?: RKeys,
   ): Observable<List<Entity>>;
 
-  loadParents?(parentKeys: PKeys): Observable<PEntities>;
+  loadRelatedItems?(relatedItemsKeys: RKeys): Observable<REntities>;
 
   canOperate?(
     operation: Operation,
     item?: Entity | ExtendedEntity,
-    parentKeys?: PKeys,
+    relatedItemsKeys?: RKeys,
   ): Observable<boolean> | boolean;
 
   operate(
     operation: Operation,
     item?: Entity | ExtendedEntity,
-    parentKeys?: PKeys,
+    relatedItemsKeys?: RKeys,
   ): Observable<Entity | ExtendedEntity | void>;
 
   // mutateItems is intended for optimistic updates.
@@ -56,7 +56,7 @@ export interface StoreHandler<
   onOperation?(
     operation: Operation,
     item?: Entity | ExtendedEntity,
-    parentKeys?: PKeys,
+    relatedItemsKeys?: RKeys,
   ): Observable<void> | void;
 
   interpretError?(
