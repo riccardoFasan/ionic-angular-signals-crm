@@ -1,9 +1,9 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.richard.fooddiary',
-  appName: 'food-diary',
-  webDir: 'build/browser',
+  appId: 'com.richard.ionic-angular-signals-crm',
+  appName: 'ionic-angular-signals-crm',
+  webDir: 'build',
   server: {
     androidScheme: 'https',
     iosScheme: 'https',

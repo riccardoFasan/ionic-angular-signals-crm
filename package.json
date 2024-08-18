@@ -10,7 +10,9 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "format": "prettier --write \"src/**/*.{js,ts,css,scss,json,html}\""
+    "format": "prettier --write \"src/**/*.{js,ts,css,scss,json,html}\"",
+    "live:android": "ionic cap run android -l --external",
+    "live:ios": "ionic cap run ios -l --external"
   },
   "private": true,
   "dependencies": {

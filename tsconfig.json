@@ -16,15 +16,16 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "es2022",
-    "module": "es2020",
-    "lib": ["es2019", "dom"],
+    "module": "esnext",
+    "lib": ["es2022", "dom"],
     "useDefineForClassFields": false,
     "skipLibCheck": true,
+    "removeComments": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true,
-  },
+    "strictTemplates": true
+  }
 }

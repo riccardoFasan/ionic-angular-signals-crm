@@ -5,7 +5,7 @@ export const environment = {
     androidIsEncryption: true,
   },
   database: {
-    name: 'food-diary-prod-db',
+    name: 'ionic-angular-signals-crm-prod-db',
     encrypted: true,
     mode: 'secret',
     version: 1,

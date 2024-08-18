@@ -9,7 +9,7 @@ export const environment = {
     androidIsEncryption: false,
   },
   database: {
-    name: 'food-diary-dev-db',
+    name: 'ionic-angular-signals-crm-dev-db',
     encrypted: false,
     mode: 'no-encryption',
     version: 1,
