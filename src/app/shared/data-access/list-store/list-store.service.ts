@@ -81,7 +81,11 @@ export class ListStoreService<
   private pages = computed<ItemsPage<Entity>[]>(() => this.state().pages);
 
   refresh$ = new Subject<void>();
-  itemOperation$ = new Subject<{ operation: Operation; item?: Entity }>();
+  itemOperation$ = new Subject<{
+    operation: Operation;
+    restoreInitialSearchCritieria?: boolean;
+    item?: Entity;
+  }>();
 
   itemKeys$ = new Subject<Record<string, unknown>>();
 
@@ -243,57 +247,66 @@ export class ListStoreService<
     this.itemOperation$
       .pipe(
         withLatestFrom(this.keys$),
-        mergeMap(([{ operation, item }, keys]) => {
-          const canOperate$ = forceObservable(
-            this.handler.canOperate?.(operation, item, keys) || true,
-          );
-          return canOperate$.pipe(
-            filter((canOperate) => canOperate),
-            switchMap(() => {
-              this.state.update((state) => ({
-                ...state,
-                mode: MachineState.Processing,
-              }));
+        mergeMap(
+          ([{ operation, item, restoreInitialSearchCritieria }, keys]) => {
+            const canOperate$ = forceObservable(
+              this.handler.canOperate?.(operation, item, keys) || true,
+            );
+            return canOperate$.pipe(
+              filter((canOperate) => canOperate),
+              switchMap(() => {
+                this.state.update((state) => ({
+                  ...state,
+                  mode: MachineState.Processing,
+                }));
 
-              // * creation of a new item or operations that do not require a specific item
-              if (!item)
-                return this.operateAndThenMutateOrRefresh(operation, keys);
+                // * creation of a new item or operations that do not require a specific item
+                if (!item) {
+                  return this.operateAndThenMutateOrRefresh(
+                    operation,
+                    keys,
+                    restoreInitialSearchCritieria,
+                  );
+                }
 
-              const itemsMutation = this.handler.mutateItems?.(
-                operation,
-                item,
-                this.pages(),
-                this.total(),
-                this.searchCriteria(),
-              );
-
-              if (!itemsMutation) {
-                return this.handler.operate(operation, item, keys).pipe(
-                  catchError((error) => onHandlerError(error, this.state)),
-                  switchMap((updatedItem) =>
-                    this.refreshPagesAfterOperation(
-                      operation,
-                      keys,
-                      item,
-                      updatedItem,
-                    ),
-                  ),
+                const itemsMutation = this.handler.mutateItems?.(
+                  operation,
+                  item,
+                  this.pages(),
+                  this.total(),
+                  this.searchCriteria(),
                 );
-              }
 
-              return this.mutatePagesWhileOperating(
-                operation,
-                item,
-                itemsMutation,
-              );
-            }),
-            switchMap(({ operation, item }) =>
-              forceObservable(
-                this.handler.onOperation?.(operation, item, keys),
+                if (!itemsMutation) {
+                  return this.handler.operate(operation, item, keys).pipe(
+                    catchError((error) => onHandlerError(error, this.state)),
+                    switchMap((updatedItem) =>
+                      this.refreshPagesAfterOperation(
+                        operation,
+                        keys,
+                        item,
+                        updatedItem,
+                        restoreInitialSearchCritieria,
+                      ),
+                    ),
+                  );
+                }
+
+                return this.mutatePagesWhileOperating(
+                  operation,
+                  item,
+                  itemsMutation,
+                );
+              }),
+              switchMap(({ operation, item }) =>
+                forceObservable(
+                  this.handler.onOperation?.(operation, item, keys),
+                ),
               ),
-            ),
-          );
-        }, environment.operationsConcurrency),
+            );
+          },
+          environment.operationsConcurrency,
+        ),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -321,6 +334,7 @@ export class ListStoreService<
   private operateAndThenMutateOrRefresh(
     operation: Operation,
     keys: Record<string, unknown>,
+    restoreInitialSearchCritieria: boolean = false,
   ): Observable<{ operation: Operation; item?: Entity }> {
     return this.handler.operate(operation, keys).pipe(
       catchError((error) => onHandlerError(error, this.state)),
@@ -336,7 +350,13 @@ export class ListStoreService<
           );
 
         if (!itemsMutation) {
-          return this.refreshPagesAfterOperation(operation, keys, item);
+          return this.refreshPagesAfterOperation(
+            operation,
+            keys,
+            item,
+            undefined,
+            restoreInitialSearchCritieria,
+          );
         }
 
         const mutate$ = forceObservable(itemsMutation).pipe(
@@ -395,13 +415,18 @@ export class ListStoreService<
     keys: Record<string, unknown>,
     item?: Entity,
     updatedItem?: Entity,
+    restoreInitialSearchCritieria: boolean = false,
   ): Observable<{ operation: Operation; item?: Entity }> {
-    return this.handler.getList(this.searchCriteria(), keys).pipe(
+    const searchCriteria = restoreInitialSearchCritieria
+      ? this.initialState.searchCriteria
+      : this.searchCriteria();
+    return this.handler.getList(searchCriteria, keys).pipe(
       catchError((error) => onHandlerError(error, this.state)),
       tap(({ items, total }) => {
-        const pageIndex = this.searchCriteria().pagination.pageIndex;
+        const pageIndex = searchCriteria.pagination.pageIndex;
         this.state.update((state) => ({
           ...state,
+          searchCriteria,
           pages: pushOrReplace(
             state.pages,
             { pageIndex, items },
