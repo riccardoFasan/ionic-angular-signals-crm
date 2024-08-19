@@ -62,6 +62,7 @@ type ConsumptionWithRef = Partial<Consumption> & WithRef;
             searchKey="name"
             multiple="false"
             required="true"
+            [keys]="{}"
             [ngModel]="consumption.food"
             (ngModelChange)="
               updateConsumption({ food: $event, ref: consumption.ref }, $index)

@@ -60,6 +60,7 @@ import { IngredientsHandlerDirective } from 'src/app/features/ingredients/utilit
             formControlName="ingredients"
             searchKey="name"
             multiple="true"
+            [keys]="{}"
           />
         </ion-item>
         <ion-item>
