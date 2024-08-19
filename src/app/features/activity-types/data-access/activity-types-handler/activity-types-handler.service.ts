@@ -26,12 +26,14 @@ import { Observable, defer } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
+export class ActivityTypesHandlerService
+  implements StoreHandler<ActivityType, { id: number }>
+{
   private activityTypesFacade = inject(ActivityTypesFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: ActivityType): number {
+  extractPk(item: ActivityType): number {
     return item.id;
   }
 
@@ -39,7 +41,7 @@ export class ActivityTypesHandlerService implements StoreHandler<ActivityType> {
     return item.name;
   }
 
-  get(id: number): Observable<ActivityType> {
+  get({ id }: { id: number }): Observable<ActivityType> {
     return defer(() => this.activityTypesFacade.get(id));
   }
 

@@ -1,6 +1,6 @@
-export type List<T> = {
+export type List<Entity> = {
   pageIndex: number;
   pageSize: number;
   total: number;
-  items: T[];
+  items: Entity[];
 };

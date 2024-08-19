@@ -66,6 +66,51 @@ export class FoodApiService {
     return { pageIndex, pageSize, total, items };
   }
 
+  async getFoodsOfIngredient(
+    searchCriteria: SearchCriteria,
+    ingredientId: number,
+  ): Promise<List<FoodDTO>> {
+    let selectQuery = `SELECT f.* FROM food f
+      JOIN food_ingredient fi ON f.id = fi.food_id
+      WHERE fi.ingredient_id = ${ingredientId};`;
+    const countQuery = `SELECT COUNT(*) FROM food;`;
+
+    const { filters, sortings } = searchCriteria;
+
+    if (filters) {
+      const filterClauses = Object.entries(filters.query)
+        .reduce((clauses: string[], [field, value]) => {
+          if (value === undefined) return clauses;
+          return [...clauses, `${field} LIKE '%${value}%'`];
+        }, [])
+        .join(filters.clause);
+      if (filterClauses) selectQuery += ` AND ${filterClauses}`;
+    }
+
+    if (sortings && sortings.length > 0) {
+      selectQuery += ' ORDER BY ';
+
+      sortings.forEach(({ property, order }, i) => {
+        selectQuery += `${property} ${order}`;
+        if (i < sortings.length - 1) selectQuery += ', ';
+      });
+    }
+
+    const { pageIndex, pageSize } = searchCriteria.pagination;
+    const offset = pageIndex * pageSize;
+    selectQuery += ` LIMIT ${pageSize} OFFSET ${offset};`;
+
+    const [listResult, countResult] = await Promise.all([
+      this.database.query(selectQuery),
+      this.database.query(countQuery),
+    ]);
+
+    const items: FoodDTO[] = listResult.values || [];
+    const total = countResult.values?.[0]['COUNT(*)'] || 0;
+
+    return { pageIndex, pageSize, total, items };
+  }
+
   async get(id: number): Promise<FoodDTO> {
     const result = await this.database.query(
       `SELECT * FROM food WHERE id = ${id};`,

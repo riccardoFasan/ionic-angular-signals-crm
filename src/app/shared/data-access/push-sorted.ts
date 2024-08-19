@@ -6,13 +6,17 @@ import {
   Sorting,
 } from '../utility';
 
-export function pushSorted<T>(
-  item: T,
-  pages: ItemsPage<T>[],
+export function pushSorted<Entity>(
+  item: Entity,
+  pages: ItemsPage<Entity>[],
   { filters, sortings, pagination }: SearchCriteria,
-  inCustomFilters?: (item: T, filters: SearchFilters) => boolean,
-  getCustomSortedIndex?: (item: T, items: T[], sortings?: Sorting[]) => number,
-): ItemsPage<T>[] {
+  inCustomFilters?: (item: Entity, filters: SearchFilters) => boolean,
+  getCustomSortedIndex?: (
+    item: Entity,
+    items: Entity[],
+    sortings?: Sorting[],
+  ) => number,
+): ItemsPage<Entity>[] {
   if (filters) {
     const matchFilters = inCustomFilters
       ? inCustomFilters(item, filters)
@@ -24,11 +28,9 @@ export function pushSorted<T>(
 
   const items = pages.find((page) => page.pageIndex === pageIndex)?.items;
 
-  if (!items) {
-    return [...pages, { pageIndex, items: [item] }];
-  }
+  if (!items) return [...pages, { pageIndex, items: [item] }];
 
-  // the main idea is to isert the new item in its page.items and move the last, if present,
+  // the main idea is to insert the new item in its page.items and move the last, if present,
   // to the next page and if the next page is full, move the last to the next page and so on
 
   const sortedIndex =
@@ -48,16 +50,16 @@ export function pushSorted<T>(
   return recursiveInsertFirstItem(lastItem, pages, pageIndex + 1, pageSize);
 }
 
-function inFilters<T>(item: T, filters: SearchFilters): boolean {
+function inFilters<Entity>(item: Entity, filters: SearchFilters): boolean {
   return Object.entries(filters).every(([key, value]) => {
     const record = item as Record<string, string | number | boolean | Date>;
     return value === record[key];
   });
 }
 
-function getSortedIndex<T>(
-  item: T,
-  items: T[],
+function getSortedIndex<Entity>(
+  item: Entity,
+  items: Entity[],
   sortings: Sorting[] = [],
 ): number {
   if (!sortings) return items.length;
@@ -84,12 +86,12 @@ function getSortedIndex<T>(
   return items.length;
 }
 
-function recursiveInsertFirstItem<T>(
-  item: T,
-  pages: ItemsPage<T>[],
+function recursiveInsertFirstItem<Entity>(
+  item: Entity,
+  pages: ItemsPage<Entity>[],
   pageIndex: number,
   pageSize: number,
-): ItemsPage<T>[] {
+): ItemsPage<Entity>[] {
   const page = pages.find((p) => p.pageIndex === pageIndex);
   if (!page) return [...pages, { pageIndex, items: [item] }];
   if (page.items.length < pageSize) {

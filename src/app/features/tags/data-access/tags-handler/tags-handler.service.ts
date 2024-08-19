@@ -22,12 +22,12 @@ import { TagsFacadeService } from '../tags-facade/tags-facade.service';
 @Injectable({
   providedIn: 'root',
 })
-export class TagsHandlerService implements StoreHandler<Tag> {
+export class TagsHandlerService implements StoreHandler<Tag, { id: number }> {
   private tagsFacade = inject(TagsFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Tag): number {
+  extractPk(item: Tag): number {
     return item.id;
   }
 
@@ -35,7 +35,7 @@ export class TagsHandlerService implements StoreHandler<Tag> {
     return item.name;
   }
 
-  get(id: number): Observable<Tag> {
+  get({ id }: { id: number }): Observable<Tag> {
     return defer(() => this.tagsFacade.get(id));
   }
 

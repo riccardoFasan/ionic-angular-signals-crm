@@ -23,7 +23,9 @@ import { INITIAL_SEARCH_CRITERIA } from '../../../../shared/data-access/list.sta
 @Injectable({
   providedIn: 'root',
 })
-export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
+export class DiaryHandlerService
+  implements StoreHandler<DiaryEvent, { id: number }>
+{
   private diaryFacade = inject(DiaryFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
@@ -37,7 +39,7 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     },
   };
 
-  extractId(item: DiaryEvent): string {
+  extractPk(item: DiaryEvent): string {
     return item.ref;
   }
 

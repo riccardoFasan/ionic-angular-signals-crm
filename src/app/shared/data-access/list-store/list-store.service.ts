@@ -12,47 +12,62 @@ import {
   onHandlerError,
   pushOrReplace,
   FilterClause,
+  ItemsPage,
+  areEqualObjects,
 } from '../../utility';
 import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import {
+  Observable,
   Subject,
   catchError,
   combineLatest,
+  distinctUntilChanged,
   filter,
   map,
   merge,
+  mergeMap,
+  startWith,
   switchMap,
   tap,
+  withLatestFrom,
 } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MachineState } from '../machine-state.enum';
 import { Operation } from '../operation.type';
 import { environment } from 'src/environments/environment';
+import { ItemsMutation } from '../items-mutation.type';
 
 @Injectable()
-export class ListStoreService<T> {
+export class ListStoreService<
+  Entity extends Record<string, unknown>,
+  REntities extends Record<string, unknown> | undefined = undefined,
+> {
   private handler = inject(STORE_HANDLER);
   private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
-  private state = signal<ListState<T>>(this.initialState);
+  private state = signal<ListState<Entity, REntities>>(this.initialState);
 
   searchCriteria = computed<SearchCriteria>(() => this.state().searchCriteria);
   total = computed<number>(() => this.state().total);
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
-  items = computed<T[]>(() =>
-    this.state()
-      .pages.sort((a, b) => a.pageIndex - b.pageIndex)
+  items = computed<Entity[]>(() =>
+    this.pages()
+      .sort((a, b) => a.pageIndex - b.pageIndex)
       .map((page) => page.items)
       .flat(),
   );
 
-  pageItems = computed<T[]>(() => {
+  relatedItems = computed<REntities | undefined>(
+    () => this.state().relatedItems,
+  );
+
+  pageItems = computed<Entity[]>(() => {
     const { pagination } = this.searchCriteria();
     const { pageIndex } = pagination;
-    const pages = this.state().pages;
+    const pages = this.pages();
     return pages.find((page) => page.pageIndex === pageIndex)?.items || [];
   });
 
@@ -63,13 +78,23 @@ export class ListStoreService<T> {
     return isPageIndexInRange(pageIndex + 1, pageSize, total);
   });
 
+  private pages = computed<ItemsPage<Entity>[]>(() => this.state().pages);
+
   refresh$ = new Subject<void>();
+  itemOperation$ = new Subject<{ operation: Operation; item?: Entity }>();
+
+  itemKeys$ = new Subject<Record<string, unknown>>();
+
+  private keys$ = this.itemKeys$.pipe(distinctUntilChanged(areEqualObjects));
+  private keysChange$ = this.keys$.pipe(map(() => void 0));
+
   loadFirstPage$ = new Subject<void>();
   loadPage$ = new Subject<number>();
+  loadRelatedItems$ = new Subject<void>();
+
   params$ = new Subject<SearchCriteria['params']>();
   query$ = new Subject<SearchFilters['query']>();
   filterClause$ = new Subject<FilterClause>();
-  operation$ = new Subject<{ operation: Operation; item?: T }>();
   sortings$ = new Subject<Sorting[]>();
 
   private filters$ = combineLatest([this.query$, this.filterClause$]).pipe(
@@ -82,27 +107,38 @@ export class ListStoreService<T> {
     this.filters$,
   ]).pipe(
     map(([sortings, params, filters]) => ({ sortings, params, filters })),
+    distinctUntilChanged(areEqualObjects),
+    startWith(this.initialState.searchCriteria),
   );
 
   constructor() {
-    merge(this.refresh$, this.loadFirstPage$, this.searchCriteria$)
+    merge(
+      this.refresh$,
+      this.loadFirstPage$,
+      this.keysChange$,
+      this.searchCriteria$,
+    )
       .pipe(
-        takeUntilDestroyed(),
-        map((searchCriteria) => ({
-          ...this.initialState.searchCriteria,
-          ...(searchCriteria || {}),
-          pagination: this.initialState.searchCriteria.pagination,
+        withLatestFrom(this.keys$),
+        filter(([_, keys]) => !!keys),
+        map(([searchCriteria, keys]) => ({
+          searchCriteria: {
+            ...this.initialState.searchCriteria,
+            ...(searchCriteria || {}),
+            pagination: this.initialState.searchCriteria.pagination,
+          },
+          keys,
         })),
-        tap((searchCriteria) =>
+        tap(({ searchCriteria }) =>
           this.state.update((state) => ({
             ...state,
             mode: MachineState.Fetching,
             searchCriteria,
           })),
         ),
-        switchMap((searchCriteria) =>
+        switchMap(({ searchCriteria, keys }) =>
           this.handler
-            .getList(searchCriteria)
+            .getList(searchCriteria, keys)
             .pipe(catchError((error) => onHandlerError(error, this.state))),
         ),
         tap(({ items, total }) =>
@@ -116,24 +152,31 @@ export class ListStoreService<T> {
             error: undefined,
           })),
         ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
     this.loadPage$
       .pipe(
-        takeUntilDestroyed(),
-        filter((pageIndex) =>
-          isPageIndexInRange(
+        withLatestFrom(this.keys$),
+        filter(
+          ([pageIndex, keys]) =>
+            !!keys &&
+            isPageIndexInRange(
+              pageIndex,
+              this.searchCriteria().pagination.pageSize,
+              this.total(),
+            ),
+        ),
+        map(([pageIndex, keys]) => ({
+          searchCriteria: getSearchCriteriaWithPage(
             pageIndex,
-            this.searchCriteria().pagination.pageSize,
-            this.total(),
+            this.searchCriteria(),
           ),
-        ),
-        map((pageIndex) =>
-          getSearchCriteriaWithPage(pageIndex, this.searchCriteria()),
-        ),
-        filter((searchCriteria) => {
-          const inCollection = this.state().pages.some(
+          keys,
+        })),
+        filter(({ searchCriteria }) => {
+          const inCollection = this.pages().some(
             (page) => page.pageIndex === searchCriteria.pagination.pageIndex,
           );
           if (inCollection) {
@@ -147,8 +190,8 @@ export class ListStoreService<T> {
             mode: MachineState.Fetching,
           })),
         ),
-        switchMap((searchCriteria) =>
-          this.handler.getList(searchCriteria).pipe(
+        switchMap(({ searchCriteria, keys }) =>
+          this.handler.getList(searchCriteria, keys).pipe(
             catchError((error) => onHandlerError(error, this.state)),
             tap(({ items }) =>
               this.state.update((state) => ({
@@ -166,15 +209,43 @@ export class ListStoreService<T> {
             ),
           ),
         ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
-    this.operation$
+    this.loadRelatedItems$
       .pipe(
+        withLatestFrom(this.keys$),
+        filter((keys) => !!keys && !!this.handler.loadRelatedItems),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Fetching,
+          })),
+        ),
+        switchMap((keys) =>
+          this.handler.loadRelatedItems!(keys).pipe(
+            catchError((error) => onHandlerError(error, this.state)),
+          ),
+        ),
+        tap((relatedItems) =>
+          this.state.update((state) => ({
+            ...state,
+            relatedItems,
+            mode: MachineState.Idle,
+            error: undefined,
+          })),
+        ),
         takeUntilDestroyed(),
-        switchMap(({ operation, item }) => {
+      )
+      .subscribe();
+
+    this.itemOperation$
+      .pipe(
+        withLatestFrom(this.keys$),
+        mergeMap(([{ operation, item }, keys]) => {
           const canOperate$ = forceObservable(
-            this.handler.canOperate?.(operation, item) || true,
+            this.handler.canOperate?.(operation, item, keys) || true,
           );
           return canOperate$.pipe(
             filter((canOperate) => canOperate),
@@ -183,80 +254,47 @@ export class ListStoreService<T> {
                 ...state,
                 mode: MachineState.Processing,
               }));
-              const mutateItems = this.handler.mutateItems?.(
+
+              // * creation of a new item or operations that do not require a specific item
+              if (!item)
+                return this.operateAndThenMutateOrRefresh(operation, keys);
+
+              const itemsMutation = this.handler.mutateItems?.(
                 operation,
                 item,
-                this.state().pages,
+                this.pages(),
                 this.total(),
                 this.searchCriteria(),
               );
 
-              if (!mutateItems) {
-                return this.handler.operate(operation, item).pipe(
+              if (!itemsMutation) {
+                return this.handler.operate(operation, item, keys).pipe(
                   catchError((error) => onHandlerError(error, this.state)),
-                  switchMap((item) =>
-                    this.handler.getList(this.initialState.searchCriteria).pipe(
-                      catchError((error) => onHandlerError(error, this.state)),
-                      tap(({ items, total }) => {
-                        const initialSearchCriteria =
-                          this.initialState.searchCriteria;
-                        this.state.update((state) => ({
-                          ...state,
-                          pages: [
-                            {
-                              pageIndex:
-                                initialSearchCriteria.pagination.pageIndex,
-                              items,
-                            },
-                          ],
-                          total,
-                          mode: MachineState.Idle,
-                          searchCriteria: initialSearchCriteria,
-                        }));
-                      }),
-                      map(() => ({ operation, item })),
+                  switchMap((updatedItem) =>
+                    this.refreshPagesAfterOperation(
+                      operation,
+                      keys,
+                      item,
+                      updatedItem,
                     ),
                   ),
                 );
               }
 
-              const { pages: currentPages, total: currentTotal } = this.state();
-
-              const mutate$ = forceObservable(mutateItems).pipe(
-                tap(({ pages, total }) =>
-                  this.state.update((state) => ({
-                    ...state,
-                    pages,
-                    total,
-                    mode: MachineState.Idle,
-                  })),
-                ),
-                map(({ pages, total }) => ({
-                  pages,
-                  total,
-                  operation,
-                  item,
-                })),
-              );
-
-              return combineLatest([
-                this.handler.operate(operation, item),
-                mutate$,
-              ]).pipe(
-                map(([item]) => ({ item, operation })),
-                catchError((error) =>
-                  onHandlerError(error, this.state, {
-                    pages: currentPages,
-                    total: currentTotal,
-                  }),
-                ),
+              return this.mutatePagesWhileOperating(
+                operation,
+                item,
+                itemsMutation,
               );
             }),
+            switchMap(({ operation, item }) =>
+              forceObservable(
+                this.handler.onOperation?.(operation, item, keys),
+              ),
+            ),
           );
-        }),
-        switchMap(({ operation, item }) =>
-          forceObservable(this.handler.onOperation?.(operation, item)),
-        ),
+        }, environment.operationsConcurrency),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
@@ -273,10 +311,107 @@ export class ListStoreService<T> {
     });
   }
 
-  private get initialState(): ListState<T> {
+  private get initialState(): ListState<Entity, REntities> {
     return {
       ...INITIAL_LIST_STATE,
-      ...this.handler.initialState?.list,
+      ...(this.handler.initialState?.list || {}),
     };
+  }
+
+  private operateAndThenMutateOrRefresh(
+    operation: Operation,
+    keys: Record<string, unknown>,
+  ): Observable<{ operation: Operation; item?: Entity }> {
+    return this.handler.operate(operation, keys).pipe(
+      catchError((error) => onHandlerError(error, this.state)),
+      switchMap((item) => {
+        const itemsMutation =
+          item &&
+          this.handler.mutateItems?.(
+            operation,
+            item,
+            this.pages(),
+            this.total(),
+            this.searchCriteria(),
+          );
+
+        if (!itemsMutation) {
+          return this.refreshPagesAfterOperation(operation, keys, item);
+        }
+
+        const mutate$ = forceObservable(itemsMutation).pipe(
+          tap(({ pages, total }) =>
+            this.state.update((state) => ({
+              ...state,
+              pages,
+              total,
+              mode: MachineState.Idle,
+            })),
+          ),
+        );
+
+        return mutate$.pipe(
+          catchError((error) => onHandlerError(error, this.state)),
+          map(() => ({ item, operation })),
+        );
+      }),
+    );
+  }
+
+  private mutatePagesWhileOperating(
+    operation: Operation,
+    item: Entity,
+    itemsMutation: ItemsMutation<Entity>,
+  ): Observable<{ operation: Operation; item: Entity }> {
+    const { pages: currentPages, total: currentTotal } = this.state();
+
+    const mutate$ = forceObservable(itemsMutation).pipe(
+      tap(({ pages, total }) =>
+        this.state.update((state) => ({
+          ...state,
+          pages,
+          total,
+          mode: MachineState.Idle,
+        })),
+      ),
+    );
+
+    return combineLatest([this.handler.operate(operation, item), mutate$]).pipe(
+      map(([updatedItem]) => ({
+        item: updatedItem || item,
+        operation,
+      })),
+      catchError((error) =>
+        onHandlerError(error, this.state, {
+          pages: currentPages,
+          total: currentTotal,
+        }),
+      ),
+    );
+  }
+
+  private refreshPagesAfterOperation(
+    operation: Operation,
+    keys: Record<string, unknown>,
+    item?: Entity,
+    updatedItem?: Entity,
+  ): Observable<{ operation: Operation; item?: Entity }> {
+    return this.handler.getList(this.searchCriteria(), keys).pipe(
+      catchError((error) => onHandlerError(error, this.state)),
+      tap(({ items, total }) => {
+        const pageIndex = this.searchCriteria().pagination.pageIndex;
+        this.state.update((state) => ({
+          ...state,
+          pages: pushOrReplace(
+            state.pages,
+            { pageIndex, items },
+            (page) => page.pageIndex === pageIndex,
+          ),
+          total,
+          mode: MachineState.Idle,
+        }));
+      }),
+      map(() => ({ operation, item: updatedItem || item })),
+    );
   }
 }

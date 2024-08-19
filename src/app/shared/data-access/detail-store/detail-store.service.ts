@@ -7,50 +7,62 @@ import {
   distinctUntilChanged,
   filter,
   map,
+  mergeMap,
   switchMap,
   tap,
+  withLatestFrom,
 } from 'rxjs';
 import { STORE_HANDLER } from '../store-handler.token';
 import {
   ErrorInterpreterService,
   ToastsService,
+  areEqualObjects,
   forceObservable,
   onHandlerError,
 } from '../../utility';
 import { Operation } from '../operation.type';
 import { MachineState } from '../machine-state.enum';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
-export class DetailStoreService<T> {
+export class DetailStoreService<
+  Entity extends Record<string, unknown>,
+  REntities extends Record<string, unknown> = {},
+> {
   private handler = inject(STORE_HANDLER);
   private errorInterpreter = inject(ErrorInterpreterService);
   private toasts = inject(ToastsService);
 
-  private state = signal<DetailState<T>>(this.initialState);
+  private state = signal<DetailState<Entity, REntities>>(this.initialState);
 
-  item = computed<T | undefined>(() => this.state().item);
+  item = computed<Entity | undefined>(() => this.state().item);
+  relatedItems = computed<REntities | undefined>(
+    () => this.state().relatedItems,
+  );
   mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
 
-  id$ = new Subject<number>();
+  itemKeys$ = new Subject<Record<string, unknown>>();
+
+  private keys$ = this.itemKeys$.pipe(distinctUntilChanged(areEqualObjects));
+
   refresh$ = new Subject<void>();
   operation$ = new Subject<Operation>();
+  loadRelatedItems$ = new Subject<void>();
 
   constructor() {
-    this.id$
+    this.keys$
       .pipe(
-        takeUntilDestroyed(),
-        filter((id) => !!id),
-        distinctUntilChanged(),
+        filter((keys) => !!keys),
         tap(() =>
           this.state.update((state) => ({
             ...state,
             mode: MachineState.Fetching,
           })),
         ),
-        switchMap((id) =>
+        switchMap((keys) =>
           this.handler
-            .get(id)
+            .get(keys)
             .pipe(catchError((error) => onHandlerError(error, this.state))),
         ),
         tap((item) =>
@@ -61,12 +73,39 @@ export class DetailStoreService<T> {
             error: undefined,
           })),
         ),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+
+    this.loadRelatedItems$
+      .pipe(
+        withLatestFrom(this.keys$),
+        filter((keys) => !!keys && !!this.handler.loadRelatedItems),
+        tap(() =>
+          this.state.update((state) => ({
+            ...state,
+            mode: MachineState.Fetching,
+          })),
+        ),
+        switchMap((keys) =>
+          this.handler.loadRelatedItems!(keys).pipe(
+            catchError((error) => onHandlerError(error, this.state)),
+          ),
+        ),
+        tap((relatedItems) =>
+          this.state.update((state) => ({
+            ...state,
+            relatedItems,
+            mode: MachineState.Idle,
+            error: undefined,
+          })),
+        ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
     this.refresh$
       .pipe(
-        takeUntilDestroyed(),
         filter(() => !!this.item()),
         tap(() =>
           this.state.update((state) => ({
@@ -74,10 +113,10 @@ export class DetailStoreService<T> {
             mode: MachineState.Fetching,
           })),
         ),
-        map(() => this.handler.extractId(this.item()!)),
-        switchMap((id) =>
+        withLatestFrom(this.keys$),
+        switchMap((keys) =>
           this.handler
-            .get(id)
+            .get(keys)
             .pipe(catchError((error) => onHandlerError(error, this.state))),
         ),
         tap((item) =>
@@ -88,15 +127,16 @@ export class DetailStoreService<T> {
             error: undefined,
           })),
         ),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
     this.operation$
       .pipe(
-        takeUntilDestroyed(),
-        switchMap((operation) => {
+        withLatestFrom(this.keys$),
+        mergeMap(([operation, keys]) => {
           const canOperate$ = forceObservable(
-            this.handler.canOperate?.(operation, this.item()) || true,
+            this.handler.canOperate?.(operation, this.item(), keys) || true,
           );
           this.state.update((state) => ({
             ...state,
@@ -105,24 +145,30 @@ export class DetailStoreService<T> {
           return canOperate$.pipe(
             filter((canOperate) => canOperate),
             switchMap(() =>
-              this.handler.operate(operation, this.item()).pipe(
+              this.handler.operate(operation, this.item(), keys).pipe(
                 catchError((error) => onHandlerError(error, this.state)),
-                map((item) => ({ operation, item })),
+                map((updatedItem) => ({
+                  operation,
+                  item: updatedItem || this.item(),
+                })),
+              ),
+            ),
+            tap(({ item }) =>
+              this.state.update((state) => ({
+                ...state,
+                item,
+                mode: MachineState.Idle,
+                error: undefined,
+              })),
+            ),
+            switchMap(({ operation, item }) =>
+              forceObservable(
+                this.handler.onOperation?.(operation, item, keys),
               ),
             ),
           );
-        }),
-        tap(({ item }) =>
-          this.state.update((state) => ({
-            ...state,
-            item,
-            mode: MachineState.Idle,
-            error: undefined,
-          })),
-        ),
-        switchMap(({ operation, item }) =>
-          forceObservable(this.handler.onOperation?.(operation, item)),
-        ),
+        }, environment.operationsConcurrency),
+        takeUntilDestroyed(),
       )
       .subscribe();
 
@@ -139,10 +185,10 @@ export class DetailStoreService<T> {
     });
   }
 
-  private get initialState(): DetailState<T> {
+  private get initialState(): DetailState<Entity, REntities> {
     return {
       ...INITIAL_DETAIL_STATE,
-      ...this.handler.initialState?.detail,
+      ...(this.handler.initialState?.detail || {}),
     };
   }
 }

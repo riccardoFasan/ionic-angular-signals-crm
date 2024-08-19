@@ -1,5 +1,6 @@
-import { enableProdMode } from '@angular/core';
+import { enableProdMode, provideZoneChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {
   PreloadAllModules,
   RouteReuseStrategy,
@@ -10,11 +11,9 @@ import {
   IonicRouteStrategy,
   provideIonicAngular,
 } from '@ionic/angular/standalone';
-
 import { APP_ROUTES } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
-
 import { addIcons } from 'ionicons';
 import {
   pricetagSharp,
@@ -63,9 +62,11 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideAnimationsAsync(),
     provideIonicAngular(),
     provideRouter(APP_ROUTES, withPreloading(PreloadAllModules)),
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
   ],
 });
 

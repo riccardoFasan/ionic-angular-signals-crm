@@ -1,17 +1,17 @@
 import { ItemsPage } from './items-page.type';
 
-export function replaceItemInPages<T>(
-  item: T,
-  pages: ItemsPage<T>[],
+export function replaceItemInPages<Entity, EntityKey>(
+  item: Entity,
+  pages: ItemsPage<Entity>[],
   pageIndex: number,
-  extractId: (item: T) => number | string,
-): ItemsPage<T>[] {
+  extractPk: (item: Entity) => EntityKey,
+): ItemsPage<Entity>[] {
   return pages.map((p) =>
     p.pageIndex === pageIndex
       ? {
           pageIndex,
           items: p.items.map((i) =>
-            extractId(i) === extractId(item) ? item : i,
+            extractPk(i) === extractPk(item) ? item : i,
           ),
         }
       : p,

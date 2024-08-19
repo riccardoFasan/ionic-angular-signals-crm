@@ -4,11 +4,12 @@
 
 export const environment = {
   production: false,
+  operationsConcurrency: 5,
   CapacitorSQLite: {
     androidIsEncryption: false,
   },
   database: {
-    name: 'food-diary-dev-db',
+    name: 'ionic-angular-signals-crm-dev-db',
     encrypted: false,
     mode: 'no-encryption',
     version: 1,

@@ -118,14 +118,15 @@ export class ActivityTypesPage implements OnInit {
   );
 
   protected trackFn = (item: ActivityType): number | string =>
-    this.storeHandler.extractId(item);
+    this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
+    this.listStore.itemKeys$.next({});
     this.listStore.loadFirstPage$.next();
   }
 
   protected remove(item: ActivityType): void {
-    this.listStore.operation$.next({
+    this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
     });

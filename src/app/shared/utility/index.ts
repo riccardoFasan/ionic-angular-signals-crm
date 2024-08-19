@@ -24,3 +24,4 @@ export * from './push-or-replace';
 export * from './items-page.type';
 export * from './replace-item-in-pages';
 export * from './remove-sorted';
+export * from './are-equal-objects';

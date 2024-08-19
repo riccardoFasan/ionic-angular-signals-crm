@@ -21,12 +21,12 @@ import { FoodsFacadeService } from '../foods-facade/foods-facade.service';
 @Injectable({
   providedIn: 'root',
 })
-export class FoodsHandlerService implements StoreHandler<Food> {
+export class FoodsHandlerService implements StoreHandler<Food, { id: number }> {
   private foodsFacade = inject(FoodsFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Food): number {
+  extractPk(item: Food): number {
     return item.id;
   }
 
@@ -34,7 +34,7 @@ export class FoodsHandlerService implements StoreHandler<Food> {
     return item.name;
   }
 
-  get(id: number): Observable<Food> {
+  get({ id }: { id: number }): Observable<Food> {
     return defer(() => this.foodsFacade.get(id));
   }
 
