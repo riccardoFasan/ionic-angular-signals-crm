@@ -84,6 +84,7 @@ import { TagsHandlerDirective } from 'src/app/features/tags/utility';
             searchKey="name"
             multiple="false"
             required="true"
+            [keys]="{}"
           />
         </ion-item>
         <ion-item>
@@ -95,6 +96,7 @@ import { TagsHandlerDirective } from 'src/app/features/tags/utility';
             formControlName="tags"
             searchKey="name"
             multiple="true"
+            [keys]="{}"
           />
         </ion-item>
         <ion-item>
