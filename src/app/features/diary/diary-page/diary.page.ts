@@ -158,6 +158,7 @@ export class DiaryPage implements OnInit {
     this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
+    this.listStore.itemKeys$.next({});
     this.listStore.loadFirstPage$.next();
   }
 

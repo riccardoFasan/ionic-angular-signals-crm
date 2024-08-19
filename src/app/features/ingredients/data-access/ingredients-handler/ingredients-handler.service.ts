@@ -26,7 +26,9 @@ import {
 @Injectable({
   providedIn: 'root',
 })
-export class IngredientsHandlerService implements StoreHandler<Ingredient> {
+export class IngredientsHandlerService
+  implements StoreHandler<Ingredient, { id: number }>
+{
   private ingredientsFacade = inject(IngredientsFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
@@ -39,7 +41,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
     return item.name;
   }
 
-  get(id: number): Observable<Ingredient> {
+  get({ id }: { id: number }): Observable<Ingredient> {
     return defer(() => this.ingredientsFacade.get(id));
   }
 

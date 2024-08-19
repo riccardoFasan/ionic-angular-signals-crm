@@ -118,6 +118,7 @@ export class TagsPage implements OnInit {
     this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
+    this.listStore.itemKeys$.next({});
     this.listStore.loadFirstPage$.next();
   }
 

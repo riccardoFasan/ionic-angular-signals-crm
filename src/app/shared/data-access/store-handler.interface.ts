@@ -7,9 +7,8 @@ import { DetailState } from './detail.state';
 
 export interface StoreHandler<
   Entity extends Record<string, unknown>,
-  EntityKey = number,
+  Keys extends Record<string, string | number>,
   ExtendedEntity extends Entity = Entity,
-  RKeys extends Record<string, unknown> | undefined = undefined,
   REntities extends Record<string, unknown> | undefined = undefined,
 > {
   initialState?: {
@@ -17,26 +16,24 @@ export interface StoreHandler<
     detail?: Partial<DetailState<ExtendedEntity, REntities>>;
   };
 
-  extractPk(item: Entity): EntityKey;
+  extractPk(item: Entity): string | number;
   extractName(item: Entity): string;
-  get(pk: EntityKey, relatedItemsKeys?: RKeys): Observable<ExtendedEntity>;
-  getList(
-    searchCriteria: SearchCriteria,
-    relatedItemsKeys?: RKeys,
-  ): Observable<List<Entity>>;
 
-  loadRelatedItems?(relatedItemsKeys: RKeys): Observable<REntities>;
+  get(keys: Keys): Observable<ExtendedEntity>;
+  getList(searchCriteria: SearchCriteria, keys: Keys): Observable<List<Entity>>;
+
+  loadRelatedItems?(keys: Keys): Observable<REntities>;
 
   canOperate?(
     operation: Operation,
     item?: Entity | ExtendedEntity,
-    relatedItemsKeys?: RKeys,
+    keys?: Keys,
   ): Observable<boolean> | boolean;
 
   operate(
     operation: Operation,
     item?: Entity | ExtendedEntity,
-    relatedItemsKeys?: RKeys,
+    keys?: Keys,
   ): Observable<Entity | ExtendedEntity | void>;
 
   // mutateItems is intended for optimistic updates.
@@ -56,7 +53,7 @@ export interface StoreHandler<
   onOperation?(
     operation: Operation,
     item?: Entity | ExtendedEntity,
-    relatedItemsKeys?: RKeys,
+    keys?: Keys,
   ): Observable<void> | void;
 
   interpretError?(

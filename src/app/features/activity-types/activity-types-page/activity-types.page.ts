@@ -121,6 +121,7 @@ export class ActivityTypesPage implements OnInit {
     this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
+    this.listStore.itemKeys$.next({});
     this.listStore.loadFirstPage$.next();
   }
 

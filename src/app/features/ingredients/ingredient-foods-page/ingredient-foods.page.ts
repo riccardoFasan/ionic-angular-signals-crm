@@ -91,7 +91,6 @@ export class IngredientFoodsPage implements OnInit {
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
   );
 
-  // @ts-ignore
   protected ingredient = computed<Ingredient | undefined>(
     () =>
       // @ts-ignore
@@ -104,8 +103,7 @@ export class IngredientFoodsPage implements OnInit {
   ngOnInit(): void {
     const ingredientId = this.route.snapshot.params['ingredientId'];
     if (!ingredientId) return;
-    this.listStore.relatedItemsKeys$.next({ ingredientId });
-
+    this.listStore.itemKeys$.next({ ingredientId });
     this.listStore.loadFirstPage$.next();
   }
 }

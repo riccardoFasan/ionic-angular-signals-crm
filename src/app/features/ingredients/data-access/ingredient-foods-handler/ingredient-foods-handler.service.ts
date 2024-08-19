@@ -13,9 +13,8 @@ export class IngredientFoodsHandlerService
   implements
     StoreHandler<
       Omit<Food, 'ingredients'>,
-      number,
+      { id: number; ingredientId: number },
       Omit<Food, 'ingredients'>,
-      { ingredientId: number },
       { ingredient: Ingredient }
     >
 {
@@ -36,16 +35,10 @@ export class IngredientFoodsHandlerService
 
   getList(
     searchCriteria: SearchCriteria,
-    relatedItemsKeys?: { ingredientId: number },
+    { ingredientId }: { ingredientId: number },
   ): Observable<List<Omit<Food, 'ingredients'>>> {
-    if (!relatedItemsKeys) {
-      throw new Error('Ingredient id is required');
-    }
     return defer(() =>
-      this.foodsFacade.getFoodsOfIngredient(
-        searchCriteria,
-        relatedItemsKeys.ingredientId,
-      ),
+      this.foodsFacade.getFoodsOfIngredient(searchCriteria, ingredientId),
     );
   }
 

@@ -60,7 +60,7 @@ export class FoodModalComponent implements OnInit {
   ngOnInit(): void {
     if (!this.id) return;
 
-    this.detailStore.pk$.next(this.id);
+    this.detailStore.itemKeys$.next({ id: this.id });
   }
 
   protected save(payload: CreateFoodFormData | UpdateFoodFormData): void {
