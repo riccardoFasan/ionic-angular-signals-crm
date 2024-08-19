@@ -5,7 +5,11 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { IonButton, ModalController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  ModalController,
+  NavController,
+} from '@ionic/angular/standalone';
 import {
   DetailStoreService,
   OperationType,
@@ -18,15 +22,24 @@ import {
 import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
 import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
 import { IngredientsHandlerDirective } from '../../utility';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-ingredient-modal',
   standalone: true,
-  imports: [IonButton, DetailModalWrapperComponent, IngredientFormComponent],
+  imports: [
+    IonButton,
+    DetailModalWrapperComponent,
+    IngredientFormComponent,
+    RouterLink,
+  ],
   template: `
     <app-detail-modal-wrapper
-      [loading]="detailStore.mode() === 'PROCESSING'"
+      [loading]="
+        detailStore.mode() === 'PROCESSING' || detailStore.mode() === 'FETCHING'
+      "
       [title]="title()"
+      (refresh)="detailStore.refresh$.next()"
     >
       <ng-container ngProjectAs="[buttons]">
         @if (detailStore.item()) {
@@ -39,6 +52,15 @@ import { IngredientsHandlerDirective } from '../../utility';
         (save)="save($event)"
         [ingredient]="detailStore.item()"
       />
+
+      <ion-button
+        class="ion-margin-top"
+        fill="clear"
+        expand="block"
+        (click)="toIngredientsFoodsPage()"
+      >
+        See all foods using this ingredient.
+      </ion-button>
     </app-detail-modal-wrapper>
   `,
   styles: ``,
@@ -49,6 +71,7 @@ import { IngredientsHandlerDirective } from '../../utility';
 export class IngredientModalComponent implements OnInit {
   protected detailStore = inject(DetailStoreService);
   protected modalCtrl = inject(ModalController);
+  private navCtrl = inject(NavController);
 
   private id!: number;
 
@@ -59,7 +82,7 @@ export class IngredientModalComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.id) return;
-    this.detailStore.id$.next(this.id);
+    this.detailStore.itemKeys$.next({ id: this.id });
   }
 
   protected save(
@@ -72,6 +95,11 @@ export class IngredientModalComponent implements OnInit {
       payload,
     };
     this.detailStore.operation$.next(operation);
+  }
+
+  protected toIngredientsFoodsPage(): void {
+    this.modalCtrl.dismiss();
+    this.navCtrl.navigateForward(`/ingredients/${this.id}/foods`);
   }
 
   protected remove(): void {

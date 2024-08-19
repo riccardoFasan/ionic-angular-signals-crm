@@ -25,8 +25,11 @@ import { ActivityTypesHandlerDirective } from '../../utility';
   imports: [IonButton, DetailModalWrapperComponent, ActivityTypeFormComponent],
   template: `
     <app-detail-modal-wrapper
-      [loading]="detailStore.mode() === 'PROCESSING'"
+      [loading]="
+        detailStore.mode() === 'PROCESSING' || detailStore.mode() === 'FETCHING'
+      "
       [title]="title()"
+      (refresh)="detailStore.refresh$.next()"
     >
       <ng-container ngProjectAs="[buttons]">
         @if (detailStore.item()) {
@@ -59,7 +62,7 @@ export class ActivityTypeModalComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.id) return;
-    this.detailStore.id$.next(this.id);
+    this.detailStore.itemKeys$.next({ id: this.id });
   }
 
   protected save(

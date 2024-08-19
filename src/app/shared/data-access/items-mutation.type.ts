@@ -1,12 +1,12 @@
 import { Observable } from 'rxjs';
 import { ItemsPage } from '../utility';
 
-export type ItemsMutation<T> =
+export type ItemsMutation<Entity> =
   | {
-      pages: ItemsPage<T>[];
+      pages: ItemsPage<Entity>[];
       total: number;
     }
   | Observable<{
-      pages: ItemsPage<T>[];
+      pages: ItemsPage<Entity>[];
       total: number;
     }>;

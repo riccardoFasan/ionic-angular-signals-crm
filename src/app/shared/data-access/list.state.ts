@@ -8,11 +8,15 @@ import {
 } from '../utility';
 import { MachineState } from './machine-state.enum';
 
-export type ListState<T> = {
-  pages: ItemsPage<T>[];
+export type ListState<
+  Entity extends Record<string, unknown>,
+  REntities extends Record<string, unknown> | undefined = undefined,
+> = {
+  mode: MachineState;
+  pages: ItemsPage<Entity>[];
   searchCriteria: SearchCriteria;
   total: number;
-  mode: MachineState;
+  relatedItems?: REntities;
   error?: Error;
 };
 

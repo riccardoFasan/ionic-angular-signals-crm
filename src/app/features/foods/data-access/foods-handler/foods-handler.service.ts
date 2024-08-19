@@ -21,12 +21,12 @@ import { FoodsFacadeService } from '../foods-facade/foods-facade.service';
 @Injectable({
   providedIn: 'root',
 })
-export class FoodsHandlerService implements StoreHandler<Food> {
+export class FoodsHandlerService implements StoreHandler<Food, { id: number }> {
   private foodsFacade = inject(FoodsFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Food): number {
+  extractPk(item: Food): number {
     return item.id;
   }
 
@@ -34,7 +34,7 @@ export class FoodsHandlerService implements StoreHandler<Food> {
     return item.name;
   }
 
-  get(id: number): Observable<Food> {
+  get({ id }: { id: number }): Observable<Food> {
     return defer(() => this.foodsFacade.get(id));
   }
 
@@ -66,7 +66,7 @@ export class FoodsHandlerService implements StoreHandler<Food> {
 
       case OperationType.Update:
         if (!item) {
-          throw new Error('Item is required for update effects');
+          throw new Error('Item is required for update operations');
         }
         return defer(() =>
           this.foodsFacade.update(item.id, payload as UpdateFoodFormData),
@@ -74,7 +74,7 @@ export class FoodsHandlerService implements StoreHandler<Food> {
 
       case OperationType.Delete:
         if (!item) {
-          throw new Error('Item is required for delete effects');
+          throw new Error('Item is required for delete operations');
         }
         return defer(() => this.foodsFacade.delete(item.id));
 

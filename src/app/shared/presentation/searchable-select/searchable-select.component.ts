@@ -1,9 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   booleanAttribute,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -121,7 +121,7 @@ import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
     },
   ],
 })
-export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
+export class SearchableSelectComponent implements ControlValueAccessor {
   protected listStore = inject(ListStoreService);
   protected storeHandler = inject(STORE_HANDLER);
 
@@ -135,6 +135,8 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
   readonly = input<boolean, string>(false, {
     transform: booleanAttribute,
   });
+
+  keys = input.required<Record<string, unknown>>();
 
   protected selected = signal<Option[]>([]);
   protected open = signal<boolean>(false);
@@ -159,8 +161,15 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
   private onChange!: (value: unknown | unknown[]) => void;
   private onTouched!: () => void;
 
-  ngOnInit(): void {
-    this.listStore.loadFirstPage$.next();
+  constructor() {
+    effect(
+      () => {
+        const keys = this.keys() || {};
+        this.listStore.itemKeys$.next(keys);
+        this.listStore.loadFirstPage$.next();
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   writeValue(value: unknown | unknown[]): void {
@@ -206,7 +215,7 @@ export class SearchableSelectComponent implements OnInit, ControlValueAccessor {
   }
 
   private toOption(value: unknown): Option {
-    const ref = this.storeHandler.extractId(value);
+    const ref = this.storeHandler.extractPk(value) as string | number;
     const label = this.storeHandler.extractName(value);
     return { ref, label, value };
   }

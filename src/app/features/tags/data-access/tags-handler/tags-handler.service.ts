@@ -22,12 +22,12 @@ import { TagsFacadeService } from '../tags-facade/tags-facade.service';
 @Injectable({
   providedIn: 'root',
 })
-export class TagsHandlerService implements StoreHandler<Tag> {
+export class TagsHandlerService implements StoreHandler<Tag, { id: number }> {
   private tagsFacade = inject(TagsFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Tag): number {
+  extractPk(item: Tag): number {
     return item.id;
   }
 
@@ -35,7 +35,7 @@ export class TagsHandlerService implements StoreHandler<Tag> {
     return item.name;
   }
 
-  get(id: number): Observable<Tag> {
+  get({ id }: { id: number }): Observable<Tag> {
     return defer(() => this.tagsFacade.get(id));
   }
 
@@ -64,7 +64,7 @@ export class TagsHandlerService implements StoreHandler<Tag> {
 
       case OperationType.Update:
         if (!item) {
-          throw new Error('Item is required for update effects');
+          throw new Error('Item is required for update operations');
         }
         return defer(() =>
           this.tagsFacade.update(item.id, payload as UpdateTagFormData),
@@ -72,7 +72,7 @@ export class TagsHandlerService implements StoreHandler<Tag> {
 
       case OperationType.Delete:
         if (!item) {
-          throw new Error('Item is required for delete effects');
+          throw new Error('Item is required for delete operations');
         }
         return defer(() => this.tagsFacade.delete(item.id));
 

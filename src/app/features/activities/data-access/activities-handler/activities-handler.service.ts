@@ -26,12 +26,14 @@ import { Observable, defer } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class ActivitiesHandlerService implements StoreHandler<Activity> {
+export class ActivitiesHandlerService
+  implements StoreHandler<Activity, { id: number }>
+{
   private activitiesFacade = inject(ActivitiesFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Activity): number {
+  extractPk(item: Activity): number {
     return item.id;
   }
 
@@ -39,7 +41,7 @@ export class ActivitiesHandlerService implements StoreHandler<Activity> {
     return item.name;
   }
 
-  get(id: number): Observable<Activity> {
+  get({ id }: { id: number }): Observable<Activity> {
     return defer(() => this.activitiesFacade.get(id));
   }
 
@@ -71,7 +73,7 @@ export class ActivitiesHandlerService implements StoreHandler<Activity> {
 
       case OperationType.Update:
         if (!item) {
-          throw new Error('Item is required for update effects');
+          throw new Error('Item is required for update operations');
         }
         return defer(() =>
           this.activitiesFacade.update(
@@ -82,7 +84,7 @@ export class ActivitiesHandlerService implements StoreHandler<Activity> {
 
       case OperationType.Delete:
         if (!item) {
-          throw new Error('Item is required for delete effects');
+          throw new Error('Item is required for delete operations');
         }
         return defer(() => this.activitiesFacade.delete(item.id));
 

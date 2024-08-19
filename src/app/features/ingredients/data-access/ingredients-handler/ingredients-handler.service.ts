@@ -26,12 +26,14 @@ import {
 @Injectable({
   providedIn: 'root',
 })
-export class IngredientsHandlerService implements StoreHandler<Ingredient> {
+export class IngredientsHandlerService
+  implements StoreHandler<Ingredient, { id: number }>
+{
   private ingredientsFacade = inject(IngredientsFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Ingredient): number {
+  extractPk(item: Ingredient): number {
     return item.id;
   }
 
@@ -39,7 +41,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
     return item.name;
   }
 
-  get(id: number): Observable<Ingredient> {
+  get({ id }: { id: number }): Observable<Ingredient> {
     return defer(() => this.ingredientsFacade.get(id));
   }
 
@@ -74,7 +76,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
 
       case OperationType.Update:
         if (!item) {
-          throw new Error('Item is required for update effects');
+          throw new Error('Item is required for update operations');
         }
         return defer(() =>
           this.ingredientsFacade.update(
@@ -85,7 +87,7 @@ export class IngredientsHandlerService implements StoreHandler<Ingredient> {
 
       case OperationType.Delete:
         if (!item) {
-          throw new Error('Item is required for delete effects');
+          throw new Error('Item is required for delete operations');
         }
         return defer(() => this.ingredientsFacade.delete(item.id));
 

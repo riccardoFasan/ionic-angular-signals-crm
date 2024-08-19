@@ -118,14 +118,15 @@ export class IngredientsPage implements OnInit {
   );
 
   protected trackFn = (item: Ingredient): number | string =>
-    this.storeHandler.extractId(item);
+    this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
+    this.listStore.itemKeys$.next({});
     this.listStore.loadFirstPage$.next();
   }
 
   protected remove(item: Ingredient): void {
-    this.listStore.operation$.next({
+    this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
     });

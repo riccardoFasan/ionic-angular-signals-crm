@@ -1,0 +1,9 @@
+ion-modal.modal-alert {
+  &::part(content) {
+    background: transparent;
+  }
+
+  &::part(backdrop) {
+    --backdrop-opacity: 0.75;
+  }
+}

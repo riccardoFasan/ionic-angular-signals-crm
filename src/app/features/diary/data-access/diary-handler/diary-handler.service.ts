@@ -23,7 +23,9 @@ import { INITIAL_SEARCH_CRITERIA } from '../../../../shared/data-access/list.sta
 @Injectable({
   providedIn: 'root',
 })
-export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
+export class DiaryHandlerService
+  implements StoreHandler<DiaryEvent, { id: number }>
+{
   private diaryFacade = inject(DiaryFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
@@ -37,7 +39,7 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     },
   };
 
-  extractId(item: DiaryEvent): string {
+  extractPk(item: DiaryEvent): string {
     return item.ref;
   }
 
@@ -74,7 +76,7 @@ export class DiaryHandlerService implements StoreHandler<DiaryEvent> {
     switch (type) {
       case OperationType.Delete:
         if (!item) {
-          throw new Error('Item is required for delete effects');
+          throw new Error('Item is required for delete operations');
         }
         return defer(() => this.diaryFacade.delete(item.entityId, item.type));
       case 'REORDER':

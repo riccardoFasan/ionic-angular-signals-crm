@@ -47,7 +47,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "www",
+            "outputPath": "build",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": ["src/polyfills.ts"],
@@ -60,7 +60,10 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/theme/variables.scss", "src/global.scss"],
+            "styles": ["src/styles/main.scss"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["src/styles"]
+            },
             "scripts": []
           },
           "configurations": {
@@ -130,7 +133,7 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/theme/variables.scss", "src/global.scss"],
+            "styles": ["src/styles/main.scss"],
             "scripts": []
           },
           "configurations": {

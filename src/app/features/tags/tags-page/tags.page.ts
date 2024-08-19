@@ -115,14 +115,15 @@ export class TagsPage implements OnInit {
   );
 
   protected trackFn = (item: Tag): number | string =>
-    this.storeHandler.extractId(item);
+    this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
+    this.listStore.itemKeys$.next({});
     this.listStore.loadFirstPage$.next();
   }
 
   protected remove(item: Tag): void {
-    this.listStore.operation$.next({
+    this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
     });

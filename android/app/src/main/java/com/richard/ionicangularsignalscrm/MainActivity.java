@@ -1,4 +1,4 @@
-package com.richard.fooddiary;
+package com.richard.ionicangularsignalscrm;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -22,12 +22,12 @@ import { Observable, defer } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class MealsHandlerService implements StoreHandler<Meal> {
+export class MealsHandlerService implements StoreHandler<Meal, { id: number }> {
   private mealsFacade = inject(MealsFacadeService);
   private toasts = inject(ToastsService);
   private alerts = inject(AlertsService);
 
-  extractId(item: Meal): number {
+  extractPk(item: Meal): number {
     return item.id;
   }
 
@@ -35,7 +35,7 @@ export class MealsHandlerService implements StoreHandler<Meal> {
     return item.name;
   }
 
-  get(id: number): Observable<Meal> {
+  get({ id }: { id: number }): Observable<Meal> {
     return defer(() => this.mealsFacade.get(id));
   }
 
@@ -67,7 +67,7 @@ export class MealsHandlerService implements StoreHandler<Meal> {
 
       case OperationType.Update:
         if (!item) {
-          throw new Error('Item is required for update effects');
+          throw new Error('Item is required for update operations');
         }
         return defer(() =>
           this.mealsFacade.update(item.id, payload as UpdateMealFormData),
@@ -75,7 +75,7 @@ export class MealsHandlerService implements StoreHandler<Meal> {
 
       case OperationType.Delete:
         if (!item) {
-          throw new Error('Item is required for delete effects');
+          throw new Error('Item is required for delete operations');
         }
         return defer(() => this.mealsFacade.delete(item.id));
 

@@ -40,6 +40,25 @@ export class FoodsFacadeService {
     return this.mapFromDTO(foodDTO, ingredients);
   }
 
+  async getFoodsOfIngredient(
+    searchCriteria: SearchCriteria,
+    ingredientId: number,
+  ): Promise<List<Omit<Food, 'ingredients'>>> {
+    const list = await this.foodApi.getFoodsOfIngredient(
+      {
+        ...searchCriteria,
+        filters: {
+          ...searchCriteria.filters,
+          query: this.mapToApiFilters(searchCriteria.filters.query),
+        },
+      },
+      ingredientId,
+    );
+
+    const items = list.items.map((foodDTO) => this.mapFromDTO(foodDTO));
+    return { ...list, items };
+  }
+
   async create({
     name,
     ingredients,

@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  EventEmitter,
+  input,
+  Output,
+} from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -7,6 +14,9 @@ import {
   IonSkeletonText,
   IonTitle,
   IonToolbar,
+  IonRefresher,
+  IonRefresherContent,
+  RefresherCustomEvent,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -20,6 +30,8 @@ import {
     IonButtons,
     IonButton,
     IonSkeletonText,
+    IonRefresher,
+    IonRefresherContent,
   ],
   template: `
     <ion-header>
@@ -37,6 +49,9 @@ import {
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
+      <ion-refresher slot="fixed" (ionRefresh)="onIonRefresh($event)">
+        <ion-refresher-content />
+      </ion-refresher>
       @if (loading()) {
         <ion-skeleton-text animated="true" />
         <ion-skeleton-text animated="true" />
@@ -85,4 +100,20 @@ import {
 export class DetailModalWrapperComponent {
   title = input.required<string>();
   loading = input<boolean>(false);
+
+  @Output() refresh = new EventEmitter<void>();
+
+  constructor() {
+    effect(() => {
+      if (this.loading()) return;
+      this.ionRefreshEvent?.target.complete();
+    });
+  }
+
+  private ionRefreshEvent?: RefresherCustomEvent;
+
+  protected onIonRefresh(event: RefresherCustomEvent): void {
+    this.ionRefreshEvent = event;
+    this.refresh.emit();
+  }
 }
