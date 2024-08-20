@@ -104,7 +104,7 @@ export class ActivityTypesHandlerService
   ): void | ActivityType {
     switch (type) {
       case OperationType.Update:
-        return { ...(payload as UpdateActivityTypeFormData), ...item };
+        return { ...item, ...(payload as UpdateActivityTypeFormData) };
     }
   }
 
@@ -125,7 +125,7 @@ export class ActivityTypesHandlerService
       case OperationType.Update:
         return {
           pages: replaceItemInPages(
-            { ...(payload as UpdateActivityTypeFormData), ...item },
+            { ...item, ...(payload as UpdateActivityTypeFormData) },
             pages,
             searchCriteria.pagination.pageIndex,
             (item) => item.id,

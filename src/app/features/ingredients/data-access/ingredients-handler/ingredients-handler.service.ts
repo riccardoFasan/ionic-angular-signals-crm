@@ -102,7 +102,7 @@ export class IngredientsHandlerService
   ): void | Ingredient {
     switch (type) {
       case OperationType.Update:
-        return { ...(payload as UpdateIngredientFormData), ...item };
+        return { ...item, ...(payload as UpdateIngredientFormData) };
     }
   }
 
@@ -123,7 +123,7 @@ export class IngredientsHandlerService
       case OperationType.Update:
         return {
           pages: replaceItemInPages(
-            { ...(payload as UpdateIngredientFormData), ...item },
+            { ...item, ...(payload as UpdateIngredientFormData) },
             pages,
             searchCriteria.pagination.pageIndex,
             (item) => item.id,
