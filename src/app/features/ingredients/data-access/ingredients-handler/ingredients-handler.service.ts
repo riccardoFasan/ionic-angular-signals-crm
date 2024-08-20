@@ -96,6 +96,16 @@ export class IngredientsHandlerService
     }
   }
 
+  mutateItem(
+    { type, payload }: Operation,
+    item: Ingredient,
+  ): void | Ingredient {
+    switch (type) {
+      case OperationType.Update:
+        return { ...(payload as UpdateIngredientFormData), ...item };
+    }
+  }
+
   mutateItems(
     { type, payload }: Operation,
     item: Ingredient,

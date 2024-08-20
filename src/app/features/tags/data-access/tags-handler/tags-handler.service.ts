@@ -81,6 +81,13 @@ export class TagsHandlerService implements StoreHandler<Tag, { id: number }> {
     }
   }
 
+  mutateItem({ type, payload }: Operation, item: Tag): void | Tag {
+    switch (type) {
+      case OperationType.Update:
+        return { ...(payload as UpdateTagFormData), ...item };
+    }
+  }
+
   mutateItems(
     { type, payload }: Operation,
     item: Tag,

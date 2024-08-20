@@ -83,6 +83,13 @@ export class FoodsHandlerService implements StoreHandler<Food, { id: number }> {
     }
   }
 
+  mutateItem({ type, payload }: Operation, item: Food): void | Food {
+    switch (type) {
+      case OperationType.Update:
+        return { ...(payload as UpdateFoodFormData), ...item };
+    }
+  }
+
   mutateItems(
     { type, payload }: Operation,
     item: Food,

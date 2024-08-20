@@ -246,7 +246,7 @@ export class ListStoreService<
 
     this.itemOperation$
       .pipe(
-        withLatestFrom(this.keys$),
+        withLatestFrom(this.keys$.pipe(startWith({}))),
         mergeMap(
           ([{ operation, item, restoreInitialSearchCritieria }, keys]) => {
             const canOperate$ = forceObservable(

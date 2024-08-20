@@ -98,6 +98,16 @@ export class ActivityTypesHandlerService
     }
   }
 
+  mutateItem(
+    { type, payload }: Operation,
+    item: ActivityType,
+  ): void | ActivityType {
+    switch (type) {
+      case OperationType.Update:
+        return { ...(payload as UpdateActivityTypeFormData), ...item };
+    }
+  }
+
   mutateItems(
     { type, payload }: Operation,
     item: ActivityType,
