@@ -18,7 +18,7 @@ import {
   SearchCriteria,
   ToastsService,
   removeSorted,
-  replaceItemInPages,
+  updateSorted,
   ItemsPage,
 } from 'src/app/shared/utility';
 import { Observable, defer } from 'rxjs';
@@ -116,10 +116,10 @@ export class ActivitiesHandlerService
 
       case OperationType.Update:
         return {
-          pages: replaceItemInPages(
+          pages: updateSorted(
             { ...item, ...(payload as UpdateActivityFormData) },
             pages,
-            searchCriteria.pagination.pageIndex,
+            searchCriteria,
             (item) => item.id,
           ),
           total,
@@ -127,12 +127,7 @@ export class ActivitiesHandlerService
 
       case OperationType.Delete:
         return {
-          pages: removeSorted(
-            item,
-            pages,
-            searchCriteria.pagination,
-            (item) => item.id,
-          ),
+          pages: removeSorted(item, pages, searchCriteria, (item) => item.id),
           total: total - 1,
         };
     }

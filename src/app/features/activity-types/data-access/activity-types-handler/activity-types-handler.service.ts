@@ -19,7 +19,7 @@ import {
   ToastsService,
   removeSorted,
   ItemsPage,
-  replaceItemInPages,
+  updateSorted,
 } from 'src/app/shared/utility';
 import { Observable, defer } from 'rxjs';
 
@@ -124,10 +124,10 @@ export class ActivityTypesHandlerService
 
       case OperationType.Update:
         return {
-          pages: replaceItemInPages(
+          pages: updateSorted(
             { ...item, ...(payload as UpdateActivityTypeFormData) },
             pages,
-            searchCriteria.pagination.pageIndex,
+            searchCriteria,
             (item) => item.id,
           ),
           total,
@@ -135,12 +135,7 @@ export class ActivityTypesHandlerService
 
       case OperationType.Delete:
         return {
-          pages: removeSorted(
-            item,
-            pages,
-            searchCriteria.pagination,
-            (item) => item.id,
-          ),
+          pages: removeSorted(item, pages, searchCriteria, (item) => item.id),
           total: total - 1,
         };
     }
