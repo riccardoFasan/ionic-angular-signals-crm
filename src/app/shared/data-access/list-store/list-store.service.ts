@@ -56,8 +56,7 @@ export class ListStoreService<
   items = computed<Entity[]>(() =>
     this.pages()
       .sort((a, b) => a.pageIndex - b.pageIndex)
-      .map((page) => page.items)
-      .flat(),
+      .flatMap((page) => page.items),
   );
 
   relatedItems = computed<REntities | undefined>(

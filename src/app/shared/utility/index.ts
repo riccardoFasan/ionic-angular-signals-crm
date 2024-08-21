@@ -22,7 +22,7 @@ export * from './get-search-criteria-with-page';
 export * from './is-page-index-in-range';
 export * from './push-or-replace';
 export * from './items-page.type';
-export * from './replace-item-in-pages';
+export * from './update-sorted';
 export * from './remove-sorted';
 export * from './are-equal-objects';
 export * from './filter-exclude/filter-exclude.pipe';

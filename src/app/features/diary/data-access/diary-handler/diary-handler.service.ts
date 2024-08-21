@@ -14,7 +14,7 @@ import {
   SortOrder,
   ItemsPage,
   removeSorted,
-  replaceItemInPages,
+  updateSorted,
 } from 'src/app/shared/utility';
 import { DiaryEvent } from '../diary-event.model';
 import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
@@ -98,10 +98,10 @@ export class DiaryHandlerService
     switch (type) {
       case 'REORDER':
         return {
-          pages: replaceItemInPages(
+          pages: updateSorted(
             { ...item, at: payload as Date },
             pages,
-            searchCriteria.pagination.pageIndex,
+            searchCriteria,
             (item) => item.ref,
           ),
           total,
@@ -109,12 +109,7 @@ export class DiaryHandlerService
 
       case OperationType.Delete:
         return {
-          pages: removeSorted(
-            item,
-            pages,
-            searchCriteria.pagination,
-            (item) => item.ref,
-          ),
+          pages: removeSorted(item, pages, searchCriteria, (item) => item.ref),
           total: total - 1,
         };
     }
