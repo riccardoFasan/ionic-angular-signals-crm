@@ -138,6 +138,8 @@ export class SearchableSelectComponent implements ControlValueAccessor {
 
   keys = input.required<Record<string, unknown>>();
 
+  excludedByRefs = input<Option['ref'][]>();
+
   protected selected = signal<Option[]>([]);
   protected open = signal<boolean>(false);
 
@@ -146,7 +148,10 @@ export class SearchableSelectComponent implements ControlValueAccessor {
   );
 
   protected options = computed<Option[]>(() =>
-    this.listStore.items().map((value) => this.toOption(value)),
+    this.listStore
+      .items()
+      .map((value) => this.toOption(value))
+      .filter(({ ref }) => !this.excludedByRefs()?.includes(ref)),
   );
 
   protected displayLabel = computed<string | null>(() => {

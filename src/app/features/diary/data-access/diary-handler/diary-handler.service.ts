@@ -34,7 +34,7 @@ export class DiaryHandlerService
     list: {
       searchCriteria: {
         ...INITIAL_SEARCH_CRITERIA,
-        sorting: { property: 'at', order: SortOrder.Descending },
+        sortings: [{ property: 'at', order: SortOrder.Descending }],
       },
     },
   };

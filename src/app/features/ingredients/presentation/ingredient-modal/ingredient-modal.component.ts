@@ -48,7 +48,10 @@ import { RouterLink } from '@angular/router';
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-ingredient-form
-        [loading]="detailStore.mode() === 'PROCESSING'"
+        [loading]="
+          detailStore.mode() === 'PROCESSING' ||
+          detailStore.mode() === 'FETCHING'
+        "
         (save)="save($event)"
         [ingredient]="detailStore.item()"
       />

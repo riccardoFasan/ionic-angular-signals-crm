@@ -35,7 +35,10 @@ import { MealsHandlerDirective } from '../../utility';
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-meal-form
-        [loading]="detailStore.mode() === 'PROCESSING'"
+        [loading]="
+          detailStore.mode() === 'PROCESSING' ||
+          detailStore.mode() === 'FETCHING'
+        "
         (save)="save($event)"
         [meal]="detailStore.item()"
       />

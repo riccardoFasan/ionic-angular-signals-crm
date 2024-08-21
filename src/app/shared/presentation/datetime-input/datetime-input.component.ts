@@ -22,7 +22,7 @@ import { ModalsService } from '../../utility';
       [labelPlacement]="labelPlacement()"
       [placeholder]="placeholder()"
       [value]="selected() | date: 'dd/MM/YYYY HH:mm'"
-      (click)="askDatetime()"
+      (click)="askDatetime($event)"
       readonly="true"
     >
       <ion-icon
@@ -95,7 +95,9 @@ export class DatetimeInputComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  protected async askDatetime(): Promise<void> {
+  protected async askDatetime(event: Event): Promise<void> {
+    event.stopPropagation();
+    event.preventDefault();
     const result = await this.modals.askDatetime(this.selected() || undefined);
     if (result) this.selected.set(result);
   }

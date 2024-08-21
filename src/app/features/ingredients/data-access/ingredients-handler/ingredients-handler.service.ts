@@ -96,6 +96,16 @@ export class IngredientsHandlerService
     }
   }
 
+  mutateItem(
+    { type, payload }: Operation,
+    item: Ingredient,
+  ): void | Ingredient {
+    switch (type) {
+      case OperationType.Update:
+        return { ...item, ...(payload as UpdateIngredientFormData) };
+    }
+  }
+
   mutateItems(
     { type, payload }: Operation,
     item: Ingredient,
@@ -113,7 +123,7 @@ export class IngredientsHandlerService
       case OperationType.Update:
         return {
           pages: replaceItemInPages(
-            { ...(payload as UpdateIngredientFormData), ...item },
+            { ...item, ...(payload as UpdateIngredientFormData) },
             pages,
             searchCriteria.pagination.pageIndex,
             (item) => item.id,
