@@ -108,7 +108,7 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
 export class FoodsPage implements OnInit {
   protected listStore = inject(ListStoreService);
   protected storeHandler = inject(STORE_HANDLER);
-  protected foodModals = inject(FoodModalsService);
+  private foodModals = inject(FoodModalsService);
 
   protected nextPage = computed<number>(
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
