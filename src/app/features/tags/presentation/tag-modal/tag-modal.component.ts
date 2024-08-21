@@ -35,7 +35,10 @@ import { TagsHandlerDirective } from '../../utility';
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-tag-form
-        [loading]="detailStore.mode() === 'PROCESSING'"
+        [loading]="
+          detailStore.mode() === 'PROCESSING' ||
+          detailStore.mode() === 'FETCHING'
+        "
         (save)="save($event)"
         [tag]="detailStore.item()"
       />

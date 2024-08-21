@@ -38,7 +38,10 @@ import { ActivitiesHandlerDirective } from '../../utility';
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-activity-form
-        [loading]="detailStore.mode() === 'PROCESSING'"
+        [loading]="
+          detailStore.mode() === 'PROCESSING' ||
+          detailStore.mode() === 'FETCHING'
+        "
         [activity]="detailStore.item()"
         (save)="save($event)"
       />

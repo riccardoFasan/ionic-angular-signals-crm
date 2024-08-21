@@ -25,7 +25,7 @@ import {
 import { ScrollableListComponent } from 'src/app/shared/presentation';
 import { MealModalsService } from '../../meals/utility';
 import { ActivityModalsService } from '../../activities/utility';
-import { DiaryEvent, DiaryEventType } from '../data-access';
+import { DiaryEvent } from '../data-access';
 import { DiaryEventIconPipe } from '../presentation';
 import { DatePipe } from '@angular/common';
 import { DiaryHandlerDirective } from '../utility/diary-handler/diary-handler.directive';
