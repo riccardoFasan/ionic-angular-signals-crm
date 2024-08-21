@@ -1,14 +1,33 @@
-import { pushSorted } from '../data-access';
+import { createSortedItemPages } from './create-sorted-items-pages';
+import { inFilters } from './in-filters';
 import { ItemsPage } from './items-page.type';
-import { removeSorted } from './remove-sorted';
 import { SearchCriteria } from './search-criteria.type';
+import { SearchFilters } from './search-filters.type';
+
+type AdvancedOptions<Entity> = {
+  inCustomFilters?: (item: Entity, filters: SearchFilters) => boolean;
+  customSort?: (item1: Entity, item2: Entity) => -1 | 0 | 1;
+};
 
 export function updateSorted<Entity, EntityKey>(
-  item: Entity,
+  updatedItem: Entity,
   pages: ItemsPage<Entity>[],
-  searchCriteria: SearchCriteria,
+  { filters, sortings, pagination: { pageSize } }: SearchCriteria,
   extractPk: (item: Entity) => EntityKey,
+  { inCustomFilters, customSort }: AdvancedOptions<Entity> = {},
 ): ItemsPage<Entity>[] {
-  pages = removeSorted(item, pages, searchCriteria, extractPk);
-  return pushSorted(item, pages, searchCriteria);
+  if (filters) {
+    const matchFilters = inCustomFilters
+      ? inCustomFilters(updatedItem, filters)
+      : inFilters(updatedItem, filters);
+    if (!matchFilters) return pages;
+  }
+
+  const allItems = pages
+    .flatMap((p) => p.items)
+    .map((item) =>
+      extractPk(item) === extractPk(updatedItem) ? updatedItem : item,
+    );
+
+  return createSortedItemPages(allItems, pageSize, sortings, customSort);
 }
