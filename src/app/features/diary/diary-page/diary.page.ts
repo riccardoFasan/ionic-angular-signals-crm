@@ -109,9 +109,22 @@ import { ModalsService } from 'src/app/shared/utility';
               </ion-item-option>
             </ion-item-options>
             <ion-item-options side="end">
-              <ion-item-option (click)="[openModal(item), itemSliding.close()]">
-                Edit
-              </ion-item-option>
+              @if (item.type === 'MEAL') {
+                <ion-item-option
+                  (click)="[openMealModal(item.entityId), itemSliding.close()]"
+                >
+                  Edit meal
+                </ion-item-option>
+              } @else {
+                <ion-item-option
+                  (click)="
+                    [openActivityModal(item.entityId), itemSliding.close()]
+                  "
+                >
+                  Edit activity
+                </ion-item-option>
+              }
+
               <ion-item-option (click)="[reorder(item), itemSliding.close()]">
                 Reorder
               </ion-item-option>
@@ -146,9 +159,9 @@ import { ModalsService } from 'src/app/shared/utility';
 export class DiaryPage implements OnInit {
   protected listStore = inject(ListStoreService);
   protected storeHandler = inject(STORE_HANDLER);
-  protected mealModals = inject(MealModalsService);
-  protected activityModals = inject(ActivityModalsService);
-  protected modals = inject(ModalsService);
+  private mealModals = inject(MealModalsService);
+  private activityModals = inject(ActivityModalsService);
+  private modals = inject(ModalsService);
 
   protected nextPage = computed<number>(
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
@@ -167,14 +180,6 @@ export class DiaryPage implements OnInit {
       operation: { type: OperationType.Delete },
       item,
     });
-  }
-
-  protected async openModal({ entityId, type }: DiaryEvent): Promise<void> {
-    if (type === DiaryEventType.Meal) {
-      await this.openMealModal(entityId);
-      return;
-    }
-    await this.openActivityModal(entityId);
   }
 
   protected async openActivityModal(id?: number): Promise<void> {
