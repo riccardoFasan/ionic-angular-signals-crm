@@ -82,14 +82,14 @@ export class DetailStoreService<
     this.loadRelatedItems$
       .pipe(
         withLatestFrom(this.keys$),
-        filter((keys) => !!keys && !!this.handler.loadRelatedItems),
+        filter(([_, keys]) => !!keys && !!this.handler.loadRelatedItems),
         tap(() =>
           this.state.update((state) => ({
             ...state,
             mode: MachineState.Fetching,
           })),
         ),
-        switchMap((keys) =>
+        switchMap(([_, keys]) =>
           this.handler.loadRelatedItems!(keys).pipe(
             catchError((error) => onHandlerError(error, this.state)),
           ),
@@ -116,7 +116,7 @@ export class DetailStoreService<
           })),
         ),
         withLatestFrom(this.keys$),
-        switchMap((keys) =>
+        switchMap(([_, keys]) =>
           this.handler
             .get(keys)
             .pipe(catchError((error) => onHandlerError(error, this.state))),

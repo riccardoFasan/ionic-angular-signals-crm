@@ -101,9 +101,13 @@ export class IngredientFoodsPage implements OnInit {
     this.storeHandler.extractPk(item);
 
   ngOnInit(): void {
-    const ingredientId = this.route.snapshot.params['ingredientId'];
+    const ingredientIdParam = this.route.snapshot.params['ingredientId'];
+    const ingredientId = ingredientIdParam
+      ? parseInt(ingredientIdParam)
+      : undefined;
     if (!ingredientId) return;
     this.listStore.itemKeys$.next({ ingredientId });
     this.listStore.loadFirstPage$.next();
+    this.listStore.loadRelatedItems$.next();
   }
 }
