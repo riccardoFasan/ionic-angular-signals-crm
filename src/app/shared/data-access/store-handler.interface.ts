@@ -36,7 +36,15 @@ export interface StoreHandler<
     keys?: Keys,
   ): Observable<Entity | ExtendedEntity | void>;
 
-  // mutateItems is intended for optimistic updates.
+  // mutateItem is intended for optimistic updates.
+  // updated item is precalculated.
+  mutateItem?(
+    operation: Operation,
+    item: ExtendedEntity,
+  ): ExtendedEntity | void;
+
+  // mutateItems is intended for optimistic updates
+  // updated itemsPage and total is precalculated.
   // pushSorted utility is meant to be used with create operations
   // and can lead to some complex code if you have to handle tricky
   // filters or sortings. So think carefully before using and consider

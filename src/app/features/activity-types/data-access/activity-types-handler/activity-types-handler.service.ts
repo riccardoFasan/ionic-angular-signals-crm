@@ -98,6 +98,16 @@ export class ActivityTypesHandlerService
     }
   }
 
+  mutateItem(
+    { type, payload }: Operation,
+    item: ActivityType,
+  ): void | ActivityType {
+    switch (type) {
+      case OperationType.Update:
+        return { ...item, ...(payload as UpdateActivityTypeFormData) };
+    }
+  }
+
   mutateItems(
     { type, payload }: Operation,
     item: ActivityType,
@@ -115,7 +125,7 @@ export class ActivityTypesHandlerService
       case OperationType.Update:
         return {
           pages: replaceItemInPages(
-            { ...(payload as UpdateActivityTypeFormData), ...item },
+            { ...item, ...(payload as UpdateActivityTypeFormData) },
             pages,
             searchCriteria.pagination.pageIndex,
             (item) => item.id,

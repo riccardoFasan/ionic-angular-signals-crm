@@ -220,14 +220,14 @@ export class ListStoreService<
     this.loadRelatedItems$
       .pipe(
         withLatestFrom(this.keys$),
-        filter((keys) => !!keys && !!this.handler.loadRelatedItems),
+        filter(([_, keys]) => !!keys && !!this.handler.loadRelatedItems),
         tap(() =>
           this.state.update((state) => ({
             ...state,
             mode: MachineState.Fetching,
           })),
         ),
-        switchMap((keys) =>
+        switchMap(([_, keys]) =>
           this.handler.loadRelatedItems!(keys).pipe(
             catchError((error) => onHandlerError(error, this.state)),
           ),
@@ -246,7 +246,7 @@ export class ListStoreService<
 
     this.itemOperation$
       .pipe(
-        withLatestFrom(this.keys$),
+        withLatestFrom(this.keys$.pipe(startWith({}))),
         mergeMap(
           ([{ operation, item, restoreInitialSearchCritieria }, keys]) => {
             const canOperate$ = forceObservable(

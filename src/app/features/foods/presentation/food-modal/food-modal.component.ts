@@ -35,7 +35,10 @@ import { FoodsHandlerDirective } from '../../utility';
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-food-form
-        [loading]="detailStore.mode() === 'PROCESSING'"
+        [loading]="
+          detailStore.mode() === 'PROCESSING' ||
+          detailStore.mode() === 'FETCHING'
+        "
         (save)="save($event)"
         [food]="detailStore.item()"
       />

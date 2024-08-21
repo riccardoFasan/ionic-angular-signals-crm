@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  signal,
+} from '@angular/core';
 import {
   ControlValueAccessor,
   FormsModule,
@@ -17,7 +22,7 @@ import {
 } from '@ionic/angular/standalone';
 import { SearchableSelectComponent } from 'src/app/shared/presentation';
 import { NgClass } from '@angular/common';
-import { WithRef } from 'src/app/shared/utility';
+import { FilterExcludePipe, WithRef } from 'src/app/shared/utility';
 
 type ConsumptionWithRef = Partial<Consumption> & WithRef;
 
@@ -36,6 +41,7 @@ type ConsumptionWithRef = Partial<Consumption> & WithRef;
     SearchableSelectComponent,
     FoodsHandlerDirective,
     FormsModule,
+    FilterExcludePipe,
   ],
   template: `
     @for (consumption of consumptions(); track consumption.ref) {
@@ -63,6 +69,9 @@ type ConsumptionWithRef = Partial<Consumption> & WithRef;
             multiple="false"
             required="true"
             [keys]="{}"
+            [excludedByRefs]="
+              selectedFoodIds() | filterExclude: consumption.food?.id
+            "
             [ngModel]="consumption.food"
             (ngModelChange)="
               updateConsumption({ food: $event, ref: consumption.ref }, $index)
@@ -131,20 +140,30 @@ type ConsumptionWithRef = Partial<Consumption> & WithRef;
   ],
 })
 export class ConsumptionInputComponent implements ControlValueAccessor {
-  // TODO: make impossible to select the same food twice or show an error
-
-  private readonly newConsumption: ConsumptionWithRef = { ref: 0, quantity: 1 };
   protected consumptions = signal<ConsumptionWithRef[]>([]);
+
+  protected selectedFoodIds = computed<number[]>(() =>
+    this.consumptions().reduce(
+      (selectedFoodIds: number[], consumption) =>
+        consumption.food
+          ? [...selectedFoodIds, consumption.food.id]
+          : selectedFoodIds,
+      [],
+    ),
+  );
 
   private onChange!: (values: Consumption[]) => void;
   private onTouched!: () => void;
 
   writeValue(values: Consumption[] | null): void {
     if (values) this.onTouched?.();
-    const lastRef = this.consumptions()?.length || 0;
-    const consumptions =
-      values?.map((value, i) => ({ ...value, ref: lastRef + i + 1 })) || [];
-    this.consumptions.set(consumptions || [this.newConsumption]);
+
+    const updatedConsumptions = values?.map((value, i) => ({
+      ...value,
+      ref: i,
+    })) || [{ ref: 0, quantity: 1 }];
+
+    this.consumptions.set(updatedConsumptions);
   }
 
   registerOnChange(fn: (values: Consumption[]) => void): void {
@@ -156,10 +175,10 @@ export class ConsumptionInputComponent implements ControlValueAccessor {
   }
 
   protected addConsumption(): void {
-    this.consumptions.update((consumptions) => [
-      ...consumptions,
-      this.newConsumption,
-    ]);
+    this.consumptions.update((consumptions) => {
+      const lastRef = consumptions[consumptions.length - 1]?.ref || 0;
+      return [...consumptions, { ref: lastRef + 1, quantity: 1 }];
+    });
   }
 
   protected removeConsumption(index: number): void {
@@ -180,7 +199,7 @@ export class ConsumptionInputComponent implements ControlValueAccessor {
 
     this.consumptions.set(consumptions);
 
-    // consider to replace duck typing with some feature-based utility functions
+    // TODO: consider to replace duck typing with some feature-based utility functions
     const values = consumptions.filter(
       (consumption) =>
         typeof consumption.food?.id === 'number' &&
