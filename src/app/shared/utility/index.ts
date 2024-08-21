@@ -25,3 +25,5 @@ export * from './items-page.type';
 export * from './replace-item-in-pages';
 export * from './remove-sorted';
 export * from './are-equal-objects';
+export * from './filter-exclude/filter-exclude.pipe';
+export * from './is-object-array';
