@@ -157,12 +157,11 @@ export class ConsumptionInputComponent implements ControlValueAccessor {
 
   writeValue(values: Consumption[] | null): void {
     if (values) this.onTouched?.();
-    const consumptions = this.consumptions();
 
-    const lastRef = consumptions[consumptions.length - 1]?.ref || 0;
-
-    const updatedConsumptions =
-      values?.map((value, i) => ({ ...value, ref: lastRef + i + 1 })) || [];
+    const updatedConsumptions = values?.map((value, i) => ({
+      ...value,
+      ref: i,
+    })) || [{ ref: 0, quantity: 1 }];
 
     this.consumptions.set(updatedConsumptions);
   }
@@ -176,12 +175,10 @@ export class ConsumptionInputComponent implements ControlValueAccessor {
   }
 
   protected addConsumption(): void {
-    const consumptions = this.consumptions();
-    const lastRef = consumptions[consumptions.length - 1]?.ref || 0;
-    this.consumptions.update((consumptions) => [
-      ...consumptions,
-      { ref: lastRef + 1, quantity: 1 },
-    ]);
+    this.consumptions.update((consumptions) => {
+      const lastRef = consumptions[consumptions.length - 1]?.ref || 0;
+      return [...consumptions, { ref: lastRef + 1, quantity: 1 }];
+    });
   }
 
   protected removeConsumption(index: number): void {
