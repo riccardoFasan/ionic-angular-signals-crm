@@ -26,7 +26,7 @@ import { ActivitiesHandlerDirective } from '../../utility';
   template: `
     <app-detail-modal-wrapper
       [loading]="
-        detailStore.mode() === 'PROCESSING' || detailStore.mode() === 'FETCHING'
+        detailStore.mode() === 'OPERATING' || detailStore.mode() === 'FETCHING'
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
@@ -39,7 +39,7 @@ import { ActivitiesHandlerDirective } from '../../utility';
       </ng-container>
       <app-activity-form
         [loading]="
-          detailStore.mode() === 'PROCESSING' ||
+          detailStore.mode() === 'OPERATING' ||
           detailStore.mode() === 'FETCHING'
         "
         [activity]="detailStore.item()"

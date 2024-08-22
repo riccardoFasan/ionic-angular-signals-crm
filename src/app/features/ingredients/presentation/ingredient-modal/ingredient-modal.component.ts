@@ -36,7 +36,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <app-detail-modal-wrapper
       [loading]="
-        detailStore.mode() === 'PROCESSING' || detailStore.mode() === 'FETCHING'
+        detailStore.mode() === 'OPERATING' || detailStore.mode() === 'FETCHING'
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
@@ -49,7 +49,7 @@ import { RouterLink } from '@angular/router';
       </ng-container>
       <app-ingredient-form
         [loading]="
-          detailStore.mode() === 'PROCESSING' ||
+          detailStore.mode() === 'OPERATING' ||
           detailStore.mode() === 'FETCHING'
         "
         (save)="save($event)"

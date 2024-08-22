@@ -142,7 +142,7 @@ export class DetailStoreService<
           );
           this.state.update((state) => ({
             ...state,
-            mode: MachineState.Processing,
+            mode: MachineState.Operating,
           }));
           return canOperate$.pipe(
             filter((canOperate) => canOperate),

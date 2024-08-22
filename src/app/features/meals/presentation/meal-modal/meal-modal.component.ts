@@ -23,7 +23,7 @@ import { MealsHandlerDirective } from '../../utility';
   template: `
     <app-detail-modal-wrapper
       [loading]="
-        detailStore.mode() === 'PROCESSING' || detailStore.mode() === 'FETCHING'
+        detailStore.mode() === 'OPERATING' || detailStore.mode() === 'FETCHING'
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
@@ -36,7 +36,7 @@ import { MealsHandlerDirective } from '../../utility';
       </ng-container>
       <app-meal-form
         [loading]="
-          detailStore.mode() === 'PROCESSING' ||
+          detailStore.mode() === 'OPERATING' ||
           detailStore.mode() === 'FETCHING'
         "
         (save)="save($event)"

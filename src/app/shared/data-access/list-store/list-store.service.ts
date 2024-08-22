@@ -256,7 +256,7 @@ export class ListStoreService<
               switchMap(() => {
                 this.state.update((state) => ({
                   ...state,
-                  mode: MachineState.Processing,
+                  mode: MachineState.Operating,
                 }));
 
                 // * creation of a new item or operations that do not require a specific item
