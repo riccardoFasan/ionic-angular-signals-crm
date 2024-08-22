@@ -19,12 +19,13 @@ import {
   ErrorInterpreterService,
   ToastsService,
   areEqualObjects,
+  filterOnce,
   forceObservable,
   onHandlerError,
 } from '../../utility';
 import { Operation } from '../operation.type';
-import { MachineState } from '../machine-state.enum';
 import { environment } from 'src/environments/environment';
+import { OperationType } from '../operation-type.enum';
 
 @Injectable()
 export class DetailStoreService<
@@ -41,8 +42,12 @@ export class DetailStoreService<
   relatedItems = computed<REntities | undefined>(
     () => this.state().relatedItems,
   );
-  mode = computed<MachineState>(() => this.state().mode);
+
   error = computed<Error | undefined>(() => this.state().error);
+
+  currentOperations = computed<(OperationType | string)[]>(() => [
+    ...new Set(this.state().currentOperations),
+  ]);
 
   itemKeys$ = new Subject<Record<string, unknown>>();
 
@@ -56,25 +61,23 @@ export class DetailStoreService<
     this.keys$
       .pipe(
         filter((keys) => !!keys),
-        tap(() =>
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Fetching,
-          })),
-        ),
+        tap(() => this.addCurrentOperation(OperationType.Fetch)),
         switchMap((keys) =>
-          this.handler
-            .get(keys)
-            .pipe(catchError((error) => onHandlerError(error, this.state))),
+          this.handler.get(keys).pipe(
+            catchError((error) => {
+              this.removeCurrentOperation(OperationType.Fetch);
+              return onHandlerError(error, this.state);
+            }),
+          ),
         ),
         tap((item) =>
           this.state.update((state) => ({
             ...state,
             item,
-            mode: MachineState.Idle,
             error: undefined,
           })),
         ),
+        tap(() => this.removeCurrentOperation(OperationType.Fetch)),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -83,25 +86,23 @@ export class DetailStoreService<
       .pipe(
         withLatestFrom(this.keys$),
         filter(([_, keys]) => !!keys && !!this.handler.loadRelatedItems),
-        tap(() =>
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Fetching,
-          })),
-        ),
+        tap(() => this.addCurrentOperation(OperationType.Fetch)),
         switchMap(([_, keys]) =>
           this.handler.loadRelatedItems!(keys).pipe(
-            catchError((error) => onHandlerError(error, this.state)),
+            catchError((error) => {
+              this.removeCurrentOperation(OperationType.Fetch);
+              return onHandlerError(error, this.state);
+            }),
           ),
         ),
         tap((relatedItems) =>
           this.state.update((state) => ({
             ...state,
             relatedItems,
-            mode: MachineState.Idle,
             error: undefined,
           })),
         ),
+        tap(() => this.removeCurrentOperation(OperationType.Fetch)),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -109,26 +110,24 @@ export class DetailStoreService<
     this.refresh$
       .pipe(
         filter(() => !!this.item()),
-        tap(() =>
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Fetching,
-          })),
-        ),
+        tap(() => this.addCurrentOperation(OperationType.Fetch)),
         withLatestFrom(this.keys$),
         switchMap(([_, keys]) =>
-          this.handler
-            .get(keys)
-            .pipe(catchError((error) => onHandlerError(error, this.state))),
+          this.handler.get(keys).pipe(
+            catchError((error) => {
+              this.removeCurrentOperation(OperationType.Fetch);
+              return onHandlerError(error, this.state);
+            }),
+          ),
         ),
         tap((item) =>
           this.state.update((state) => ({
             ...state,
             item,
-            mode: MachineState.Idle,
             error: undefined,
           })),
         ),
+        tap(() => this.removeCurrentOperation(OperationType.Fetch)),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -137,13 +136,10 @@ export class DetailStoreService<
       .pipe(
         withLatestFrom(this.keys$.pipe(startWith({}))),
         mergeMap(([operation, keys]) => {
+          this.addCurrentOperation(operation.type);
           const canOperate$ = forceObservable(
             this.handler.canOperate?.(operation, this.item(), keys) || true,
           );
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Operating,
-          }));
           return canOperate$.pipe(
             filter((canOperate) => canOperate),
             switchMap(() => {
@@ -154,7 +150,10 @@ export class DetailStoreService<
 
               if (!item || !itemMutation) {
                 return operation$.pipe(
-                  catchError((error) => onHandlerError(error, this.state)),
+                  catchError((error) => {
+                    this.removeCurrentOperation(operation.type);
+                    return onHandlerError(error, this.state);
+                  }),
                   map((updatedItem) => ({
                     operation,
                     item: updatedItem || item,
@@ -163,10 +162,10 @@ export class DetailStoreService<
                     this.state.update((state) => ({
                       ...state,
                       item,
-                      mode: MachineState.Idle,
                       error: undefined,
                     })),
                   ),
+                  tap(() => this.removeCurrentOperation(operation.type)),
                 );
               }
 
@@ -175,10 +174,10 @@ export class DetailStoreService<
                   this.state.update((state) => ({
                     ...state,
                     item: mutatedItem,
-                    mode: MachineState.Idle,
                     error: undefined,
                   })),
                 ),
+                tap(() => this.removeCurrentOperation(operation.type)),
               );
 
               return combineLatest([mutate$, operation$]).pipe(
@@ -186,9 +185,10 @@ export class DetailStoreService<
                   operation,
                   item: updatedItem || item,
                 })),
-                catchError((error) =>
-                  onHandlerError(error, this.state, { item }),
-                ),
+                catchError((error) => {
+                  this.removeCurrentOperation(operation.type);
+                  return onHandlerError(error, this.state, { item });
+                }),
               );
             }),
             switchMap(({ operation, item }) =>
@@ -220,5 +220,22 @@ export class DetailStoreService<
       ...INITIAL_DETAIL_STATE,
       ...(this.handler.initialState?.detail || {}),
     };
+  }
+
+  private addCurrentOperation(operationType: OperationType | string): void {
+    this.state.update((state) => ({
+      ...state,
+      currentOperations: [...state.currentOperations, operationType],
+    }));
+  }
+
+  private removeCurrentOperation(operationType: OperationType | string): void {
+    this.state.update((state) => ({
+      ...state,
+      currentOperations: filterOnce(
+        state.currentOperations,
+        (o) => o === operationType,
+      ),
+    }));
   }
 }

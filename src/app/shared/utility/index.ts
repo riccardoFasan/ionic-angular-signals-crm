@@ -29,3 +29,5 @@ export * from './filter-exclude/filter-exclude.pipe';
 export * from './is-object-array';
 export * from './in-filters';
 export * from './create-sorted-items-pages';
+export * from './filter-once';
+export * from './object-array-unique';

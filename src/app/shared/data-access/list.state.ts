@@ -6,18 +6,23 @@ import {
   SortOrder,
   Sorting,
 } from '../utility';
-import { MachineState } from './machine-state.enum';
+import { OperationType } from './operation-type.enum';
 
 export type ListState<
   Entity extends Record<string, unknown>,
   REntities extends Record<string, unknown> | undefined = undefined,
 > = {
-  mode: MachineState;
+  currentItemOperations: ItemOperation<Entity>[];
   pages: ItemsPage<Entity>[];
   searchCriteria: SearchCriteria;
   total: number;
   relatedItems?: REntities;
   error?: Error;
+};
+
+export type ItemOperation<Entity> = {
+  item?: Entity;
+  operationType: OperationType | string;
 };
 
 export const INITIAL_LIST_PAGINATION: Pagination = {
@@ -40,7 +45,7 @@ export const INITIAL_SEARCH_CRITERIA: SearchCriteria = {
 
 export const INITIAL_LIST_STATE: ListState<never> = {
   pages: [],
+  currentItemOperations: [],
   total: 0,
   searchCriteria: INITIAL_SEARCH_CRITERIA,
-  mode: MachineState.Idle,
 };

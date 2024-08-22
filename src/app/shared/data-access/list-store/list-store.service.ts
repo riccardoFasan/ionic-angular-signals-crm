@@ -14,8 +14,10 @@ import {
   FilterClause,
   ItemsPage,
   areEqualObjects,
+  objectArrayUnique,
+  filterOnce,
 } from '../../utility';
-import { INITIAL_LIST_STATE, ListState } from '../list.state';
+import { INITIAL_LIST_STATE, ItemOperation, ListState } from '../list.state';
 import {
   Observable,
   Subject,
@@ -32,10 +34,10 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MachineState } from '../machine-state.enum';
 import { Operation } from '../operation.type';
 import { environment } from 'src/environments/environment';
 import { ItemsMutation } from '../items-mutation.type';
+import { OperationType } from '../operation-type.enum';
 
 @Injectable()
 export class ListStoreService<
@@ -50,8 +52,11 @@ export class ListStoreService<
 
   searchCriteria = computed<SearchCriteria>(() => this.state().searchCriteria);
   total = computed<number>(() => this.state().total);
-  mode = computed<MachineState>(() => this.state().mode);
   error = computed<Error | undefined>(() => this.state().error);
+
+  currentOperations = computed<ItemOperation<Entity>[]>(() =>
+    objectArrayUnique(this.state().currentItemOperations),
+  );
 
   items = computed<Entity[]>(() =>
     this.pages()
@@ -133,16 +138,16 @@ export class ListStoreService<
           keys,
         })),
         tap(({ searchCriteria }) =>
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Fetching,
-            searchCriteria,
-          })),
+          this.state.update((state) => ({ ...state, searchCriteria })),
         ),
+        tap(() => this.addCurrentOperation(OperationType.Fetch)),
         switchMap(({ searchCriteria, keys }) =>
-          this.handler
-            .getList(searchCriteria, keys)
-            .pipe(catchError((error) => onHandlerError(error, this.state))),
+          this.handler.getList(searchCriteria, keys).pipe(
+            catchError((error) => {
+              this.removeCurrentOperation(OperationType.Fetch);
+              return onHandlerError(error, this.state);
+            }),
+          ),
         ),
         tap(({ items, total }) =>
           this.state.update((state) => ({
@@ -151,10 +156,10 @@ export class ListStoreService<
               { pageIndex: state.searchCriteria.pagination.pageIndex, items },
             ],
             total,
-            mode: MachineState.Idle,
             error: undefined,
           })),
         ),
+        tap(() => this.removeCurrentOperation(OperationType.Fetch)),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -187,15 +192,13 @@ export class ListStoreService<
           }
           return !inCollection;
         }),
-        tap(() =>
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Fetching,
-          })),
-        ),
+        tap(() => this.addCurrentOperation(OperationType.Fetch)),
         switchMap(({ searchCriteria, keys }) =>
           this.handler.getList(searchCriteria, keys).pipe(
-            catchError((error) => onHandlerError(error, this.state)),
+            catchError((error) => {
+              this.removeCurrentOperation(OperationType.Fetch);
+              return onHandlerError(error, this.state);
+            }),
             tap(({ items }) =>
               this.state.update((state) => ({
                 ...state,
@@ -206,12 +209,12 @@ export class ListStoreService<
                   (page) =>
                     page.pageIndex === searchCriteria.pagination.pageIndex,
                 ),
-                mode: MachineState.Idle,
                 error: undefined,
               })),
             ),
           ),
         ),
+        tap(() => this.removeCurrentOperation(OperationType.Fetch)),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -220,25 +223,23 @@ export class ListStoreService<
       .pipe(
         withLatestFrom(this.keys$),
         filter(([_, keys]) => !!keys && !!this.handler.loadRelatedItems),
-        tap(() =>
-          this.state.update((state) => ({
-            ...state,
-            mode: MachineState.Fetching,
-          })),
-        ),
+        tap(() => this.addCurrentOperation(OperationType.Fetch)),
         switchMap(([_, keys]) =>
           this.handler.loadRelatedItems!(keys).pipe(
-            catchError((error) => onHandlerError(error, this.state)),
+            catchError((error) => {
+              this.removeCurrentOperation(OperationType.Fetch);
+              return onHandlerError(error, this.state);
+            }),
           ),
         ),
         tap((relatedItems) =>
           this.state.update((state) => ({
             ...state,
             relatedItems,
-            mode: MachineState.Idle,
             error: undefined,
           })),
         ),
+        tap(() => this.removeCurrentOperation(OperationType.Fetch)),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -254,10 +255,7 @@ export class ListStoreService<
             return canOperate$.pipe(
               filter((canOperate) => canOperate),
               switchMap(() => {
-                this.state.update((state) => ({
-                  ...state,
-                  mode: MachineState.Operating,
-                }));
+                this.addCurrentOperation(operation.type, item);
 
                 // * creation of a new item or operations that do not require a specific item
                 if (!item) {
@@ -278,7 +276,10 @@ export class ListStoreService<
 
                 if (!itemsMutation) {
                   return this.handler.operate(operation, item, keys).pipe(
-                    catchError((error) => onHandlerError(error, this.state)),
+                    catchError((error) => {
+                      this.removeCurrentOperation(operation.type, item);
+                      return onHandlerError(error, this.state);
+                    }),
                     switchMap((updatedItem) =>
                       this.refreshPagesAfterOperation(
                         operation,
@@ -336,7 +337,10 @@ export class ListStoreService<
     restoreInitialSearchCritieria: boolean = false,
   ): Observable<{ operation: Operation; item?: Entity }> {
     return this.handler.operate(operation, keys).pipe(
-      catchError((error) => onHandlerError(error, this.state)),
+      catchError((error) => {
+        this.removeCurrentOperation(operation.type);
+        return onHandlerError(error, this.state);
+      }),
       switchMap((item) => {
         const itemsMutation =
           item &&
@@ -364,13 +368,16 @@ export class ListStoreService<
               ...state,
               pages,
               total,
-              mode: MachineState.Idle,
             })),
           ),
+          tap(() => this.removeCurrentOperation(operation.type, item)),
         );
 
         return mutate$.pipe(
-          catchError((error) => onHandlerError(error, this.state)),
+          catchError((error) => {
+            this.removeCurrentOperation(operation.type, item);
+            return onHandlerError(error, this.state);
+          }),
           map(() => ({ item, operation })),
         );
       }),
@@ -390,9 +397,9 @@ export class ListStoreService<
           ...state,
           pages,
           total,
-          mode: MachineState.Idle,
         })),
       ),
+      tap(() => this.removeCurrentOperation(operation.type, item)),
     );
 
     return combineLatest([this.handler.operate(operation, item), mutate$]).pipe(
@@ -400,12 +407,13 @@ export class ListStoreService<
         item: updatedItem || item,
         operation,
       })),
-      catchError((error) =>
-        onHandlerError(error, this.state, {
+      catchError((error) => {
+        this.removeCurrentOperation(operation.type, item);
+        return onHandlerError(error, this.state, {
           pages: currentPages,
           total: currentTotal,
-        }),
-      ),
+        });
+      }),
     );
   }
 
@@ -420,7 +428,10 @@ export class ListStoreService<
       ? this.initialState.searchCriteria
       : this.searchCriteria();
     return this.handler.getList(searchCriteria, keys).pipe(
-      catchError((error) => onHandlerError(error, this.state)),
+      catchError((error) => {
+        this.removeCurrentOperation(operation.type, item);
+        return onHandlerError(error, this.state);
+      }),
       tap(({ items, total }) => {
         const pageIndex = searchCriteria.pagination.pageIndex;
         this.state.update((state) => ({
@@ -432,10 +443,35 @@ export class ListStoreService<
             (page) => page.pageIndex === pageIndex,
           ),
           total,
-          mode: MachineState.Idle,
         }));
+        this.removeCurrentOperation(operation.type, item);
       }),
       map(() => ({ operation, item: updatedItem || item })),
     );
+  }
+
+  private addCurrentOperation(
+    operationType: OperationType | string,
+    item?: Entity,
+  ): void {
+    this.state.update((state) => ({
+      ...state,
+      currentItemOperations: [
+        ...state.currentItemOperations,
+        { operationType, item },
+      ],
+    }));
+  }
+
+  private removeCurrentOperation(
+    operationType: OperationType | string,
+    item?: Entity,
+  ): void {
+    this.state.update((state) => ({
+      ...state,
+      currentItemOperations: filterOnce(state.currentItemOperations, (o) =>
+        areEqualObjects(o, { operationType, item }),
+      ),
+    }));
   }
 }
