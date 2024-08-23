@@ -20,9 +20,12 @@ import {
   IonItem,
   IonList,
 } from '@ionic/angular/standalone';
-import { SearchableSelectComponent } from 'src/app/shared/presentation';
+import {
+  FilterExcludePipe,
+  SearchableSelectComponent,
+} from 'src/app/shared/presentation';
 import { NgClass } from '@angular/common';
-import { FilterExcludePipe, WithRef } from 'src/app/shared/utility';
+import { WithRef } from 'src/app/shared/utility';
 
 type ConsumptionWithRef = Partial<Consumption> & WithRef;
 

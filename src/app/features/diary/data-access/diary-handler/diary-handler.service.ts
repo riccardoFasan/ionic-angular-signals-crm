@@ -3,6 +3,7 @@ import {
   ItemsMutation,
   Operation,
   OperationType,
+  OperationTypeLike,
   StoreHandler,
 } from 'src/app/shared/data-access';
 import { Observable, defer } from 'rxjs';
@@ -121,7 +122,7 @@ export class DiaryHandlerService
   }
 
   private getMessage(
-    type: OperationType | string,
+    type: OperationTypeLike,
     item: DiaryEvent,
   ): string | undefined {
     switch (type) {

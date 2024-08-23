@@ -15,32 +15,47 @@ import {
   UpdateActivityFormData,
 } from '../../data-access';
 import { IonButton, ModalController } from '@ionic/angular/standalone';
-import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
+import {
+  DetailModalWrapperComponent,
+  HasOperationPipe,
+} from 'src/app/shared/presentation';
 import { ActivityFormComponent } from '../activity-form/activity-form.component';
 import { ActivitiesHandlerDirective } from '../../utility';
 
 @Component({
   selector: 'app-activity-modal',
   standalone: true,
-  imports: [IonButton, DetailModalWrapperComponent, ActivityFormComponent],
+  imports: [
+    IonButton,
+    DetailModalWrapperComponent,
+    ActivityFormComponent,
+    HasOperationPipe,
+  ],
   template: `
     <app-detail-modal-wrapper
       [loading]="
-        detailStore.mode() === 'PROCESSING' || detailStore.mode() === 'FETCHING'
+        detailStore.currentOperations() | hasOperation: ['FETCH', 'CREATE']
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
     >
       <ng-container ngProjectAs="[buttons]">
         @if (detailStore.item()) {
-          <ion-button (click)="remove()">Delete</ion-button>
+          <ion-button
+            [disabled]="
+              detailStore.currentOperations() | hasOperation: ['DELETE']
+            "
+            (click)="remove()"
+          >
+            Delete
+          </ion-button>
         }
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-activity-form
         [loading]="
-          detailStore.mode() === 'PROCESSING' ||
-          detailStore.mode() === 'FETCHING'
+          detailStore.currentOperations()
+            | hasOperation: ['FETCH', 'CREATE', 'UPDATE', 'DELETE']
         "
         [activity]="detailStore.item()"
         (save)="save($event)"

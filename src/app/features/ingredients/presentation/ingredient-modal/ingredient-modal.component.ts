@@ -20,7 +20,10 @@ import {
   UpdateIngredientFormData,
 } from '../../data-access';
 import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
-import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
+import {
+  DetailModalWrapperComponent,
+  HasOperationPipe,
+} from 'src/app/shared/presentation';
 import { IngredientsHandlerDirective } from '../../utility';
 import { RouterLink } from '@angular/router';
 
@@ -32,25 +35,33 @@ import { RouterLink } from '@angular/router';
     DetailModalWrapperComponent,
     IngredientFormComponent,
     RouterLink,
+    HasOperationPipe,
   ],
   template: `
     <app-detail-modal-wrapper
       [loading]="
-        detailStore.mode() === 'PROCESSING' || detailStore.mode() === 'FETCHING'
+        detailStore.currentOperations() | hasOperation: ['FETCH', 'CREATE']
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
     >
       <ng-container ngProjectAs="[buttons]">
         @if (detailStore.item()) {
-          <ion-button (click)="remove()">Delete</ion-button>
+          <ion-button
+            [disabled]="
+              detailStore.currentOperations() | hasOperation: ['DELETE']
+            "
+            (click)="remove()"
+          >
+            Delete
+          </ion-button>
         }
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-ingredient-form
         [loading]="
-          detailStore.mode() === 'PROCESSING' ||
-          detailStore.mode() === 'FETCHING'
+          detailStore.currentOperations()
+            | hasOperation: ['FETCH', 'CREATE', 'UPDATE', 'DELETE']
         "
         (save)="save($event)"
         [ingredient]="detailStore.item()"

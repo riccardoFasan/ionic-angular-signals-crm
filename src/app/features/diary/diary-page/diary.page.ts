@@ -22,11 +22,18 @@ import {
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { ScrollableListComponent } from 'src/app/shared/presentation';
+import {
+  HasOperationPipe,
+  ScrollableListComponent,
+  SkeletonListComponent,
+} from 'src/app/shared/presentation';
 import { MealModalsService } from '../../meals/utility';
 import { ActivityModalsService } from '../../activities/utility';
 import { DiaryEvent } from '../data-access';
-import { DiaryEventIconPipe } from '../presentation';
+import {
+  DiaryEventIconPipe,
+  SkeletonDiaryItemComponent,
+} from '../presentation';
 import { DatePipe } from '@angular/common';
 import { DiaryHandlerDirective } from '../utility/diary-handler/diary-handler.directive';
 import { ModalsService } from 'src/app/shared/utility';
@@ -54,6 +61,9 @@ import { ModalsService } from 'src/app/shared/utility';
     IonItemOption,
     ScrollableListComponent,
     DiaryEventIconPipe,
+    HasOperationPipe,
+    SkeletonListComponent,
+    SkeletonDiaryItemComponent,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -75,11 +85,20 @@ import { ModalsService } from 'src/app/shared/utility';
       <app-scrollable-list
         [items]="listStore.items()"
         [canLoadNextPage]="listStore.canLoadNextPage()"
-        [loading]="listStore.mode() === 'FETCHING'"
+        [loading]="listStore.currentOperations() | hasOperation: 'FETCH'"
         [trackFn]="trackFn"
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
       >
+        <app-skeleton-list
+          [size]="listStore.searchCriteria().pagination.pageSize"
+          skeleton
+        >
+          <ng-template #skeletonTemplate>
+            <app-skeleton-diary-item />
+          </ng-template>
+        </app-skeleton-list>
+
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
             <ion-item>
@@ -151,6 +170,10 @@ import { ModalsService } from 'src/app/shared/utility';
   styles: `
     ion-text {
       font-size: 0.8rem;
+    }
+
+    ion-item ion-icon[slot='start'] {
+      margin-inline-end: 1.5rem;
     }
   `,
   hostDirectives: [DiaryHandlerDirective],

@@ -2,10 +2,10 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ContentChild,
   EventEmitter,
   Output,
   TemplateRef,
+  contentChild,
   effect,
   input,
 } from '@angular/core';
@@ -17,6 +17,7 @@ import {
   RefresherCustomEvent,
   IonRefresher,
   IonRefresherContent,
+  IonProgressBar,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -29,29 +30,53 @@ import {
     IonInfiniteScroll,
     IonRefresherContent,
     IonInfiniteScrollContent,
+    IonProgressBar,
   ],
   template: `
     <ion-refresher slot="fixed" (ionRefresh)="onIonRefresh($event)">
       <ion-refresher-content />
     </ion-refresher>
 
-    <ion-list>
-      @for (item of items(); track trackFn()(item)) {
-        <ng-container
-          *ngTemplateOutlet="itemTemplateRef; context: { $implicit: item }"
-        />
-      }
-    </ion-list>
+    @if (loading()) {
+      <ion-progress-bar type="indeterminate" />
+    }
 
-    @if (canLoadNextPage()) {
+    @if (loading() && !items().length) {
+      <ng-content select="[skeleton]" />
+    } @else {
+      <ion-list>
+        @let itemTemplate = itemTemplateRef();
+        @if (itemTemplate) {
+          @for (item of items(); track trackFn()(item)) {
+            <ng-container
+              *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"
+            />
+          }
+        }
+      </ion-list>
+    }
+
+    @if (canLoadNextPage() && !loading()) {
       <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
         <ion-infinite-scroll-content />
       </ion-infinite-scroll>
     }
   `,
   styles: `
-    ion-list:empty {
-      display: none;
+    :host {
+      position: relative;
+
+      ion-progress-bar {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
+
+      ion-list:empty {
+        display: none;
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,8 +88,8 @@ export class ScrollableListComponent {
   loading = input.required<boolean>();
   canLoadNextPage = input<boolean>(false);
 
-  @ContentChild('itemTemplate')
-  protected itemTemplateRef!: TemplateRef<unknown>;
+  protected itemTemplateRef =
+    contentChild<TemplateRef<unknown>>('itemTemplate');
 
   @Output() scrollEnd = new EventEmitter<void>();
   @Output() refresh = new EventEmitter<void>();

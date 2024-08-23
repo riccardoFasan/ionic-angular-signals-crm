@@ -11,7 +11,10 @@ import {
   Operation,
   OperationType,
 } from 'src/app/shared/data-access';
-import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
+import {
+  DetailModalWrapperComponent,
+  HasOperationPipe,
+} from 'src/app/shared/presentation';
 import { TagFormComponent } from '../tag-form/tag-form.component';
 import { CreateTagFormData, UpdateTagFormData } from '../../data-access';
 import { TagsHandlerDirective } from '../../utility';
@@ -19,25 +22,37 @@ import { TagsHandlerDirective } from '../../utility';
 @Component({
   selector: 'app-tag-modal',
   standalone: true,
-  imports: [IonButton, DetailModalWrapperComponent, TagFormComponent],
+  imports: [
+    IonButton,
+    DetailModalWrapperComponent,
+    TagFormComponent,
+    HasOperationPipe,
+  ],
   template: `
     <app-detail-modal-wrapper
       [loading]="
-        detailStore.mode() === 'PROCESSING' || detailStore.mode() === 'FETCHING'
+        detailStore.currentOperations() | hasOperation: ['FETCH', 'CREATE']
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
     >
       <ng-container ngProjectAs="[buttons]">
         @if (detailStore.item()) {
-          <ion-button (click)="remove()">Delete</ion-button>
+          <ion-button
+            [disabled]="
+              detailStore.currentOperations() | hasOperation: ['DELETE']
+            "
+            (click)="remove()"
+          >
+            Delete
+          </ion-button>
         }
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-tag-form
         [loading]="
-          detailStore.mode() === 'PROCESSING' ||
-          detailStore.mode() === 'FETCHING'
+          detailStore.currentOperations()
+            | hasOperation: ['FETCH', 'CREATE', 'UPDATE', 'DELETE']
         "
         (save)="save($event)"
         [tag]="detailStore.item()"

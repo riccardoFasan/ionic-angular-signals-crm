@@ -6,6 +6,5 @@ export * from './list.state';
 export * from './detail.state';
 export * from './operation-type.enum';
 export * from './operation.type';
-export * from './machine-state.enum';
 export * from './push-sorted';
 export * from './items-mutation.type';

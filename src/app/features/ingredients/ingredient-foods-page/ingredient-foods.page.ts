@@ -21,7 +21,11 @@ import {
   IonButton,
 } from '@ionic/angular/standalone';
 import { ListStoreService, STORE_HANDLER } from 'src/app/shared/data-access';
-import { ScrollableListComponent } from 'src/app/shared/presentation';
+import {
+  HasOperationPipe,
+  ScrollableListComponent,
+  SkeletonListComponent,
+} from 'src/app/shared/presentation';
 import { Food } from '../../foods/data-access';
 import { IngredientFoodsHandlerDirective } from '../utility';
 import { Ingredient } from '../data-access';
@@ -47,6 +51,8 @@ import { FoodModalsService } from '../../foods/utility';
     IonItemOptions,
     IonItemOption,
     RouterLink,
+    HasOperationPipe,
+    SkeletonListComponent,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -79,11 +85,16 @@ import { FoodModalsService } from '../../foods/utility';
       <app-scrollable-list
         [items]="listStore.items()"
         [canLoadNextPage]="listStore.canLoadNextPage()"
-        [loading]="listStore.mode() === 'FETCHING'"
+        [loading]="listStore.currentOperations() | hasOperation: 'FETCH'"
         [trackFn]="trackFn"
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
       >
+        <app-skeleton-list
+          [size]="listStore.searchCriteria().pagination.pageSize"
+          skeleton
+        />
+
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
             <ion-item>
