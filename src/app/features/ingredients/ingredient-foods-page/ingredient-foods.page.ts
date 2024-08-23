@@ -24,6 +24,7 @@ import { ListStoreService, STORE_HANDLER } from 'src/app/shared/data-access';
 import {
   HasOperationPipe,
   ScrollableListComponent,
+  SkeletonListComponent,
 } from 'src/app/shared/presentation';
 import { Food } from '../../foods/data-access';
 import { IngredientFoodsHandlerDirective } from '../utility';
@@ -51,6 +52,7 @@ import { FoodModalsService } from '../../foods/utility';
     IonItemOption,
     RouterLink,
     HasOperationPipe,
+    SkeletonListComponent,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -88,6 +90,11 @@ import { FoodModalsService } from '../../foods/utility';
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
       >
+        <app-skeleton-list
+          [size]="listStore.searchCriteria().pagination.pageSize"
+          skeleton
+        />
+
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
             <ion-item>

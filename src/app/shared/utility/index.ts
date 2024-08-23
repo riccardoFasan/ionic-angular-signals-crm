@@ -32,3 +32,4 @@ export * from './remove-first';
 export * from './object-array-unique';
 export * from './sleep';
 export * from './switch-map-with-cancel';
+export * from './random-integer-between';

@@ -24,6 +24,7 @@ import { Tag } from '../data-access';
 import {
   HasOperationPipe,
   ScrollableListComponent,
+  SkeletonListComponent,
 } from 'src/app/shared/presentation';
 import { TagModalsService } from '../utility';
 import { TagsHandlerDirective } from '../utility/tags-handler/tags-handler.directive';
@@ -48,6 +49,7 @@ import { TagsHandlerDirective } from '../utility/tags-handler/tags-handler.direc
     IonIcon,
     ScrollableListComponent,
     HasOperationPipe,
+    SkeletonListComponent,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -74,6 +76,11 @@ import { TagsHandlerDirective } from '../utility/tags-handler/tags-handler.direc
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
       >
+        <app-skeleton-list
+          [size]="listStore.searchCriteria().pagination.pageSize"
+          skeleton
+        />
+
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
             <ion-item>

@@ -7,3 +7,5 @@ export * from './datetime-input/datetime-input.component';
 export * from './datetime-modal/datetime-modal.component';
 export * from './filter-exclude/filter-exclude.pipe';
 export * from './has-operation/has-operation.pipe';
+export * from './skeleton-item/skeleton-item.component';
+export * from './skeleton-list/skeleton-list.component';

@@ -17,7 +17,7 @@ import {
   RefresherCustomEvent,
   IonRefresher,
   IonRefresherContent,
-  IonSpinner,
+  IonProgressBar,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -30,47 +30,49 @@ import {
     IonInfiniteScroll,
     IonRefresherContent,
     IonInfiniteScrollContent,
-    IonSpinner,
+    IonProgressBar,
   ],
   template: `
     <ion-refresher slot="fixed" (ionRefresh)="onIonRefresh($event)">
       <ion-refresher-content />
     </ion-refresher>
 
-    <ion-list>
-      @for (item of items(); track trackFn()(item)) {
-        <ng-container
-          *ngTemplateOutlet="itemTemplateRef; context: { $implicit: item }"
-        />
-      }
-    </ion-list>
-
-    @if (loading() && !items().length) {
-      <div>
-        <ion-spinner color="primary" />
-      </div>
+    @if (loading()) {
+      <ion-progress-bar type="indeterminate" />
     }
 
-    @if (canLoadNextPage()) {
+    @if (loading() && !items().length) {
+      <ng-content select="[skeleton]" />
+    } @else {
+      <ion-list>
+        @for (item of items(); track trackFn()(item)) {
+          <ng-container
+            *ngTemplateOutlet="itemTemplateRef; context: { $implicit: item }"
+          />
+        }
+      </ion-list>
+    }
+
+    @if (canLoadNextPage() && !loading()) {
       <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
         <ion-infinite-scroll-content />
       </ion-infinite-scroll>
     }
   `,
   styles: `
-    ion-list:empty {
-      display: none;
-    }
+    :host {
+      position: relative;
 
-    div:has(ion-spinner) {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 25dvh;
+      ion-progress-bar {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
 
-      ion-spinner {
-        display: block;
-        margin: 0 auto;
+      ion-list:empty {
+        display: none;
       }
     }
   `,

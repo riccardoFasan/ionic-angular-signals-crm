@@ -28,6 +28,7 @@ import { Ingredient } from '../data-access';
 import {
   HasOperationPipe,
   ScrollableListComponent,
+  SkeletonListComponent,
 } from 'src/app/shared/presentation';
 
 @Component({
@@ -50,6 +51,7 @@ import {
     IonLabel,
     ScrollableListComponent,
     HasOperationPipe,
+    SkeletonListComponent,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -76,6 +78,11 @@ import {
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
       >
+        <app-skeleton-list
+          [size]="listStore.searchCriteria().pagination.pageSize"
+          skeleton
+        />
+
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
             <ion-item>

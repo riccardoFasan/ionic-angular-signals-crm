@@ -28,6 +28,7 @@ import {
 import { ScrollableListComponent } from '../scrollable-list/scrollable-list.component';
 import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
 import { HasOperationPipe } from '../has-operation/has-operation.pipe';
+import { SkeletonListComponent } from '../skeleton-list/skeleton-list.component';
 
 @Component({
   selector: 'app-searchable-select',
@@ -48,6 +49,7 @@ import { HasOperationPipe } from '../has-operation/has-operation.pipe';
     ScrollableListComponent,
     OptionSelectedPipe,
     HasOperationPipe,
+    SkeletonListComponent,
   ],
   template: `
     <ion-input
@@ -90,6 +92,11 @@ import { HasOperationPipe } from '../has-operation/has-operation.pipe';
             (scrollEnd)="listStore.loadPage$.next(nextPage())"
             (refresh)="listStore.refresh$.next()"
           >
+            <app-skeleton-list
+              [size]="listStore.searchCriteria().pagination.pageSize"
+              skeleton
+            />
+
             <ng-template #itemTemplate let-item>
               <ion-item>
                 <ion-checkbox
