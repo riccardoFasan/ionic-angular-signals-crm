@@ -49,6 +49,6 @@ export class HasOperationPipe implements PipeTransform {
   private isItemOperation<Entity>(
     operation: OperationTypeLike | ItemOperation<Entity>,
   ): operation is ItemOperation<Entity> {
-    return (operation as ItemOperation<Entity>).item !== undefined;
+    return Object.keys(operation as ItemOperation<Entity>).length === 2;
   }
 }

@@ -1,4 +1,4 @@
-export function filterOnce<T>(
+export function removeFirst<T>(
   array: T[],
   predicate: (value: T) => boolean,
 ): T[] {

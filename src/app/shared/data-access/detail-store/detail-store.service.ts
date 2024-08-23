@@ -19,9 +19,10 @@ import {
   ErrorInterpreterService,
   ToastsService,
   areEqualObjects,
-  filterOnce,
   forceObservable,
   onHandlerError,
+  removeFirst,
+  switchMapWithCancel,
 } from '../../utility';
 import { Operation } from '../operation.type';
 import { environment } from 'src/environments/environment';
@@ -62,13 +63,15 @@ export class DetailStoreService<
       .pipe(
         filter((keys) => !!keys),
         tap(() => this.addCurrentOperation(OperationType.Fetch)),
-        switchMap((keys) =>
-          this.handler.get(keys).pipe(
-            catchError((error) => {
-              this.removeCurrentOperation(OperationType.Fetch);
-              return onHandlerError(error, this.state);
-            }),
-          ),
+        switchMapWithCancel(
+          (keys) =>
+            this.handler.get(keys).pipe(
+              catchError((error) => {
+                this.removeCurrentOperation(OperationType.Fetch);
+                return onHandlerError(error, this.state);
+              }),
+            ),
+          () => this.removeCurrentOperation(OperationType.Fetch),
         ),
         tap((item) =>
           this.state.update((state) => ({
@@ -87,13 +90,15 @@ export class DetailStoreService<
         withLatestFrom(this.keys$),
         filter(([_, keys]) => !!keys && !!this.handler.loadRelatedItems),
         tap(() => this.addCurrentOperation(OperationType.Fetch)),
-        switchMap(([_, keys]) =>
-          this.handler.loadRelatedItems!(keys).pipe(
-            catchError((error) => {
-              this.removeCurrentOperation(OperationType.Fetch);
-              return onHandlerError(error, this.state);
-            }),
-          ),
+        switchMapWithCancel(
+          ([_, keys]) =>
+            this.handler.loadRelatedItems!(keys).pipe(
+              catchError((error) => {
+                this.removeCurrentOperation(OperationType.Fetch);
+                return onHandlerError(error, this.state);
+              }),
+            ),
+          () => this.removeCurrentOperation(OperationType.Fetch),
         ),
         tap((relatedItems) =>
           this.state.update((state) => ({
@@ -112,13 +117,16 @@ export class DetailStoreService<
         filter(() => !!this.item()),
         tap(() => this.addCurrentOperation(OperationType.Fetch)),
         withLatestFrom(this.keys$),
-        switchMap(([_, keys]) =>
-          this.handler.get(keys).pipe(
-            catchError((error) => {
-              this.removeCurrentOperation(OperationType.Fetch);
-              return onHandlerError(error, this.state);
-            }),
-          ),
+
+        switchMapWithCancel(
+          ([_, keys]) =>
+            this.handler.get(keys).pipe(
+              catchError((error) => {
+                this.removeCurrentOperation(OperationType.Fetch);
+                return onHandlerError(error, this.state);
+              }),
+            ),
+          () => this.removeCurrentOperation(OperationType.Fetch),
         ),
         tap((item) =>
           this.state.update((state) => ({
@@ -232,7 +240,7 @@ export class DetailStoreService<
   private removeCurrentOperation(operationType: OperationTypeLike): void {
     this.state.update((state) => ({
       ...state,
-      currentOperations: filterOnce(
+      currentOperations: removeFirst(
         state.currentOperations,
         (o) => o === operationType,
       ),

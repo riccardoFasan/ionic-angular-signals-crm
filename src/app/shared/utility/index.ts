@@ -28,5 +28,7 @@ export * from './are-equal-objects';
 export * from './is-object-array';
 export * from './in-filters';
 export * from './create-sorted-items-pages';
-export * from './filter-once';
+export * from './remove-first';
 export * from './object-array-unique';
+export * from './sleep';
+export * from './switch-map-with-cancel';

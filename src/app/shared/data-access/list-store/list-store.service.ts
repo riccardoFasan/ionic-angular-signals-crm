@@ -15,7 +15,8 @@ import {
   ItemsPage,
   areEqualObjects,
   objectArrayUnique,
-  filterOnce,
+  removeFirst,
+  switchMapWithCancel,
 } from '../../utility';
 import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import {
@@ -142,13 +143,15 @@ export class ListStoreService<
           this.state.update((state) => ({ ...state, searchCriteria })),
         ),
         tap(() => this.addCurrentOperation(OperationType.Fetch)),
-        switchMap(({ searchCriteria, keys }) =>
-          this.handler.getList(searchCriteria, keys).pipe(
-            catchError((error) => {
-              this.removeCurrentOperation(OperationType.Fetch);
-              return onHandlerError(error, this.state);
-            }),
-          ),
+        switchMapWithCancel(
+          ({ searchCriteria, keys }) =>
+            this.handler.getList(searchCriteria, keys).pipe(
+              catchError((error) => {
+                this.removeCurrentOperation(OperationType.Fetch);
+                return onHandlerError(error, this.state);
+              }),
+            ),
+          () => this.removeCurrentOperation(OperationType.Fetch),
         ),
         tap(({ items, total }) =>
           this.state.update((state) => ({
@@ -194,26 +197,28 @@ export class ListStoreService<
           return !inCollection;
         }),
         tap(() => this.addCurrentOperation(OperationType.Fetch)),
-        switchMap(({ searchCriteria, keys }) =>
-          this.handler.getList(searchCriteria, keys).pipe(
-            catchError((error) => {
-              this.removeCurrentOperation(OperationType.Fetch);
-              return onHandlerError(error, this.state);
-            }),
-            tap(({ items }) =>
-              this.state.update((state) => ({
-                ...state,
-                searchCriteria,
-                pages: pushOrReplace(
-                  state.pages,
-                  { pageIndex: searchCriteria.pagination.pageIndex, items },
-                  (page) =>
-                    page.pageIndex === searchCriteria.pagination.pageIndex,
-                ),
-                error: undefined,
-              })),
+        switchMapWithCancel(
+          ({ searchCriteria, keys }) =>
+            this.handler.getList(searchCriteria, keys).pipe(
+              catchError((error) => {
+                this.removeCurrentOperation(OperationType.Fetch);
+                return onHandlerError(error, this.state);
+              }),
+              tap(({ items }) =>
+                this.state.update((state) => ({
+                  ...state,
+                  searchCriteria,
+                  pages: pushOrReplace(
+                    state.pages,
+                    { pageIndex: searchCriteria.pagination.pageIndex, items },
+                    (page) =>
+                      page.pageIndex === searchCriteria.pagination.pageIndex,
+                  ),
+                  error: undefined,
+                })),
+              ),
             ),
-          ),
+          () => this.removeCurrentOperation(OperationType.Fetch),
         ),
         tap(() => this.removeCurrentOperation(OperationType.Fetch)),
         takeUntilDestroyed(),
@@ -225,13 +230,15 @@ export class ListStoreService<
         withLatestFrom(this.keys$),
         filter(([_, keys]) => !!keys && !!this.handler.loadRelatedItems),
         tap(() => this.addCurrentOperation(OperationType.Fetch)),
-        switchMap(([_, keys]) =>
-          this.handler.loadRelatedItems!(keys).pipe(
-            catchError((error) => {
-              this.removeCurrentOperation(OperationType.Fetch);
-              return onHandlerError(error, this.state);
-            }),
-          ),
+        switchMapWithCancel(
+          ([_, keys]) =>
+            this.handler.loadRelatedItems!(keys).pipe(
+              catchError((error) => {
+                this.removeCurrentOperation(OperationType.Fetch);
+                return onHandlerError(error, this.state);
+              }),
+            ),
+          () => this.removeCurrentOperation(OperationType.Fetch),
         ),
         tap((relatedItems) =>
           this.state.update((state) => ({
@@ -459,7 +466,7 @@ export class ListStoreService<
       ...state,
       currentItemOperations: [
         ...state.currentItemOperations,
-        { type: operationType, item },
+        { type: operationType, item: item || undefined },
       ],
     }));
   }
@@ -470,8 +477,8 @@ export class ListStoreService<
   ): void {
     this.state.update((state) => ({
       ...state,
-      currentItemOperations: filterOnce(state.currentItemOperations, (o) =>
-        areEqualObjects(o, { type: operationType, item }),
+      currentItemOperations: removeFirst(state.currentItemOperations, (o) =>
+        areEqualObjects(o, { type: operationType, item: item || undefined }),
       ),
     }));
   }

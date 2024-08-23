@@ -17,6 +17,7 @@ import {
   RefresherCustomEvent,
   IonRefresher,
   IonRefresherContent,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -29,6 +30,7 @@ import {
     IonInfiniteScroll,
     IonRefresherContent,
     IonInfiniteScrollContent,
+    IonSpinner,
   ],
   template: `
     <ion-refresher slot="fixed" (ionRefresh)="onIonRefresh($event)">
@@ -43,6 +45,12 @@ import {
       }
     </ion-list>
 
+    @if (loading() && !items().length) {
+      <div>
+        <ion-spinner color="primary" />
+      </div>
+    }
+
     @if (canLoadNextPage()) {
       <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
         <ion-infinite-scroll-content />
@@ -52,6 +60,18 @@ import {
   styles: `
     ion-list:empty {
       display: none;
+    }
+
+    div:has(ion-spinner) {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 25dvh;
+
+      ion-spinner {
+        display: block;
+        margin: 0 auto;
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
