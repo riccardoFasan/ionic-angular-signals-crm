@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  ContentChild,
+  contentChild,
   input,
   TemplateRef,
 } from '@angular/core';
@@ -17,8 +17,9 @@ import { NgTemplateOutlet } from '@angular/common';
   template: `
     <ion-list>
       @for (_ of skeletons(); track _) {
-        @if (skeletonTemplateRef) {
-          <ng-container *ngTemplateOutlet="skeletonTemplateRef" />
+        @let skeletonTemplate = skeletonTemplateRef();
+        @if (skeletonTemplate) {
+          <ng-container *ngTemplateOutlet="skeletonTemplate" />
         } @else {
           <app-skeleton-item />
         }
@@ -31,8 +32,8 @@ import { NgTemplateOutlet } from '@angular/common';
 export class SkeletonListComponent {
   size = input.required<number>();
 
-  @ContentChild('skeletonTemplate')
-  protected skeletonTemplateRef?: TemplateRef<unknown>;
+  protected skeletonTemplateRef =
+    contentChild<TemplateRef<unknown>>('skeletonTemplate');
 
   protected skeletons = computed(() => Array.from({ length: this.size() }));
 }

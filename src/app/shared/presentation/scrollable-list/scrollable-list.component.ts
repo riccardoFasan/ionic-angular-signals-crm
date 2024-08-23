@@ -2,10 +2,10 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ContentChild,
   EventEmitter,
   Output,
   TemplateRef,
+  contentChild,
   effect,
   input,
 } from '@angular/core';
@@ -45,10 +45,13 @@ import {
       <ng-content select="[skeleton]" />
     } @else {
       <ion-list>
-        @for (item of items(); track trackFn()(item)) {
-          <ng-container
-            *ngTemplateOutlet="itemTemplateRef; context: { $implicit: item }"
-          />
+        @let itemTemplate = itemTemplateRef();
+        @if (itemTemplate) {
+          @for (item of items(); track trackFn()(item)) {
+            <ng-container
+              *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"
+            />
+          }
         }
       </ion-list>
     }
@@ -85,8 +88,8 @@ export class ScrollableListComponent {
   loading = input.required<boolean>();
   canLoadNextPage = input<boolean>(false);
 
-  @ContentChild('itemTemplate')
-  protected itemTemplateRef!: TemplateRef<unknown>;
+  protected itemTemplateRef =
+    contentChild<TemplateRef<unknown>>('itemTemplate');
 
   @Output() scrollEnd = new EventEmitter<void>();
   @Output() refresh = new EventEmitter<void>();
