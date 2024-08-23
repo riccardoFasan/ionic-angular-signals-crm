@@ -22,7 +22,10 @@ import {
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { ScrollableListComponent } from 'src/app/shared/presentation';
+import {
+  HasOperationPipe,
+  ScrollableListComponent,
+} from 'src/app/shared/presentation';
 import { MealModalsService } from '../../meals/utility';
 import { ActivityModalsService } from '../../activities/utility';
 import { DiaryEvent } from '../data-access';
@@ -54,6 +57,7 @@ import { ModalsService } from 'src/app/shared/utility';
     IonItemOption,
     ScrollableListComponent,
     DiaryEventIconPipe,
+    HasOperationPipe,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -75,7 +79,7 @@ import { ModalsService } from 'src/app/shared/utility';
       <app-scrollable-list
         [items]="listStore.items()"
         [canLoadNextPage]="listStore.canLoadNextPage()"
-        [loading]="listStore.mode() === 'FETCHING'"
+        [loading]="listStore.currentOperations() | hasOperation: 'FETCH'"
         [trackFn]="trackFn"
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"

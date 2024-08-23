@@ -6,7 +6,7 @@ import {
   SortOrder,
   Sorting,
 } from '../utility';
-import { OperationType } from './operation-type.enum';
+import { ItemOperation } from './item-operation.type';
 
 export type ListState<
   Entity extends Record<string, unknown>,
@@ -18,11 +18,6 @@ export type ListState<
   total: number;
   relatedItems?: REntities;
   error?: Error;
-};
-
-export type ItemOperation<Entity> = {
-  item?: Entity;
-  operationType: OperationType | string;
 };
 
 export const INITIAL_LIST_PAGINATION: Pagination = {

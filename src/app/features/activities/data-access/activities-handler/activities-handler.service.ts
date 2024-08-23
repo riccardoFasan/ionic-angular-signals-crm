@@ -3,6 +3,7 @@ import {
   ItemsMutation,
   Operation,
   OperationType,
+  OperationTypeLike,
   StoreHandler,
   pushSorted,
 } from 'src/app/shared/data-access';
@@ -139,7 +140,7 @@ export class ActivitiesHandlerService
   }
 
   private getMessage(
-    type: OperationType | string,
+    type: OperationTypeLike,
     item: Activity,
   ): string | undefined {
     switch (type) {

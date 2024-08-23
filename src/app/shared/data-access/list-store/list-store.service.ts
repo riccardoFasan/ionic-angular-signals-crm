@@ -17,7 +17,7 @@ import {
   objectArrayUnique,
   filterOnce,
 } from '../../utility';
-import { INITIAL_LIST_STATE, ItemOperation, ListState } from '../list.state';
+import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import {
   Observable,
   Subject,
@@ -37,7 +37,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Operation } from '../operation.type';
 import { environment } from 'src/environments/environment';
 import { ItemsMutation } from '../items-mutation.type';
-import { OperationType } from '../operation-type.enum';
+import { OperationType, OperationTypeLike } from '../operation-type.enum';
+import { ItemOperation } from '../item-operation.type';
 
 @Injectable()
 export class ListStoreService<
@@ -451,26 +452,26 @@ export class ListStoreService<
   }
 
   private addCurrentOperation(
-    operationType: OperationType | string,
+    operationType: OperationTypeLike,
     item?: Entity,
   ): void {
     this.state.update((state) => ({
       ...state,
       currentItemOperations: [
         ...state.currentItemOperations,
-        { operationType, item },
+        { type: operationType, item },
       ],
     }));
   }
 
   private removeCurrentOperation(
-    operationType: OperationType | string,
+    operationType: OperationTypeLike,
     item?: Entity,
   ): void {
     this.state.update((state) => ({
       ...state,
       currentItemOperations: filterOnce(state.currentItemOperations, (o) =>
-        areEqualObjects(o, { operationType, item }),
+        areEqualObjects(o, { type: operationType, item }),
       ),
     }));
   }

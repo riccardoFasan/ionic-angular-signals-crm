@@ -1,6 +1,6 @@
 import { OperationTypeLike } from './operation-type.enum';
 
-export type Operation = {
+export type ItemOperation<Entity> = {
+  item?: Entity;
   type: OperationTypeLike;
-  payload?: unknown;
 };

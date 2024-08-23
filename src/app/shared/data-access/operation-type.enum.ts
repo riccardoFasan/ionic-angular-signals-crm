@@ -4,3 +4,5 @@ export enum OperationType {
   Update = 'UPDATE',
   Delete = 'DELETE',
 }
+
+export type OperationTypeLike = OperationType | string;

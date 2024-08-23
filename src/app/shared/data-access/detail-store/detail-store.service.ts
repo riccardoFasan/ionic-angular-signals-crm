@@ -25,7 +25,7 @@ import {
 } from '../../utility';
 import { Operation } from '../operation.type';
 import { environment } from 'src/environments/environment';
-import { OperationType } from '../operation-type.enum';
+import { OperationType, OperationTypeLike } from '../operation-type.enum';
 
 @Injectable()
 export class DetailStoreService<
@@ -45,7 +45,7 @@ export class DetailStoreService<
 
   error = computed<Error | undefined>(() => this.state().error);
 
-  currentOperations = computed<(OperationType | string)[]>(() => [
+  currentOperations = computed<OperationTypeLike[]>(() => [
     ...new Set(this.state().currentOperations),
   ]);
 
@@ -222,14 +222,14 @@ export class DetailStoreService<
     };
   }
 
-  private addCurrentOperation(operationType: OperationType | string): void {
+  private addCurrentOperation(operationType: OperationTypeLike): void {
     this.state.update((state) => ({
       ...state,
       currentOperations: [...state.currentOperations, operationType],
     }));
   }
 
-  private removeCurrentOperation(operationType: OperationType | string): void {
+  private removeCurrentOperation(operationType: OperationTypeLike): void {
     this.state.update((state) => ({
       ...state,
       currentOperations: filterOnce(

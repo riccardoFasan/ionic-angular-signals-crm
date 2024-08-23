@@ -25,7 +25,10 @@ import {
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import { Ingredient } from '../data-access';
-import { ScrollableListComponent } from 'src/app/shared/presentation';
+import {
+  HasOperationPipe,
+  ScrollableListComponent,
+} from 'src/app/shared/presentation';
 
 @Component({
   selector: 'app-ingredients',
@@ -46,6 +49,7 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
     IonItemOption,
     IonLabel,
     ScrollableListComponent,
+    HasOperationPipe,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -67,7 +71,7 @@ import { ScrollableListComponent } from 'src/app/shared/presentation';
       <app-scrollable-list
         [items]="listStore.items()"
         [canLoadNextPage]="listStore.canLoadNextPage()"
-        [loading]="listStore.mode() === 'FETCHING'"
+        [loading]="listStore.currentOperations() | hasOperation: 'FETCH'"
         [trackFn]="trackFn"
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"

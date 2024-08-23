@@ -11,7 +11,10 @@ import {
   OperationType,
 } from 'src/app/shared/data-access';
 import { IonButton, ModalController } from '@ionic/angular/standalone';
-import { DetailModalWrapperComponent } from 'src/app/shared/presentation';
+import {
+  DetailModalWrapperComponent,
+  HasOperationPipe,
+} from 'src/app/shared/presentation';
 import { MealFormComponent } from '../meal-form/meal-form.component';
 import { CreateMealFormData, UpdateMealFormData } from '../../data-access';
 import { MealsHandlerDirective } from '../../utility';
@@ -19,25 +22,37 @@ import { MealsHandlerDirective } from '../../utility';
 @Component({
   selector: 'app-meal-modal',
   standalone: true,
-  imports: [IonButton, DetailModalWrapperComponent, MealFormComponent],
+  imports: [
+    IonButton,
+    DetailModalWrapperComponent,
+    MealFormComponent,
+    HasOperationPipe,
+  ],
   template: `
     <app-detail-modal-wrapper
       [loading]="
-        detailStore.mode() === 'OPERATING' || detailStore.mode() === 'FETCHING'
+        detailStore.currentOperations() | hasOperation: ['FETCH', 'CREATE']
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
     >
       <ng-container ngProjectAs="[buttons]">
         @if (detailStore.item()) {
-          <ion-button (click)="remove()">Delete</ion-button>
+          <ion-button
+            [disabled]="
+              detailStore.currentOperations() | hasOperation: ['DELETE']
+            "
+            (click)="remove()"
+          >
+            Delete
+          </ion-button>
         }
         <ion-button (click)="modalCtrl.dismiss()">Close</ion-button>
       </ng-container>
       <app-meal-form
         [loading]="
-          detailStore.mode() === 'OPERATING' ||
-          detailStore.mode() === 'FETCHING'
+          detailStore.currentOperations()
+            | hasOperation: ['FETCH', 'CREATE', 'UPDATE', 'DELETE']
         "
         (save)="save($event)"
         [meal]="detailStore.item()"

@@ -1,10 +1,10 @@
-import { OperationType } from './operation-type.enum';
+import { OperationTypeLike } from './operation-type.enum';
 
 export type DetailState<
   Entity extends Record<string, unknown>,
   REntities extends Record<string, unknown> | undefined = undefined,
 > = {
-  currentOperations: (OperationType | string)[];
+  currentOperations: OperationTypeLike[];
   item?: Entity;
   relatedItems?: REntities;
   error?: Error;

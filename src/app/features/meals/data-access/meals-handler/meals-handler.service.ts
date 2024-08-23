@@ -3,6 +3,7 @@ import {
   ItemsMutation,
   Operation,
   OperationType,
+  OperationTypeLike,
   StoreHandler,
   pushSorted,
 } from 'src/app/shared/data-access';
@@ -129,10 +130,7 @@ export class MealsHandlerService implements StoreHandler<Meal, { id: number }> {
     this.toasts.success(message);
   }
 
-  private getMessage(
-    type: OperationType | string,
-    item: Meal,
-  ): string | undefined {
+  private getMessage(type: OperationTypeLike, item: Meal): string | undefined {
     switch (type) {
       case OperationType.Create:
         return `Meal ${item.name} created`;
