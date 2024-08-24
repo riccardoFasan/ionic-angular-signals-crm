@@ -97,25 +97,34 @@ export class ActivitiesHandlerService
   mutateItem({ type, payload }: Operation, item: Activity): void | Activity {
     switch (type) {
       case OperationType.Update:
+        if (!item) {
+          throw new Error('Item is excpeted after update operation');
+        }
         return { ...item, ...(payload as UpdateActivityFormData) };
     }
   }
 
   mutateItems(
     { type, payload }: Operation,
-    item: Activity,
     pages: ItemsPage<Activity>[],
     total: number,
     searchCriteria: SearchCriteria,
+    item?: Activity,
   ): void | ItemsMutation<Activity> {
     switch (type) {
       case OperationType.Create:
+        if (!item) {
+          throw new Error('Item is excpeted after create operation');
+        }
         return {
           pages: pushSorted(item, pages, searchCriteria),
           total: total + 1,
         };
 
       case OperationType.Update:
+        if (!item) {
+          throw new Error('Item is excpeted after update operation');
+        }
         return {
           pages: updateSorted(
             { ...item, ...(payload as UpdateActivityFormData) },
@@ -127,6 +136,9 @@ export class ActivitiesHandlerService
         };
 
       case OperationType.Delete:
+        if (!item) {
+          throw new Error('Item is excpeted after delete operation');
+        }
         return {
           pages: removeSorted(item, pages, searchCriteria, (item) => item.id),
           total: total - 1,

@@ -276,10 +276,10 @@ export class ListStoreService<
 
                 const itemsMutation = this.handler.mutateItems?.(
                   operation,
-                  item,
                   this.pages(),
                   this.total(),
                   this.searchCriteria(),
+                  item,
                 );
 
                 if (!itemsMutation) {
@@ -350,15 +350,13 @@ export class ListStoreService<
         return onHandlerError(error, this.state);
       }),
       switchMap((item) => {
-        const itemsMutation =
-          item &&
-          this.handler.mutateItems?.(
-            operation,
-            item,
-            this.pages(),
-            this.total(),
-            this.searchCriteria(),
-          );
+        const itemsMutation = this.handler.mutateItems?.(
+          operation,
+          this.pages(),
+          this.total(),
+          this.searchCriteria(),
+          item,
+        );
 
         if (!itemsMutation) {
           return this.refreshPagesAfterOperation(

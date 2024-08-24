@@ -156,7 +156,7 @@ export class DetailStoreService<
 
               const operation$ = this.handler.operate(operation, item, keys);
 
-              if (!item || !itemMutation) {
+              if (!itemMutation) {
                 return operation$.pipe(
                   catchError((error) => {
                     this.removeCurrentOperation(operation.type);

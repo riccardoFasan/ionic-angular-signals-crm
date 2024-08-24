@@ -85,25 +85,34 @@ export class TagsHandlerService implements StoreHandler<Tag, { id: number }> {
   mutateItem({ type, payload }: Operation, item: Tag): void | Tag {
     switch (type) {
       case OperationType.Update:
+        if (!item) {
+          throw new Error('Item is excpeted after update operation');
+        }
         return { ...item, ...(payload as UpdateTagFormData) };
     }
   }
 
   mutateItems(
     { type, payload }: Operation,
-    item: Tag,
     pages: ItemsPage<Tag>[],
     total: number,
     searchCriteria: SearchCriteria,
+    item?: Tag,
   ): void | ItemsMutation<Tag> {
     switch (type) {
       case OperationType.Create:
+        if (!item) {
+          throw new Error('Item is excpeted after create operation');
+        }
         return {
           pages: pushSorted(item, pages, searchCriteria),
           total: total + 1,
         };
 
       case OperationType.Update:
+        if (!item) {
+          throw new Error('Item is excpeted after update operation');
+        }
         return {
           pages: updateSorted(
             { ...item, ...(payload as UpdateTagFormData) },
@@ -115,6 +124,9 @@ export class TagsHandlerService implements StoreHandler<Tag, { id: number }> {
         };
 
       case OperationType.Delete:
+        if (!item) {
+          throw new Error('Item is excpeted after delete operation');
+        }
         return {
           pages: removeSorted(item, pages, searchCriteria, (item) => item.id),
           total: total - 1,
