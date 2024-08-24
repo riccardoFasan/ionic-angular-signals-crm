@@ -87,25 +87,34 @@ export class FoodsHandlerService implements StoreHandler<Food, { id: number }> {
   mutateItem({ type, payload }: Operation, item: Food): void | Food {
     switch (type) {
       case OperationType.Update:
+        if (!item) {
+          throw new Error('Item is excpeted after update operation');
+        }
         return { ...item, ...(payload as UpdateFoodFormData) };
     }
   }
 
   mutateItems(
     { type, payload }: Operation,
-    item: Food,
     pages: ItemsPage<Food>[],
     total: number,
     searchCriteria: SearchCriteria,
+    item?: Food,
   ): void | ItemsMutation<Food> {
     switch (type) {
       case OperationType.Create:
+        if (!item) {
+          throw new Error('Item is excpeted after create operation');
+        }
         return {
           pages: pushSorted(item, pages, searchCriteria),
           total: total + 1,
         };
 
       case OperationType.Update:
+        if (!item) {
+          throw new Error('Item is excpeted after update operation');
+        }
         return {
           pages: updateSorted(
             { ...item, ...(payload as UpdateFoodFormData) },
@@ -117,6 +126,9 @@ export class FoodsHandlerService implements StoreHandler<Food, { id: number }> {
         };
 
       case OperationType.Delete:
+        if (!item) {
+          throw new Error('Item is excpeted after delete operation');
+        }
         return {
           pages: removeSorted(item, pages, searchCriteria, (item) => item.id),
           total: total - 1,

@@ -91,13 +91,16 @@ export class DiaryHandlerService
 
   mutateItems(
     { type, payload }: Operation,
-    item: DiaryEvent,
     pages: ItemsPage<DiaryEvent>[],
     total: number,
     searchCriteria: SearchCriteria,
+    item?: DiaryEvent,
   ): void | ItemsMutation<DiaryEvent> {
     switch (type) {
       case 'REORDER':
+        if (!item) {
+          throw new Error('Item is excpeted after reorder operation');
+        }
         return {
           pages: updateSorted(
             { ...item, at: payload as Date },
@@ -109,6 +112,9 @@ export class DiaryHandlerService
         };
 
       case OperationType.Delete:
+        if (!item) {
+          throw new Error('Item is excpeted after delete operation');
+        }
         return {
           pages: removeSorted(item, pages, searchCriteria, (item) => item.ref),
           total: total - 1,
