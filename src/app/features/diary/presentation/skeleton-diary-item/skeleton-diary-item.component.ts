@@ -1,3 +1,4 @@
+import { NgStyle } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import {
   IonItem,
@@ -5,7 +6,6 @@ import {
   IonSkeletonText,
   IonThumbnail,
 } from '@ionic/angular/standalone';
-import { NgStyle } from '@angular/common';
 import { randomIntegerBetween } from 'src/app/shared/utility';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Directive } from '@angular/core';
-import { TagsHandlerService } from '../../data-access';
 import { STORE_HANDLER } from 'src/app/shared/data-access';
+import { TagsHandlerService } from '../../data-access';
 
 @Directive({
   selector: '[appTagsHandler]',

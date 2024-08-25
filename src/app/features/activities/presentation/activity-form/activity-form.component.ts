@@ -6,15 +6,12 @@ import {
   effect,
   input,
 } from '@angular/core';
-import { Activity } from '../../data-access';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivityType } from 'src/app/features/activity-types/data-access';
-import { Tag } from 'src/app/features/tags/data-access';
 import {
   IonButton,
   IonIcon,
@@ -23,12 +20,15 @@ import {
   IonList,
   IonTextarea,
 } from '@ionic/angular/standalone';
+import { ActivityType } from 'src/app/features/activity-types/data-access';
 import { ActivityTypesHandlerDirective } from 'src/app/features/activity-types/utility';
+import { Tag } from 'src/app/features/tags/data-access';
+import { TagsHandlerDirective } from 'src/app/features/tags/utility';
 import {
   DatetimeInputComponent,
   SearchableSelectComponent,
 } from 'src/app/shared/presentation';
-import { TagsHandlerDirective } from 'src/app/features/tags/utility';
+import { Activity } from '../../data-access';
 
 @Component({
   selector: 'app-activity-form',

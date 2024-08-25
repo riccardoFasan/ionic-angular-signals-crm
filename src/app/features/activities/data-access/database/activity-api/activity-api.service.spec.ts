@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { ActivityApiService } from './activity-api.service';
 
 describe('ActivityApiService', () => {

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { IngredientFoodsPage } from './ingredient-foods.page';
 
 describe('IngredientFoodsPage', () => {

@@ -6,21 +6,24 @@ import {
   inject,
 } from '@angular/core';
 import { IonButton, ModalController } from '@ionic/angular/standalone';
+import { defer } from 'rxjs';
+import { DetailStoreService, OperationType } from 'src/app/shared/data-access';
 import {
-  DetailStoreService,
-  Operation,
-  OperationType,
-} from 'src/app/shared/data-access';
+  DetailModalWrapperComponent,
+  HasOperationPipe,
+} from 'src/app/shared/presentation';
+import { AlertsService, ToastsService } from 'src/app/shared/utility';
 import {
   CreateActivityTypeFormData,
   UpdateActivityTypeFormData,
 } from '../../data-access';
 import {
-  DetailModalWrapperComponent,
-  HasOperationPipe,
-} from 'src/app/shared/presentation';
-import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-form.component';
+  ActivityType,
+  ActivityTypeKeys,
+} from '../../data-access/activity-type.model';
 import { ActivityTypesHandlerDirective } from '../../utility';
+import { ActivityTypeFormComponent } from '../activity-type-form/activity-type-form.component';
+import { activityTypeOperationMessage } from '../activity-type-operation-message';
 
 @Component({
   selector: 'app-activity-type-modal',
@@ -33,8 +36,10 @@ import { ActivityTypesHandlerDirective } from '../../utility';
   ],
   template: `
     <app-detail-modal-wrapper
-      [loading]="
-        detailStore.currentOperations() | hasOperation: ['FETCH', 'CREATE']
+      [fetching]="detailStore.currentOperations() | hasOperation: 'FETCH'"
+      [operating]="
+        detailStore.currentOperations()
+          | hasOperation: ['CREATE', 'UPDATE', 'DELETE']
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
@@ -68,8 +73,12 @@ import { ActivityTypesHandlerDirective } from '../../utility';
   providers: [DetailStoreService],
 })
 export class ActivityTypeModalComponent implements OnInit {
-  protected detailStore = inject(DetailStoreService);
+  protected detailStore = inject(
+    DetailStoreService<ActivityType, ActivityTypeKeys>,
+  );
   protected modalCtrl = inject(ModalController);
+  private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   private id!: number;
 
@@ -86,18 +95,37 @@ export class ActivityTypeModalComponent implements OnInit {
   protected save(
     payload: CreateActivityTypeFormData | UpdateActivityTypeFormData,
   ): void {
-    const operation: Operation = {
-      type: this.detailStore.item()
-        ? OperationType.Update
-        : OperationType.Create,
-      payload,
-    };
-    this.detailStore.operation$.next(operation);
+    this.detailStore.operation$.next({
+      operation: {
+        type: this.detailStore.item()
+          ? OperationType.Update
+          : OperationType.Create,
+        payload,
+      },
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = activityTypeOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+        },
+      },
+    });
   }
 
   protected remove(): void {
     if (!this.detailStore.item()) return;
-    this.detailStore.operation$.next({ type: OperationType.Delete });
-    this.modalCtrl.dismiss();
+    this.detailStore.operation$.next({
+      operation: { type: OperationType.Delete },
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = activityTypeOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+          this.modalCtrl.dismiss();
+        },
+        canOperate: ({ item }) =>
+          defer(() =>
+            this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+          ),
+      },
+    });
   }
 }

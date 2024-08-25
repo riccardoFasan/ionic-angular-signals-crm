@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { ActivityTypesModalsService } from './activity-types-modals.service';
 
 describe('ActivityTypesModalsService', () => {

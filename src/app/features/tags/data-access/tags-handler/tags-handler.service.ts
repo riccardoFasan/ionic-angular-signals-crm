@@ -1,32 +1,32 @@
 import { Injectable, inject } from '@angular/core';
+import { Observable, defer } from 'rxjs';
 import {
   ItemsMutation,
   Operation,
   OperationType,
-  OperationTypeLike,
   StoreHandler,
   pushSorted,
 } from 'src/app/shared/data-access';
-import { CreateTagFormData, Tag, UpdateTagFormData } from '../tag.model';
-import { Observable, defer } from 'rxjs';
 import {
-  SearchCriteria,
-  List,
-  ToastsService,
-  AlertsService,
   ItemsPage,
-  updateSorted,
+  List,
+  SearchCriteria,
   removeSorted,
+  updateSorted,
 } from 'src/app/shared/utility';
+import {
+  CreateTagFormData,
+  Tag,
+  TagKeys,
+  UpdateTagFormData,
+} from '../tag.model';
 import { TagsFacadeService } from '../tags-facade/tags-facade.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class TagsHandlerService implements StoreHandler<Tag, { id: number }> {
+export class TagsHandlerService implements StoreHandler<Tag, TagKeys> {
   private tagsFacade = inject(TagsFacadeService);
-  private toasts = inject(ToastsService);
-  private alerts = inject(AlertsService);
 
   extractPk(item: Tag): number {
     return item.id;
@@ -36,24 +36,12 @@ export class TagsHandlerService implements StoreHandler<Tag, { id: number }> {
     return item.name;
   }
 
-  get({ id }: { id: number }): Observable<Tag> {
+  get({ id }: TagKeys): Observable<Tag> {
     return defer(() => this.tagsFacade.get(id));
   }
 
   getList(searchCriteria: SearchCriteria): Observable<List<Tag>> {
     return defer(() => this.tagsFacade.getList(searchCriteria));
-  }
-
-  canOperate({ type }: Operation, item?: Tag): boolean | Observable<boolean> {
-    switch (type) {
-      case OperationType.Delete:
-        return defer(() =>
-          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
-        );
-
-      default:
-        return true;
-    }
   }
 
   operate({ type, payload }: Operation, item?: Tag): Observable<Tag> {
@@ -131,24 +119,6 @@ export class TagsHandlerService implements StoreHandler<Tag, { id: number }> {
           pages: removeSorted(item, pages, searchCriteria, (item) => item.id),
           total: total - 1,
         };
-    }
-  }
-
-  onOperation({ type }: Operation, item: Tag): Observable<void> | void {
-    const message = this.getMessage(type, item);
-    this.toasts.success(message);
-  }
-
-  private getMessage(type: OperationTypeLike, item: Tag): string | undefined {
-    switch (type) {
-      case OperationType.Create:
-        return `Tag ${item.name} created`;
-      case OperationType.Update:
-        return `Tag ${item.name} updated`;
-      case OperationType.Delete:
-        return `Tag ${item.name} deleted`;
-      default:
-        throw new Error(`getMessage not implemented for: ${type}`);
     }
   }
 }

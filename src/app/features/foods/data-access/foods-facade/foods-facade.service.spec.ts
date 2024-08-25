@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { FoodsFacadeService } from './foods-facade.service';
 
 describe('FoodsFacadeService', () => {

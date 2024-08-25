@@ -8,26 +8,26 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { ListStoreService, STORE_HANDLER } from '../../data-access';
-import { Option } from '../option.model';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
-  IonInput,
-  IonIcon,
-  IonModal,
-  IonHeader,
-  IonContent,
-  IonButtons,
   IonButton,
-  IonToolbar,
-  IonTitle,
-  IonItem,
+  IonButtons,
   IonCheckbox,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonModal,
   IonSearchbar,
+  IonTitle,
+  IonToolbar,
 } from '@ionic/angular/standalone';
-import { ScrollableListComponent } from '../scrollable-list/scrollable-list.component';
-import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
+import { ListStoreService, STORE_HANDLER } from '../../data-access';
 import { HasOperationPipe } from '../has-operation/has-operation.pipe';
+import { OptionSelectedPipe } from '../option-selected/option-selected.pipe';
+import { Option } from '../option.model';
+import { ScrollableListComponent } from '../scrollable-list/scrollable-list.component';
 import { SkeletonListComponent } from '../skeleton-list/skeleton-list.component';
 
 @Component({
@@ -87,7 +87,7 @@ import { SkeletonListComponent } from '../skeleton-list/skeleton-list.component'
           <app-scrollable-list
             [items]="options()"
             [canLoadNextPage]="listStore.canLoadNextPage()"
-            [loading]="listStore.currentOperations() | hasOperation: 'FETCH'"
+            [fetching]="listStore.currentOperations() | hasOperation: 'FETCH'"
             [trackFn]="trackFn"
             (scrollEnd)="listStore.loadPage$.next(nextPage())"
             (refresh)="listStore.refresh$.next()"
@@ -145,7 +145,7 @@ export class SearchableSelectComponent implements ControlValueAccessor {
     transform: booleanAttribute,
   });
 
-  keys = input.required<Record<string, unknown>>();
+  keys = input.required<Record<string, string | number>>();
 
   excludedByRefs = input<Option['ref'][]>();
 

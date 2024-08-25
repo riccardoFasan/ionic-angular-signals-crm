@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { DiaryApiService } from './diary-api.service';
 
 describe('DiaryApiService', () => {

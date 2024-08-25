@@ -1,32 +1,35 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import {
-  IonHeader,
-  IonToolbar,
   IonButtons,
-  IonMenuButton,
-  IonTitle,
   IonContent,
-  IonFabButton,
   IonFab,
+  IonFabButton,
+  IonHeader,
   IonIcon,
   IonItem,
-  IonLabel,
-  IonItemSliding,
   IonItemOption,
   IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonMenuButton,
+  IonTitle,
+  IonToolbar,
 } from '@ionic/angular/standalone';
-import { FoodModalsService, FoodsHandlerDirective } from '../utility';
+import { defer } from 'rxjs';
 import {
   ListStoreService,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { Food } from '../data-access';
 import {
   HasOperationPipe,
   ScrollableListComponent,
   SkeletonListComponent,
 } from 'src/app/shared/presentation';
+import { AlertsService, ToastsService } from 'src/app/shared/utility';
+import { Food, FoodKeys } from '../data-access';
+import { foodOperationMessage } from '../presentation';
+import { FoodModalsService, FoodsHandlerDirective } from '../utility';
 
 @Component({
   selector: 'app-foods',
@@ -70,7 +73,8 @@ import {
       <app-scrollable-list
         [items]="listStore.items()"
         [canLoadNextPage]="listStore.canLoadNextPage()"
-        [loading]="listStore.currentOperations() | hasOperation: 'FETCH'"
+        [fetching]="listStore.currentOperations() | hasOperation: 'FETCH'"
+        [operating]="listStore.currentOperations() | hasOperation: 'DELETE'"
         [trackFn]="trackFn"
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
@@ -117,9 +121,11 @@ import {
   providers: [ListStoreService],
 })
 export class FoodsPage implements OnInit {
-  protected listStore = inject(ListStoreService);
+  protected listStore = inject(ListStoreService<Food, Partial<FoodKeys>>);
   protected storeHandler = inject(STORE_HANDLER);
   private foodModals = inject(FoodModalsService);
+  private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   protected nextPage = computed<number>(
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
@@ -137,6 +143,16 @@ export class FoodsPage implements OnInit {
     this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = foodOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+        },
+        canOperate: ({ item }) =>
+          defer(() =>
+            this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+          ),
+      },
     });
   }
 

@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
 import { ItemsPage, List, SearchCriteria } from '../utility';
-import { Operation } from './operation.type';
+import { DetailState } from './detail.state';
 import { ItemsMutation } from './items-mutation.type';
 import { ListState } from './list.state';
-import { DetailState } from './detail.state';
+import { Operation } from './operation.type';
 
 export interface StoreHandler<
   Entity extends Record<string, unknown>,
@@ -23,12 +23,6 @@ export interface StoreHandler<
   getList(searchCriteria: SearchCriteria, keys: Keys): Observable<List<Entity>>;
 
   loadRelatedItems?(keys: Keys): Observable<REntities>;
-
-  canOperate?(
-    operation: Operation,
-    item?: Entity | ExtendedEntity,
-    keys?: Keys,
-  ): Observable<boolean> | boolean;
 
   operate(
     operation: Operation,
@@ -56,13 +50,6 @@ export interface StoreHandler<
     searchCriteria: SearchCriteria,
     item?: Entity,
   ): ItemsMutation<Entity> | void;
-
-  // intended for side effects like toasts or redirections. Use operate for data management
-  onOperation?(
-    operation: Operation,
-    item?: Entity | ExtendedEntity,
-    keys?: Keys,
-  ): Observable<void> | void;
 
   interpretError?(
     error: Error,

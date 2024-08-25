@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
+import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
 import { TagApiService, TagDTO } from '../database';
 import { CreateTagFormData, Tag, UpdateTagFormData } from '../tag.model';
-import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',

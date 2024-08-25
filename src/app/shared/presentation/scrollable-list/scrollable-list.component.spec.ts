@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ScrollableListComponent } from './scrollable-list.component';
 
 describe('ScrollableListComponent', () => {

@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { TagsHandlerService } from './tags-handler.service';
 
 describe('TagsHandlerService', () => {

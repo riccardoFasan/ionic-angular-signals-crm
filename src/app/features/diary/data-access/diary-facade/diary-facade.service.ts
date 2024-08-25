@@ -1,16 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { DiaryApiService, DiaryEventDTO } from '../database';
-import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
-import { DiaryEvent } from '../diary-event.model';
-import { DiaryEventType } from '../diary-event-type.enum';
-import {
-  MealsFacadeService,
-  UpdateMealFormData,
-} from 'src/app/features/meals/data-access';
 import {
   ActivitiesFacadeService,
   UpdateActivityFormData,
 } from 'src/app/features/activities/data-access';
+import {
+  MealsFacadeService,
+  UpdateMealFormData,
+} from 'src/app/features/meals/data-access';
+import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
+import { DiaryApiService, DiaryEventDTO } from '../database';
+import { DiaryEventType } from '../diary-event-type.enum';
+import { DiaryEvent } from '../diary-event.model';
 
 @Injectable({
   providedIn: 'root',

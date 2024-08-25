@@ -1,10 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, defer, map } from 'rxjs';
+import {
+  Food,
+  FoodKeys,
+  FoodsFacadeService,
+} from 'src/app/features/foods/data-access';
 import { StoreHandler } from 'src/app/shared/data-access';
+import { List, SearchCriteria } from 'src/app/shared/utility';
 import { Ingredient } from '../ingredient.model';
 import { IngredientsFacadeService } from '../ingredients-facade/ingredients-facade.service';
-import { List, SearchCriteria } from 'src/app/shared/utility';
-import { Food, FoodsFacadeService } from 'src/app/features/foods/data-access';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +17,7 @@ export class IngredientFoodsHandlerService
   implements
     StoreHandler<
       Omit<Food, 'ingredients'>,
-      { id: number; ingredientId: number },
+      FoodKeys & { ingredientId: number },
       Omit<Food, 'ingredients'>,
       { ingredient: Ingredient }
     >

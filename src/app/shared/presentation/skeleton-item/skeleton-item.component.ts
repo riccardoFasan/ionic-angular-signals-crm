@@ -1,7 +1,7 @@
+import { NgStyle } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { IonItem, IonLabel, IonSkeletonText } from '@ionic/angular/standalone';
 import { randomIntegerBetween } from '../../utility';
-import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-skeleton-item',

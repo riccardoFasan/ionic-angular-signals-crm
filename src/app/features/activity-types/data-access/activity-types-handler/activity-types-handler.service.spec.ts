@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { ActivityTypesHandlerService } from './activity-types-handler.service';
 
 describe('ActivityTypesHandlerService', () => {

@@ -10,5 +10,8 @@ export type Food = {
   notes?: string;
 };
 
+export type FoodKeys = { id: number };
+
 export type CreateFoodFormData = Omit<Food, 'id' | 'createdAt' | 'updatedAt'>;
+
 export type UpdateFoodFormData = Omit<Food, 'id' | 'createdAt' | 'updatedAt'>;
