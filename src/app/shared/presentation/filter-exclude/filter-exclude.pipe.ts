@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { isObjectArray } from '../is-object-array';
+import { isObjectArray } from '../../utility/is-object-array';
 
 @Pipe({
   name: 'filterExclude',

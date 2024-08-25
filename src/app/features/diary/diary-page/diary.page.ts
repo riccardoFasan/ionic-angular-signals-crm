@@ -1,35 +1,48 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import {
-  IonHeader,
-  IonToolbar,
   IonButtons,
-  IonMenuButton,
-  IonTitle,
   IonContent,
-  IonFabButton,
   IonFab,
+  IonFabButton,
+  IonFabList,
+  IonHeader,
   IonIcon,
   IonItem,
-  IonLabel,
-  IonItemSliding,
   IonItemOption,
   IonItemOptions,
-  IonFabList,
+  IonItemSliding,
+  IonLabel,
+  IonMenuButton,
   IonText,
+  IonTitle,
+  IonToolbar,
 } from '@ionic/angular/standalone';
+import { defer } from 'rxjs';
 import {
   ListStoreService,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { ScrollableListComponent } from 'src/app/shared/presentation';
-import { MealModalsService } from '../../meals/utility';
+import {
+  HasOperationPipe,
+  ScrollableListComponent,
+  SkeletonListComponent,
+} from 'src/app/shared/presentation';
+import {
+  AlertsService,
+  ModalsService,
+  ToastsService,
+} from 'src/app/shared/utility';
 import { ActivityModalsService } from '../../activities/utility';
-import { DiaryEvent } from '../data-access';
-import { DiaryEventIconPipe } from '../presentation';
-import { DatePipe } from '@angular/common';
+import { MealModalsService } from '../../meals/utility';
+import { DiaryEvent, DiaryEventKeys } from '../data-access';
+import {
+  DiaryEventIconPipe,
+  diaryOperationMessage,
+  SkeletonDiaryItemComponent,
+} from '../presentation';
 import { DiaryHandlerDirective } from '../utility/diary-handler/diary-handler.directive';
-import { ModalsService } from 'src/app/shared/utility';
 
 @Component({
   selector: 'app-diary',
@@ -54,6 +67,9 @@ import { ModalsService } from 'src/app/shared/utility';
     IonItemOption,
     ScrollableListComponent,
     DiaryEventIconPipe,
+    HasOperationPipe,
+    SkeletonListComponent,
+    SkeletonDiaryItemComponent,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -75,11 +91,23 @@ import { ModalsService } from 'src/app/shared/utility';
       <app-scrollable-list
         [items]="listStore.items()"
         [canLoadNextPage]="listStore.canLoadNextPage()"
-        [loading]="listStore.mode() === 'FETCHING'"
+        [fetching]="listStore.currentOperations() | hasOperation: 'FETCH'"
+        [operating]="
+          listStore.currentOperations() | hasOperation: ['DELETE', 'REORDER']
+        "
         [trackFn]="trackFn"
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
       >
+        <app-skeleton-list
+          [size]="listStore.searchCriteria().pagination.pageSize"
+          skeleton
+        >
+          <ng-template #skeletonTemplate>
+            <app-skeleton-diary-item />
+          </ng-template>
+        </app-skeleton-list>
+
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
             <ion-item>
@@ -152,16 +180,24 @@ import { ModalsService } from 'src/app/shared/utility';
     ion-text {
       font-size: 0.8rem;
     }
+
+    ion-item ion-icon[slot='start'] {
+      margin-inline-end: 1.5rem;
+    }
   `,
   hostDirectives: [DiaryHandlerDirective],
   providers: [ListStoreService],
 })
 export class DiaryPage implements OnInit {
-  protected listStore = inject(ListStoreService);
+  protected listStore = inject(
+    ListStoreService<DiaryEvent, Partial<DiaryEventKeys>>,
+  );
   protected storeHandler = inject(STORE_HANDLER);
   private mealModals = inject(MealModalsService);
   private activityModals = inject(ActivityModalsService);
   private modals = inject(ModalsService);
+  private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   protected nextPage = computed<number>(
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
@@ -179,6 +215,16 @@ export class DiaryPage implements OnInit {
     this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = diaryOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+        },
+        canOperate: ({ item }) =>
+          defer(() =>
+            this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+          ),
+      },
     });
   }
 
@@ -199,6 +245,12 @@ export class DiaryPage implements OnInit {
     this.listStore.itemOperation$.next({
       operation: { type: 'REORDER', payload: new Date(date) },
       item,
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = diaryOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+        },
+      },
     });
   }
 }

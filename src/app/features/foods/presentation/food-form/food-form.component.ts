@@ -14,16 +14,16 @@ import {
 } from '@angular/forms';
 import {
   IonButton,
+  IonIcon,
   IonInput,
   IonItem,
-  IonIcon,
   IonList,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import { Food } from '../../data-access';
 import { Ingredient } from 'src/app/features/ingredients/data-access';
-import { SearchableSelectComponent } from 'src/app/shared/presentation';
 import { IngredientsHandlerDirective } from 'src/app/features/ingredients/utility';
+import { SearchableSelectComponent } from 'src/app/shared/presentation';
+import { Food } from '../../data-access';
 
 @Component({
   selector: 'app-food-form',

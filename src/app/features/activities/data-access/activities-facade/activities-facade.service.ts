@@ -1,20 +1,20 @@
 import { Injectable, inject } from '@angular/core';
 import {
+  ActivityType,
+  ActivityTypesFacadeService,
+} from 'src/app/features/activity-types/data-access';
+import { Tag, TagsFacadeService } from 'src/app/features/tags/data-access';
+import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
+import {
   ActivityApiService,
   ActivityDTO,
   ActivityTagApiService,
 } from '../../../meals/data-access/database';
 import {
-  ActivityType,
-  ActivityTypesFacadeService,
-} from 'src/app/features/activity-types/data-access';
-import { Tag, TagsFacadeService } from 'src/app/features/tags/data-access';
-import {
   Activity,
   CreateActivityFormData,
   UpdateActivityFormData,
 } from '../activity.model';
-import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',

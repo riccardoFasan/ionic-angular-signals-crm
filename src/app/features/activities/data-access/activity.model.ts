@@ -1,5 +1,5 @@
-import { Tag } from '../../tags/data-access/tag.model';
 import { ActivityType } from '../../activity-types/data-access/activity-type.model';
+import { Tag } from '../../tags/data-access/tag.model';
 
 export type Activity = {
   id: number;
@@ -12,6 +12,8 @@ export type Activity = {
   end?: Date;
   notes?: string;
 };
+
+export type ActivityKeys = { id: number };
 
 export type CreateActivityFormData = Omit<
   Activity,

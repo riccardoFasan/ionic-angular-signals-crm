@@ -6,7 +6,6 @@ import {
   effect,
   input,
 } from '@angular/core';
-import { Tag } from '../../data-access';
 import {
   FormControl,
   FormGroup,
@@ -15,13 +14,14 @@ import {
 } from '@angular/forms';
 import {
   IonButton,
+  IonIcon,
   IonInput,
   IonItem,
-  IonIcon,
   IonList,
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
+import { Tag } from '../../data-access';
 
 @Component({
   selector: 'app-tag-form',

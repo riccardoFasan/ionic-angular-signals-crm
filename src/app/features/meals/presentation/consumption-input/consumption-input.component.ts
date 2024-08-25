@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,8 +10,6 @@ import {
   FormsModule,
   NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { Consumption } from '../../data-access';
-import { FoodsHandlerDirective } from 'src/app/features/foods/utility';
 import {
   IonButton,
   IonFab,
@@ -20,9 +19,13 @@ import {
   IonItem,
   IonList,
 } from '@ionic/angular/standalone';
-import { SearchableSelectComponent } from 'src/app/shared/presentation';
-import { NgClass } from '@angular/common';
-import { FilterExcludePipe, WithRef } from 'src/app/shared/utility';
+import { FoodsHandlerDirective } from 'src/app/features/foods/utility';
+import {
+  FilterExcludePipe,
+  SearchableSelectComponent,
+} from 'src/app/shared/presentation';
+import { WithRef } from 'src/app/shared/utility';
+import { Consumption } from '../../data-access';
 
 type ConsumptionWithRef = Partial<Consumption> & WithRef;
 

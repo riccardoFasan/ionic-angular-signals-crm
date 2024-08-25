@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { SearchableSelectComponent } from './searchable-select.component';
 
 describe('SearchableSelectComponent', () => {

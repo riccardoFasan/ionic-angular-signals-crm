@@ -2,17 +2,17 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   IonApp,
-  IonSplitPane,
-  IonMenu,
   IonContent,
+  IonIcon,
+  IonItem,
+  IonLabel,
   IonList,
   IonListHeader,
-  IonNote,
+  IonMenu,
   IonMenuToggle,
-  IonItem,
-  IonIcon,
-  IonLabel,
+  IonNote,
   IonRouterOutlet,
+  IonSplitPane,
 } from '@ionic/angular/standalone';
 import { InitializerService } from './shared/utility';
 

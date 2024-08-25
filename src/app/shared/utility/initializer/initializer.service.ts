@@ -1,22 +1,22 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { generate } from 'generate-password-browser';
 import { Subject, defer, filter, switchMap, tap } from 'rxjs';
 import { ActivityTypeApiService } from 'src/app/features/activity-types/data-access/database';
+import {
+  FoodApiService,
+  FoodIngredientApiService,
+} from 'src/app/features/foods/data-access/database';
+import { IngredientApiService } from 'src/app/features/ingredients/data-access/database';
 import {
   ActivityApiService,
   ActivityTagApiService,
   MealApiService,
   MealFoodApiService,
 } from 'src/app/features/meals/data-access/database';
-import {
-  FoodApiService,
-  FoodIngredientApiService,
-} from 'src/app/features/foods/data-access/database';
 import { TagApiService } from 'src/app/features/tags/data-access/database';
 import { DatabaseService } from '../database/database.service';
-import { generate } from 'generate-password-browser';
-import { IngredientApiService } from 'src/app/features/ingredients/data-access/database';
 
 @Injectable({
   providedIn: 'root',

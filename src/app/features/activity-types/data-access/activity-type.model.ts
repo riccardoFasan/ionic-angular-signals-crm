@@ -7,6 +7,8 @@ export type ActivityType = {
   color?: string;
 };
 
+export type ActivityTypeKeys = { id: number };
+
 export type CreateActivityTypeFormData = Omit<
   ActivityType,
   'id' | 'createdAt' | 'updatedAt'

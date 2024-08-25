@@ -1,27 +1,34 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import {
-  IonHeader,
-  IonToolbar,
   IonButtons,
-  IonMenuButton,
-  IonTitle,
   IonContent,
-  IonItemSliding,
+  IonFab,
+  IonFabButton,
+  IonHeader,
+  IonIcon,
   IonItem,
   IonItemOption,
   IonItemOptions,
+  IonItemSliding,
   IonLabel,
-  IonFab,
-  IonFabButton,
-  IonIcon,
+  IonMenuButton,
+  IonTitle,
+  IonToolbar,
 } from '@ionic/angular/standalone';
+import { defer } from 'rxjs';
 import {
   ListStoreService,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { Tag } from '../data-access';
-import { ScrollableListComponent } from 'src/app/shared/presentation';
+import {
+  HasOperationPipe,
+  ScrollableListComponent,
+  SkeletonListComponent,
+} from 'src/app/shared/presentation';
+import { AlertsService, ToastsService } from 'src/app/shared/utility';
+import { Tag, TagKeys } from '../data-access';
+import { tagOperationMessage } from '../presentation';
 import { TagModalsService } from '../utility';
 import { TagsHandlerDirective } from '../utility/tags-handler/tags-handler.directive';
 
@@ -44,6 +51,8 @@ import { TagsHandlerDirective } from '../utility/tags-handler/tags-handler.direc
     IonFabButton,
     IonIcon,
     ScrollableListComponent,
+    HasOperationPipe,
+    SkeletonListComponent,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -65,11 +74,17 @@ import { TagsHandlerDirective } from '../utility/tags-handler/tags-handler.direc
       <app-scrollable-list
         [items]="listStore.items()"
         [canLoadNextPage]="listStore.canLoadNextPage()"
-        [loading]="listStore.mode() === 'FETCHING'"
+        [fetching]="listStore.currentOperations() | hasOperation: 'FETCH'"
+        [operating]="listStore.currentOperations() | hasOperation: 'DELETE'"
         [trackFn]="trackFn"
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
       >
+        <app-skeleton-list
+          [size]="listStore.searchCriteria().pagination.pageSize"
+          skeleton
+        />
+
         <ng-template #itemTemplate let-item>
           <ion-item-sliding #itemSliding>
             <ion-item>
@@ -106,9 +121,11 @@ import { TagsHandlerDirective } from '../utility/tags-handler/tags-handler.direc
   providers: [ListStoreService],
 })
 export class TagsPage implements OnInit {
-  protected listStore = inject(ListStoreService);
+  protected listStore = inject(ListStoreService<Tag, Partial<TagKeys>>);
   protected storeHandler = inject(STORE_HANDLER);
   protected tagModals = inject(TagModalsService);
+  private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   protected nextPage = computed<number>(
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
@@ -126,6 +143,16 @@ export class TagsPage implements OnInit {
     this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = tagOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+        },
+        canOperate: ({ item }) =>
+          defer(() =>
+            this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+          ),
+      },
     });
   }
 

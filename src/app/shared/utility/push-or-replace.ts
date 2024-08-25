@@ -1,7 +1,7 @@
 export function pushOrReplace<Entity>(
   array: Entity[],
   item: Entity,
-  predicate: (items: Entity) => boolean,
+  predicate: (item: Entity) => boolean,
 ): Entity[] {
   const index = array.findIndex(predicate);
   if (index === -1) return [...array, item];

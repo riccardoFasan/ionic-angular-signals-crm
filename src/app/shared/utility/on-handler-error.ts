@@ -1,8 +1,7 @@
 import { WritableSignal } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
-import { MachineState } from '../data-access';
 
-type Store = { mode: MachineState; error?: Error };
+type Store = { error?: Error };
 type StoreState<T> = T extends Store ? T : never;
 
 export function onHandlerError<T>(
@@ -13,7 +12,6 @@ export function onHandlerError<T>(
   state.update((state) => ({
     ...state,
     error,
-    mode: MachineState.Idle,
     ...newState,
   }));
   return EMPTY;

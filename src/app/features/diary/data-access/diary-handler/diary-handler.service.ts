@@ -1,34 +1,30 @@
 import { Injectable, inject } from '@angular/core';
+import { Observable, defer } from 'rxjs';
 import {
   ItemsMutation,
   Operation,
   OperationType,
   StoreHandler,
 } from 'src/app/shared/data-access';
-import { Observable, defer } from 'rxjs';
 import {
-  SearchCriteria,
-  List,
-  ToastsService,
-  AlertsService,
-  SortOrder,
   ItemsPage,
+  List,
+  SearchCriteria,
+  SortOrder,
   removeSorted,
-  replaceItemInPages,
+  updateSorted,
 } from 'src/app/shared/utility';
-import { DiaryEvent } from '../diary-event.model';
-import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
 import { INITIAL_SEARCH_CRITERIA } from '../../../../shared/data-access/list.state';
+import { DiaryEvent, DiaryEventKeys } from '../diary-event.model';
+import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DiaryHandlerService
-  implements StoreHandler<DiaryEvent, { id: number }>
+  implements StoreHandler<DiaryEvent, DiaryEventKeys>
 {
   private diaryFacade = inject(DiaryFacadeService);
-  private toasts = inject(ToastsService);
-  private alerts = inject(AlertsService);
 
   initialState = {
     list: {
@@ -55,20 +51,6 @@ export class DiaryHandlerService
     return defer(() => this.diaryFacade.getList(searchCriteria));
   }
 
-  canOperate(
-    { type }: Operation,
-    item?: DiaryEvent,
-  ): boolean | Observable<boolean> {
-    switch (type) {
-      case OperationType.Delete:
-        return defer(() =>
-          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
-        );
-      default:
-        return true;
-    }
-  }
-
   operate(
     { type, payload }: Operation,
     item?: DiaryEvent,
@@ -90,52 +72,34 @@ export class DiaryHandlerService
 
   mutateItems(
     { type, payload }: Operation,
-    item: DiaryEvent,
     pages: ItemsPage<DiaryEvent>[],
     total: number,
     searchCriteria: SearchCriteria,
+    item?: DiaryEvent,
   ): void | ItemsMutation<DiaryEvent> {
     switch (type) {
       case 'REORDER':
+        if (!item) {
+          throw new Error('Item is excpeted after reorder operation');
+        }
         return {
-          pages: replaceItemInPages(
+          pages: updateSorted(
             { ...item, at: payload as Date },
             pages,
-            searchCriteria.pagination.pageIndex,
+            searchCriteria,
             (item) => item.ref,
           ),
           total,
         };
 
       case OperationType.Delete:
+        if (!item) {
+          throw new Error('Item is excpeted after delete operation');
+        }
         return {
-          pages: removeSorted(
-            item,
-            pages,
-            searchCriteria.pagination,
-            (item) => item.ref,
-          ),
+          pages: removeSorted(item, pages, searchCriteria, (item) => item.ref),
           total: total - 1,
         };
-    }
-  }
-
-  onOperation({ type }: Operation, item: DiaryEvent): Observable<void> | void {
-    const message = this.getMessage(type, item);
-    this.toasts.success(message);
-  }
-
-  private getMessage(
-    type: OperationType | string,
-    item: DiaryEvent,
-  ): string | undefined {
-    switch (type) {
-      case OperationType.Delete:
-        return `Event ${item.name} deleted`;
-      case 'REORDER':
-        return `Event ${item.name} reordered`;
-      default:
-        throw new Error(`getMessage not implemented for: ${type}`);
     }
   }
 }

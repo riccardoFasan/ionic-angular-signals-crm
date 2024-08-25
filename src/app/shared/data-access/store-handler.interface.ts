@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
 import { ItemsPage, List, SearchCriteria } from '../utility';
-import { Operation } from './operation.type';
+import { DetailState } from './detail.state';
 import { ItemsMutation } from './items-mutation.type';
 import { ListState } from './list.state';
-import { DetailState } from './detail.state';
+import { Operation } from './operation.type';
 
 export interface StoreHandler<
   Entity extends Record<string, unknown>,
@@ -24,12 +24,6 @@ export interface StoreHandler<
 
   loadRelatedItems?(keys: Keys): Observable<REntities>;
 
-  canOperate?(
-    operation: Operation,
-    item?: Entity | ExtendedEntity,
-    keys?: Keys,
-  ): Observable<boolean> | boolean;
-
   operate(
     operation: Operation,
     item?: Entity | ExtendedEntity,
@@ -40,7 +34,7 @@ export interface StoreHandler<
   // updated item is precalculated.
   mutateItem?(
     operation: Operation,
-    item: ExtendedEntity,
+    item?: ExtendedEntity,
   ): ExtendedEntity | void;
 
   // mutateItems is intended for optimistic updates
@@ -51,18 +45,11 @@ export interface StoreHandler<
   // a simple refresh by returning undefined or void.
   mutateItems?(
     operation: Operation,
-    item: Entity,
     pages: ItemsPage<Entity>[],
     total: number,
     searchCriteria: SearchCriteria,
+    item?: Entity,
   ): ItemsMutation<Entity> | void;
-
-  // intended for side effects like toasts or redirections. Use operate for data management
-  onOperation?(
-    operation: Operation,
-    item?: Entity | ExtendedEntity,
-    keys?: Keys,
-  ): Observable<void> | void;
 
   interpretError?(
     error: Error,

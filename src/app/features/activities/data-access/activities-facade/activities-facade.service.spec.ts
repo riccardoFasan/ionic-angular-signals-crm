@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { ActivitiesFacadeService } from './activities-facade.service';
 
 describe('ActivitiesFacadeService', () => {

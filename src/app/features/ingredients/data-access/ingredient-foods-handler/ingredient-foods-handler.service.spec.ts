@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { IngredientFoodsHandlerService } from './ingredient-foods-handler.service';
 
 describe('IngredientFoodsHandlerService', () => {

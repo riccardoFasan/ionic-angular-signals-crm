@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
+import { IngredientApiService, IngredientDTO } from '../database';
 import {
   CreateIngredientFormData,
   Ingredient,
   UpdateIngredientFormData,
 } from '../ingredient.model';
-import { IngredientApiService, IngredientDTO } from '../database';
 
 @Injectable({
   providedIn: 'root',
