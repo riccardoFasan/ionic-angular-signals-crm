@@ -12,3 +12,5 @@ export type DiaryEvent = {
   color?: string;
   icon?: string;
 };
+
+export type DiaryEventKeys = { entityId: number };

@@ -4,35 +4,31 @@ import {
   ItemsMutation,
   Operation,
   OperationType,
-  OperationTypeLike,
   StoreHandler,
   pushSorted,
 } from 'src/app/shared/data-access';
 import {
+  ItemsPage,
+  List,
+  SearchCriteria,
+  removeSorted,
+  updateSorted,
+} from 'src/app/shared/utility';
+import {
   CreateIngredientFormData,
   Ingredient,
+  IngredientKeys,
   UpdateIngredientFormData,
 } from '../ingredient.model';
 import { IngredientsFacadeService } from '../ingredients-facade/ingredients-facade.service';
-import {
-  AlertsService,
-  List,
-  SearchCriteria,
-  ToastsService,
-  removeSorted,
-  ItemsPage,
-  updateSorted,
-} from 'src/app/shared/utility';
 
 @Injectable({
   providedIn: 'root',
 })
 export class IngredientsHandlerService
-  implements StoreHandler<Ingredient, { id: number }>
+  implements StoreHandler<Ingredient, IngredientKeys>
 {
   private ingredientsFacade = inject(IngredientsFacadeService);
-  private toasts = inject(ToastsService);
-  private alerts = inject(AlertsService);
 
   extractPk(item: Ingredient): number {
     return item.id;
@@ -42,27 +38,12 @@ export class IngredientsHandlerService
     return item.name;
   }
 
-  get({ id }: { id: number }): Observable<Ingredient> {
+  get({ id }: IngredientKeys): Observable<Ingredient> {
     return defer(() => this.ingredientsFacade.get(id));
   }
 
   getList(searchCriteria: SearchCriteria): Observable<List<Ingredient>> {
     return defer(() => this.ingredientsFacade.getList(searchCriteria));
-  }
-
-  canOperate(
-    { type }: Operation,
-    item?: Ingredient,
-  ): boolean | Observable<boolean> {
-    switch (type) {
-      case OperationType.Delete:
-        return defer(() =>
-          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
-        );
-
-      default:
-        return true;
-    }
   }
 
   operate(
@@ -149,27 +130,6 @@ export class IngredientsHandlerService
           pages: removeSorted(item, pages, searchCriteria, (item) => item.id),
           total: total - 1,
         };
-    }
-  }
-
-  onOperation({ type }: Operation, item: Ingredient): Observable<void> | void {
-    const message = this.getMessage(type, item);
-    this.toasts.success(message);
-  }
-
-  private getMessage(
-    type: OperationTypeLike,
-    item: Ingredient,
-  ): string | undefined {
-    switch (type) {
-      case OperationType.Create:
-        return `Ingredient ${item.name} created`;
-      case OperationType.Update:
-        return `Ingredient ${item.name} updated`;
-      case OperationType.Delete:
-        return `Ingredient ${item.name} deleted`;
-      default:
-        throw new Error(`getMessage not implemented for: ${type}`);
     }
   }
 }

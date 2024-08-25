@@ -5,20 +5,21 @@ import {
   computed,
   inject,
 } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
-  IonHeader,
-  IonToolbar,
+  IonButton,
   IonButtons,
-  IonMenuButton,
-  IonTitle,
   IonContent,
   IonFabButton,
+  IonHeader,
   IonItem,
-  IonLabel,
-  IonItemSliding,
-  IonItemOptions,
   IonItemOption,
-  IonButton,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonMenuButton,
+  IonTitle,
+  IonToolbar,
 } from '@ionic/angular/standalone';
 import { ListStoreService, STORE_HANDLER } from 'src/app/shared/data-access';
 import {
@@ -26,11 +27,10 @@ import {
   ScrollableListComponent,
   SkeletonListComponent,
 } from 'src/app/shared/presentation';
-import { Food } from '../../foods/data-access';
-import { IngredientFoodsHandlerDirective } from '../utility';
-import { Ingredient } from '../data-access';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Food, FoodKeys } from '../../foods/data-access';
 import { FoodModalsService } from '../../foods/utility';
+import { Ingredient } from '../data-access';
+import { IngredientFoodsHandlerDirective } from '../utility';
 
 @Component({
   selector: 'app-ingredient-foods',
@@ -85,7 +85,7 @@ import { FoodModalsService } from '../../foods/utility';
       <app-scrollable-list
         [items]="listStore.items()"
         [canLoadNextPage]="listStore.canLoadNextPage()"
-        [loading]="listStore.currentOperations() | hasOperation: 'FETCH'"
+        [fetching]="listStore.currentOperations() | hasOperation: 'FETCH'"
         [trackFn]="trackFn"
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
@@ -119,7 +119,9 @@ import { FoodModalsService } from '../../foods/utility';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IngredientFoodsPage implements OnInit {
-  protected listStore = inject(ListStoreService);
+  protected listStore = inject(
+    ListStoreService<Food, Partial<FoodKeys> & { ingredientId: number }>,
+  );
   protected storeHandler = inject(STORE_HANDLER);
   private route = inject(ActivatedRoute);
   private foodModals = inject(FoodModalsService);

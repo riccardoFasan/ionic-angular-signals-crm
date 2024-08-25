@@ -6,18 +6,18 @@ import {
   inject,
 } from '@angular/core';
 import { IonButton, ModalController } from '@ionic/angular/standalone';
-import {
-  DetailStoreService,
-  Operation,
-  OperationType,
-} from 'src/app/shared/data-access';
-import { CreateFoodFormData, UpdateFoodFormData } from '../../data-access';
+import { defer } from 'rxjs';
+import { DetailStoreService, OperationType } from 'src/app/shared/data-access';
 import {
   DetailModalWrapperComponent,
   HasOperationPipe,
 } from 'src/app/shared/presentation';
-import { FoodFormComponent } from '../food-form/food-form.component';
+import { AlertsService, ToastsService } from 'src/app/shared/utility';
+import { CreateFoodFormData, UpdateFoodFormData } from '../../data-access';
+import { Food, FoodKeys } from '../../data-access/food.model';
 import { FoodsHandlerDirective } from '../../utility';
+import { FoodFormComponent } from '../food-form/food-form.component';
+import { foodOperationMessage } from '../food-operation-message';
 
 @Component({
   selector: 'app-food-modal',
@@ -30,8 +30,10 @@ import { FoodsHandlerDirective } from '../../utility';
   ],
   template: `
     <app-detail-modal-wrapper
-      [loading]="
-        detailStore.currentOperations() | hasOperation: ['FETCH', 'CREATE']
+      [fetching]="detailStore.currentOperations() | hasOperation: 'FETCH'"
+      [operating]="
+        detailStore.currentOperations()
+          | hasOperation: ['CREATE', 'UPDATE', 'DELETE']
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
@@ -65,8 +67,10 @@ import { FoodsHandlerDirective } from '../../utility';
   providers: [DetailStoreService],
 })
 export class FoodModalComponent implements OnInit {
-  protected detailStore = inject(DetailStoreService);
+  protected detailStore = inject(DetailStoreService<Food, FoodKeys>);
   protected modalCtrl = inject(ModalController);
+  private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   private id!: number;
 
@@ -77,23 +81,41 @@ export class FoodModalComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.id) return;
-
     this.detailStore.itemKeys$.next({ id: this.id });
   }
 
   protected save(payload: CreateFoodFormData | UpdateFoodFormData): void {
-    const operation: Operation = {
-      type: this.detailStore.item()
-        ? OperationType.Update
-        : OperationType.Create,
-      payload,
-    };
-    this.detailStore.operation$.next(operation);
+    this.detailStore.operation$.next({
+      operation: {
+        type: this.detailStore.item()
+          ? OperationType.Update
+          : OperationType.Create,
+        payload,
+      },
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = foodOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+        },
+      },
+    });
   }
 
   protected remove(): void {
     if (!this.detailStore.item()) return;
-    this.detailStore.operation$.next({ type: OperationType.Delete });
-    this.modalCtrl.dismiss();
+    this.detailStore.operation$.next({
+      operation: { type: OperationType.Delete },
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = foodOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+          this.modalCtrl.dismiss();
+        },
+        canOperate: ({ item }) =>
+          defer(() =>
+            this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+          ),
+      },
+    });
   }
 }

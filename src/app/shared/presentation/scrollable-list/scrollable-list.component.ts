@@ -5,6 +5,7 @@ import {
   EventEmitter,
   Output,
   TemplateRef,
+  computed,
   contentChild,
   effect,
   input,
@@ -41,7 +42,7 @@ import {
       <ion-progress-bar type="indeterminate" />
     }
 
-    @if (loading() && !items().length) {
+    @if (fetching() && !items().length) {
       <ng-content select="[skeleton]" />
     } @else {
       <ion-list>
@@ -64,6 +65,8 @@ import {
   `,
   styles: `
     :host {
+      display: block;
+      width: 100%;
       position: relative;
 
       ion-progress-bar {
@@ -85,7 +88,13 @@ export class ScrollableListComponent {
   items = input.required<unknown[]>();
   trackFn = input.required<(item: any) => string | number>();
 
-  loading = input.required<boolean>();
+  fetching = input.required<boolean>();
+  operating = input<boolean>(false);
+
+  protected loading = computed<boolean>(
+    () => this.fetching() || this.operating(),
+  );
+
   canLoadNextPage = input<boolean>(false);
 
   protected itemTemplateRef =
@@ -96,7 +105,7 @@ export class ScrollableListComponent {
 
   constructor() {
     effect(() => {
-      if (this.loading()) return;
+      if (this.fetching()) return;
       this.ionScrollEvent?.target.complete();
       this.ionRefreshEvent?.target.complete();
     });

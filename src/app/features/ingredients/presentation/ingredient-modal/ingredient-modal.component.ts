@@ -5,27 +5,28 @@ import {
   computed,
   inject,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   IonButton,
   ModalController,
   NavController,
 } from '@ionic/angular/standalone';
-import {
-  DetailStoreService,
-  OperationType,
-  Operation,
-} from 'src/app/shared/data-access';
-import {
-  CreateIngredientFormData,
-  UpdateIngredientFormData,
-} from '../../data-access';
-import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
+import { defer } from 'rxjs';
+import { DetailStoreService, OperationType } from 'src/app/shared/data-access';
 import {
   DetailModalWrapperComponent,
   HasOperationPipe,
 } from 'src/app/shared/presentation';
+import { AlertsService, ToastsService } from 'src/app/shared/utility';
+import {
+  CreateIngredientFormData,
+  Ingredient,
+  IngredientKeys,
+  UpdateIngredientFormData,
+} from '../../data-access';
 import { IngredientsHandlerDirective } from '../../utility';
-import { RouterLink } from '@angular/router';
+import { IngredientFormComponent } from '../ingredient-form/ingredient-form.component';
+import { ingredientOperationMessage } from '../ingredient-operation-message';
 
 @Component({
   selector: 'app-ingredient-modal',
@@ -39,8 +40,10 @@ import { RouterLink } from '@angular/router';
   ],
   template: `
     <app-detail-modal-wrapper
-      [loading]="
-        detailStore.currentOperations() | hasOperation: ['FETCH', 'CREATE']
+      [fetching]="detailStore.currentOperations() | hasOperation: 'FETCH'"
+      [operating]="
+        detailStore.currentOperations()
+          | hasOperation: ['CREATE', 'UPDATE', 'DELETE']
       "
       [title]="title()"
       (refresh)="detailStore.refresh$.next()"
@@ -83,9 +86,13 @@ import { RouterLink } from '@angular/router';
   providers: [DetailStoreService],
 })
 export class IngredientModalComponent implements OnInit {
-  protected detailStore = inject(DetailStoreService);
+  protected detailStore = inject(
+    DetailStoreService<Ingredient, IngredientKeys>,
+  );
   protected modalCtrl = inject(ModalController);
   private navCtrl = inject(NavController);
+  private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   private id!: number;
 
@@ -99,26 +106,45 @@ export class IngredientModalComponent implements OnInit {
     this.detailStore.itemKeys$.next({ id: this.id });
   }
 
-  protected save(
-    payload: CreateIngredientFormData | UpdateIngredientFormData,
-  ): void {
-    const operation: Operation = {
-      type: this.detailStore.item()
-        ? OperationType.Update
-        : OperationType.Create,
-      payload,
-    };
-    this.detailStore.operation$.next(operation);
-  }
-
   protected toIngredientsFoodsPage(): void {
     this.modalCtrl.dismiss();
     this.navCtrl.navigateForward(`/ingredients/${this.id}/foods`);
   }
 
+  protected save(
+    payload: CreateIngredientFormData | UpdateIngredientFormData,
+  ): void {
+    this.detailStore.operation$.next({
+      operation: {
+        type: this.detailStore.item()
+          ? OperationType.Update
+          : OperationType.Create,
+        payload,
+      },
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = ingredientOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+        },
+      },
+    });
+  }
+
   protected remove(): void {
     if (!this.detailStore.item()) return;
-    this.detailStore.operation$.next({ type: OperationType.Delete });
-    this.modalCtrl.dismiss();
+    this.detailStore.operation$.next({
+      operation: { type: OperationType.Delete },
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = ingredientOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+          this.modalCtrl.dismiss();
+        },
+        canOperate: ({ item }) =>
+          defer(() =>
+            this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+          ),
+      },
+    });
   }
 }

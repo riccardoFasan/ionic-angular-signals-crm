@@ -24,12 +24,6 @@ export interface StoreHandler<
 
   loadRelatedItems?(keys: Keys): Observable<REntities>;
 
-  canOperate?(
-    operation: Operation,
-    item?: Entity | ExtendedEntity,
-    keys?: Keys,
-  ): Observable<boolean> | boolean;
-
   operate(
     operation: Operation,
     item?: Entity | ExtendedEntity,
@@ -56,13 +50,6 @@ export interface StoreHandler<
     searchCriteria: SearchCriteria,
     item?: Entity,
   ): ItemsMutation<Entity> | void;
-
-  // intended for side effects like toasts or redirections. Use operate for data management
-  onOperation?(
-    operation: Operation,
-    item?: Entity | ExtendedEntity,
-    keys?: Keys,
-  ): Observable<void> | void;
 
   interpretError?(
     error: Error,

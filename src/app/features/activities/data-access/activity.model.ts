@@ -13,6 +13,8 @@ export type Activity = {
   notes?: string;
 };
 
+export type ActivityKeys = { id: number };
+
 export type CreateActivityFormData = Omit<
   Activity,
   'id' | 'createdAt' | 'updatedAt'

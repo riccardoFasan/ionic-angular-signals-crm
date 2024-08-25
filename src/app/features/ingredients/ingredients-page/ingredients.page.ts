@@ -1,35 +1,38 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import {
-  IonHeader,
-  IonToolbar,
   IonButtons,
-  IonMenuButton,
-  IonTitle,
   IonContent,
-  IonFabButton,
   IonFab,
+  IonFabButton,
+  IonHeader,
   IonIcon,
   IonItem,
-  IonLabel,
-  IonItemSliding,
   IonItemOption,
   IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonMenuButton,
+  IonTitle,
+  IonToolbar,
 } from '@ionic/angular/standalone';
-import {
-  IngredientModalsService,
-  IngredientsHandlerDirective,
-} from '../utility';
+import { defer } from 'rxjs';
 import {
   ListStoreService,
   OperationType,
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
-import { Ingredient } from '../data-access';
 import {
   HasOperationPipe,
   ScrollableListComponent,
   SkeletonListComponent,
 } from 'src/app/shared/presentation';
+import { AlertsService, ToastsService } from 'src/app/shared/utility';
+import { Ingredient, IngredientKeys } from '../data-access';
+import { ingredientOperationMessage } from '../presentation';
+import {
+  IngredientModalsService,
+  IngredientsHandlerDirective,
+} from '../utility';
 
 @Component({
   selector: 'app-ingredients',
@@ -73,7 +76,8 @@ import {
       <app-scrollable-list
         [items]="listStore.items()"
         [canLoadNextPage]="listStore.canLoadNextPage()"
-        [loading]="listStore.currentOperations() | hasOperation: 'FETCH'"
+        [fetching]="listStore.currentOperations() | hasOperation: 'FETCH'"
+        [operating]="listStore.currentOperations() | hasOperation: 'DELETE'"
         [trackFn]="trackFn"
         (scrollEnd)="listStore.loadPage$.next(nextPage())"
         (refresh)="listStore.refresh$.next()"
@@ -120,9 +124,13 @@ import {
   providers: [ListStoreService],
 })
 export class IngredientsPage implements OnInit {
-  protected listStore = inject(ListStoreService);
+  protected listStore = inject(
+    ListStoreService<Ingredient, Partial<IngredientKeys>>,
+  );
   protected storeHandler = inject(STORE_HANDLER);
   protected ingredientModals = inject(IngredientModalsService);
+  private toasts = inject(ToastsService);
+  private alerts = inject(AlertsService);
 
   protected nextPage = computed<number>(
     () => this.listStore.searchCriteria().pagination.pageIndex + 1,
@@ -140,6 +148,16 @@ export class IngredientsPage implements OnInit {
     this.listStore.itemOperation$.next({
       operation: { type: OperationType.Delete },
       item,
+      options: {
+        onOperation: ({ operation, item }) => {
+          const message = ingredientOperationMessage(operation.type, item!);
+          this.toasts.success(message);
+        },
+        canOperate: ({ item }) =>
+          defer(() =>
+            this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
+          ),
+      },
     });
   }
 

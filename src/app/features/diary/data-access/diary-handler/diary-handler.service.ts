@@ -1,35 +1,30 @@
 import { Injectable, inject } from '@angular/core';
+import { Observable, defer } from 'rxjs';
 import {
   ItemsMutation,
   Operation,
   OperationType,
-  OperationTypeLike,
   StoreHandler,
 } from 'src/app/shared/data-access';
-import { Observable, defer } from 'rxjs';
 import {
-  SearchCriteria,
-  List,
-  ToastsService,
-  AlertsService,
-  SortOrder,
   ItemsPage,
+  List,
+  SearchCriteria,
+  SortOrder,
   removeSorted,
   updateSorted,
 } from 'src/app/shared/utility';
-import { DiaryEvent } from '../diary-event.model';
-import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
 import { INITIAL_SEARCH_CRITERIA } from '../../../../shared/data-access/list.state';
+import { DiaryEvent, DiaryEventKeys } from '../diary-event.model';
+import { DiaryFacadeService } from '../diary-facade/diary-facade.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DiaryHandlerService
-  implements StoreHandler<DiaryEvent, { id: number }>
+  implements StoreHandler<DiaryEvent, DiaryEventKeys>
 {
   private diaryFacade = inject(DiaryFacadeService);
-  private toasts = inject(ToastsService);
-  private alerts = inject(AlertsService);
 
   initialState = {
     list: {
@@ -54,20 +49,6 @@ export class DiaryHandlerService
 
   getList(searchCriteria: SearchCriteria): Observable<List<DiaryEvent>> {
     return defer(() => this.diaryFacade.getList(searchCriteria));
-  }
-
-  canOperate(
-    { type }: Operation,
-    item?: DiaryEvent,
-  ): boolean | Observable<boolean> {
-    switch (type) {
-      case OperationType.Delete:
-        return defer(() =>
-          this.alerts.askConfirm(`Are you sure to delete ${item!.name}?`),
-        );
-      default:
-        return true;
-    }
   }
 
   operate(
@@ -119,25 +100,6 @@ export class DiaryHandlerService
           pages: removeSorted(item, pages, searchCriteria, (item) => item.ref),
           total: total - 1,
         };
-    }
-  }
-
-  onOperation({ type }: Operation, item: DiaryEvent): Observable<void> | void {
-    const message = this.getMessage(type, item);
-    this.toasts.success(message);
-  }
-
-  private getMessage(
-    type: OperationTypeLike,
-    item: DiaryEvent,
-  ): string | undefined {
-    switch (type) {
-      case OperationType.Delete:
-        return `Event ${item.name} deleted`;
-      case 'REORDER':
-        return `Event ${item.name} reordered`;
-      default:
-        throw new Error(`getMessage not implemented for: ${type}`);
     }
   }
 }

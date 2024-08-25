@@ -62,7 +62,7 @@ export class DatabaseService {
   }
 
   async query(statement: string): Promise<DBSQLiteValues> {
-    await sleep(randomIntegerBetween(2, 8) * 100); // simulate network latency
+    await sleep(randomIntegerBetween(1, 7) * 100); // simulate network latency
     if (!this.database) throw new Error('Database not initialized');
     return await this.database!.query(statement);
   }

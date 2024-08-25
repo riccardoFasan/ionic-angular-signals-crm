@@ -6,6 +6,8 @@ export type Ingredient = {
   notes?: string;
 };
 
+export type IngredientKeys = { id: number };
+
 export type CreateIngredientFormData = Omit<
   Ingredient,
   'id' | 'createdAt' | 'updatedAt'

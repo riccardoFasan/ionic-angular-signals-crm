@@ -1,6 +1,5 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DetailState, INITIAL_DETAIL_STATE } from '../detail.state';
 import {
   Subject,
   catchError,
@@ -14,7 +13,7 @@ import {
   tap,
   withLatestFrom,
 } from 'rxjs';
-import { STORE_HANDLER } from '../store-handler.token';
+import { environment } from 'src/environments/environment';
 import {
   ErrorInterpreterService,
   ToastsService,
@@ -24,13 +23,15 @@ import {
   removeFirst,
   switchMapWithCancel,
 } from '../../utility';
-import { Operation } from '../operation.type';
-import { environment } from 'src/environments/environment';
+import { DetailState, INITIAL_DETAIL_STATE } from '../detail.state';
 import { OperationType, OperationTypeLike } from '../operation-type.enum';
+import { OperationWithOptions } from '../operation.type';
+import { STORE_HANDLER } from '../store-handler.token';
 
 @Injectable()
 export class DetailStoreService<
   Entity extends Record<string, unknown>,
+  Keys extends Record<string, string | number>,
   REntities extends Record<string, unknown> = {},
 > {
   private handler = inject(STORE_HANDLER);
@@ -50,12 +51,12 @@ export class DetailStoreService<
     ...new Set(this.state().currentOperations),
   ]);
 
-  itemKeys$ = new Subject<Record<string, unknown>>();
+  itemKeys$ = new Subject<Keys>();
 
   private keys$ = this.itemKeys$.pipe(distinctUntilChanged(areEqualObjects));
 
   refresh$ = new Subject<void>();
-  operation$ = new Subject<Operation>();
+  operation$ = new Subject<OperationWithOptions<Entity, Keys>>();
   loadRelatedItems$ = new Subject<void>();
 
   constructor() {
@@ -117,7 +118,6 @@ export class DetailStoreService<
         filter(() => !!this.item()),
         tap(() => this.addCurrentOperation(OperationType.Fetch)),
         withLatestFrom(this.keys$),
-
         switchMapWithCancel(
           ([_, keys]) =>
             this.handler.get(keys).pipe(
@@ -143,14 +143,17 @@ export class DetailStoreService<
     this.operation$
       .pipe(
         withLatestFrom(this.keys$.pipe(startWith({}))),
-        mergeMap(([operation, keys]) => {
-          this.addCurrentOperation(operation.type);
+        mergeMap(([{ operation, options }, keys]) => {
           const canOperate$ = forceObservable(
-            this.handler.canOperate?.(operation, this.item(), keys) || true,
+            // @ts-ignore
+            options?.canOperate?.({ operation, item: this.item(), keys }) ||
+              true,
           );
           return canOperate$.pipe(
             filter((canOperate) => canOperate),
             switchMap(() => {
+              this.addCurrentOperation(operation.type);
+
               const item = this.item();
               const itemMutation = this.handler.mutateItem?.(operation, item);
 
@@ -173,7 +176,6 @@ export class DetailStoreService<
                       error: undefined,
                     })),
                   ),
-                  tap(() => this.removeCurrentOperation(operation.type)),
                 );
               }
 
@@ -185,7 +187,6 @@ export class DetailStoreService<
                     error: undefined,
                   })),
                 ),
-                tap(() => this.removeCurrentOperation(operation.type)),
               );
 
               return combineLatest([mutate$, operation$]).pipe(
@@ -201,9 +202,11 @@ export class DetailStoreService<
             }),
             switchMap(({ operation, item }) =>
               forceObservable(
-                this.handler.onOperation?.(operation, item, keys),
+                // @ts-ignore
+                options?.onOperation?.({ operation, item, keys }),
               ),
             ),
+            tap(() => this.removeCurrentOperation(operation.type)),
           );
         }, environment.operationsConcurrency),
         takeUntilDestroyed(),
