@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ActivityModalComponent } from './activity-modal.component';
 
 describe('ActivityModalComponent', () => {

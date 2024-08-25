@@ -11,14 +11,14 @@ import {
   input,
 } from '@angular/core';
 import {
-  IonList,
+  InfiniteScrollCustomEvent,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
-  InfiniteScrollCustomEvent,
-  RefresherCustomEvent,
+  IonList,
+  IonProgressBar,
   IonRefresher,
   IonRefresherContent,
-  IonProgressBar,
+  RefresherCustomEvent,
 } from '@ionic/angular/standalone';
 
 @Component({

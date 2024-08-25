@@ -12,13 +12,13 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
+  IonProgressBar,
+  IonRefresher,
+  IonRefresherContent,
   IonSkeletonText,
   IonTitle,
   IonToolbar,
-  IonRefresher,
-  IonRefresherContent,
   RefresherCustomEvent,
-  IonProgressBar,
 } from '@ionic/angular/standalone';
 
 @Component({

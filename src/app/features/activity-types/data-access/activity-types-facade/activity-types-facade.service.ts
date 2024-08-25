@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { ActivityTypeApiService, ActivityTypeDTO } from '../database';
 import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
 import {
   ActivityType,
   CreateActivityTypeFormData,
   UpdateActivityTypeFormData,
 } from '../activity-type.model';
+import { ActivityTypeApiService, ActivityTypeDTO } from '../database';
 
 @Injectable({
   providedIn: 'root',

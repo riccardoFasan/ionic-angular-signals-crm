@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ConsumptionInputComponent } from './consumption-input.component';
 
 describe('ConsumptionInputComponent', () => {

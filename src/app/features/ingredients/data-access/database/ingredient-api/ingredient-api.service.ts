@@ -1,8 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   DatabaseService,
-  NotFoundError,
   List,
+  NotFoundError,
   nowIsoString,
   SearchCriteria,
 } from 'src/app/shared/utility';

@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { FoodModalsService } from './food-modals.service';
 
 describe('FoodModalsService', () => {

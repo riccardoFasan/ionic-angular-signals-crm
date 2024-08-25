@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { MealApiService, MealDTO, MealFoodApiService } from '../database';
 import { FoodsFacadeService } from 'src/app/features/foods/data-access';
-import { CreateMealFormData, Meal, UpdateMealFormData } from '../meal.model';
-import { Consumption } from '../consumption.model';
 import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
+import { Consumption } from '../consumption.model';
+import { MealApiService, MealDTO, MealFoodApiService } from '../database';
+import { CreateMealFormData, Meal, UpdateMealFormData } from '../meal.model';
 
 @Injectable({
   providedIn: 'root',

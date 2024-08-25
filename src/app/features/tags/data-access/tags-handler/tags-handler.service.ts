@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { Observable, defer } from 'rxjs';
 import {
   ItemsMutation,
   Operation,
@@ -7,19 +8,18 @@ import {
   pushSorted,
 } from 'src/app/shared/data-access';
 import {
+  ItemsPage,
+  List,
+  SearchCriteria,
+  removeSorted,
+  updateSorted,
+} from 'src/app/shared/utility';
+import {
   CreateTagFormData,
   Tag,
   TagKeys,
   UpdateTagFormData,
 } from '../tag.model';
-import { Observable, defer } from 'rxjs';
-import {
-  SearchCriteria,
-  List,
-  ItemsPage,
-  updateSorted,
-  removeSorted,
-} from 'src/app/shared/utility';
 import { TagsFacadeService } from '../tags-facade/tags-facade.service';
 
 @Injectable({

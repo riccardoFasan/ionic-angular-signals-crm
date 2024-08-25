@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { FoodApiService, FoodDTO, FoodIngredientApiService } from '../database';
-import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
-import { CreateFoodFormData, Food, UpdateFoodFormData } from '../food.model';
 import {
   Ingredient,
   IngredientsFacadeService,
 } from 'src/app/features/ingredients/data-access';
+import { List, SearchCriteria, SearchFilters } from 'src/app/shared/utility';
+import { FoodApiService, FoodDTO, FoodIngredientApiService } from '../database';
+import { CreateFoodFormData, Food, UpdateFoodFormData } from '../food.model';
 
 @Injectable({
   providedIn: 'root',

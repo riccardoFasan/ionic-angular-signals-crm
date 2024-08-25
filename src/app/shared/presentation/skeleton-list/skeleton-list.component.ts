@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,7 +9,6 @@ import {
 } from '@angular/core';
 import { IonList } from '@ionic/angular/standalone';
 import { SkeletonItemComponent } from '../skeleton-item/skeleton-item.component';
-import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-skeleton-list',

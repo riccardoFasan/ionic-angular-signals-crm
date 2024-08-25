@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { SkeletonDiaryItemComponent } from './skeleton-diary-item.component';
 
 describe('SkeletonDiaryItemComponent', () => {

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { TagModalComponent } from './tag-modal.component';
 
 describe('TagModalComponent', () => {

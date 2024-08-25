@@ -6,8 +6,8 @@ import {
   SQLiteDBConnection,
 } from '@capacitor-community/sqlite';
 import { environment } from 'src/environments/environment';
-import { sleep } from '../sleep';
 import { randomIntegerBetween } from '../random-integer-between';
+import { sleep } from '../sleep';
 
 @Injectable({
   providedIn: 'root',

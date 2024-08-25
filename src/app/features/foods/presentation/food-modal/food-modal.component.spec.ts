@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { FoodModalComponent } from './food-modal.component';
 
 describe('FoodModalComponent', () => {

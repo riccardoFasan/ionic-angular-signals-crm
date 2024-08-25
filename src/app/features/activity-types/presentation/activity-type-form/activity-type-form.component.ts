@@ -6,7 +6,6 @@ import {
   effect,
   input,
 } from '@angular/core';
-import { ActivityType } from '../../data-access';
 import {
   FormControl,
   FormGroup,
@@ -15,14 +14,15 @@ import {
 } from '@angular/forms';
 import {
   IonButton,
+  IonIcon,
   IonInput,
   IonItem,
-  IonIcon,
   IonList,
-  IonTextarea,
   IonSelect,
   IonSelectOption,
+  IonTextarea,
 } from '@ionic/angular/standalone';
+import { ActivityType } from '../../data-access';
 
 @Component({
   selector: 'app-activity-type-form',

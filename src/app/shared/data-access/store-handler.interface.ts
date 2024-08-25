@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
 import { ItemsPage, List, SearchCriteria } from '../utility';
-import { Operation } from './operation.type';
+import { DetailState } from './detail.state';
 import { ItemsMutation } from './items-mutation.type';
 import { ListState } from './list.state';
-import { DetailState } from './detail.state';
+import { Operation } from './operation.type';
 
 export interface StoreHandler<
   Entity extends Record<string, unknown>,
