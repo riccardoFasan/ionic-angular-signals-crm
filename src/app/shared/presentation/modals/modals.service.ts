@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
-import { DatetimeModalComponent } from '../../presentation';
+import { DatetimeModalComponent } from '..';
 
 @Injectable({
   providedIn: 'root',

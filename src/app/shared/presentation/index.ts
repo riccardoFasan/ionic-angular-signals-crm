@@ -9,3 +9,6 @@ export * from './scrollable-list/scrollable-list.component';
 export * from './searchable-select/searchable-select.component';
 export * from './skeleton-item/skeleton-item.component';
 export * from './skeleton-list/skeleton-list.component';
+export * from './alerts/alerts.service';
+export * from './modals/modals.service';
+export * from './toasts/toasts.service';

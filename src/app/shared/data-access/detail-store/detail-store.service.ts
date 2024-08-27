@@ -16,7 +16,6 @@ import {
 import { environment } from 'src/environments/environment';
 import {
   ErrorInterpreterService,
-  ToastsService,
   areEqualObjects,
   forceObservable,
   onHandlerError,
@@ -27,6 +26,7 @@ import { DetailState, INITIAL_DETAIL_STATE } from '../detail.state';
 import { OperationType, OperationTypeLike } from '../operation-type.enum';
 import { OperationWithOptions } from '../operation.type';
 import { STORE_HANDLER } from '../store-handler.token';
+import { ToastsService } from '../../presentation';
 
 @Injectable()
 export class DetailStoreService<

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IonIcon, IonInput } from '@ionic/angular/standalone';
-import { ModalsService } from '../../utility';
+import { ModalsService } from '../modals/modals.service';
 
 @Component({
   selector: 'app-datetime-input',
