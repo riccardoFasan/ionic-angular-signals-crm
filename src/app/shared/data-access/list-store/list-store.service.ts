@@ -23,7 +23,6 @@ import {
   SearchCriteria,
   SearchFilters,
   Sorting,
-  ToastsService,
   areEqualObjects,
   forceObservable,
   getSearchCriteriaWithPage,
@@ -40,6 +39,7 @@ import { INITIAL_LIST_STATE, ListState } from '../list.state';
 import { OperationType, OperationTypeLike } from '../operation-type.enum';
 import { Operation, OperationWithOptions } from '../operation.type';
 import { STORE_HANDLER } from '../store-handler.token';
+import { ToastsService } from '../../presentation';
 
 @Injectable()
 export class ListStoreService<

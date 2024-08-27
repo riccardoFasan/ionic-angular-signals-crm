@@ -3,7 +3,7 @@ import { ToastController } from '@ionic/angular/standalone';
 import {
   FALLBACK_ERROR_MESSAGE,
   FALLBACK_SUCCESS_MESSAGE,
-} from '../fallback-messages';
+} from '../../utility/fallback-messages';
 
 @Injectable({
   providedIn: 'root',

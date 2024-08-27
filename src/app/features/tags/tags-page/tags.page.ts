@@ -22,11 +22,12 @@ import {
   STORE_HANDLER,
 } from 'src/app/shared/data-access';
 import {
+  AlertsService,
   HasOperationPipe,
   ScrollableListComponent,
   SkeletonListComponent,
+  ToastsService,
 } from 'src/app/shared/presentation';
-import { AlertsService, ToastsService } from 'src/app/shared/utility';
 import { Tag, TagKeys } from '../data-access';
 import { tagOperationMessage } from '../presentation';
 import { TagModalsService } from '../utility';

@@ -26,7 +26,7 @@ import {
   ScrollableListComponent,
   SkeletonListComponent,
 } from 'src/app/shared/presentation';
-import { AlertsService, ToastsService } from 'src/app/shared/utility';
+import { AlertsService, ToastsService } from 'src/app/shared/presentation';
 import { Ingredient, IngredientKeys } from '../data-access';
 import { ingredientOperationMessage } from '../presentation';
 import {

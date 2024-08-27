@@ -12,7 +12,7 @@ import {
   DetailModalWrapperComponent,
   HasOperationPipe,
 } from 'src/app/shared/presentation';
-import { AlertsService, ToastsService } from 'src/app/shared/utility';
+import { AlertsService, ToastsService } from 'src/app/shared/presentation';
 import { CreateFoodFormData, UpdateFoodFormData } from '../../data-access';
 import { Food, FoodKeys } from '../../data-access/food.model';
 import { FoodsHandlerDirective } from '../../utility';

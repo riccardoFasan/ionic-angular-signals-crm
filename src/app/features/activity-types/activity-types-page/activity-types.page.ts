@@ -26,7 +26,7 @@ import {
   ScrollableListComponent,
   SkeletonListComponent,
 } from 'src/app/shared/presentation';
-import { AlertsService, ToastsService } from 'src/app/shared/utility';
+import { AlertsService, ToastsService } from 'src/app/shared/presentation';
 import { ActivityType, ActivityTypeKeys } from '../data-access';
 import { activityTypeOperationMessage } from '../presentation/activity-type-operation-message';
 import {

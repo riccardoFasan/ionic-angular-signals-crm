@@ -33,7 +33,7 @@ import {
   AlertsService,
   ModalsService,
   ToastsService,
-} from 'src/app/shared/utility';
+} from 'src/app/shared/presentation';
 import { ActivityModalsService } from '../../activities/utility';
 import { MealModalsService } from '../../meals/utility';
 import { DiaryEvent, DiaryEventKeys } from '../data-access';
